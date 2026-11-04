@@ -1,0 +1,7 @@
+{
+  "name": "presentacion-bascula-n9",
+  "private": true,
+  "description": "Genera la presentacion de la Bascula N9 con pptxgenjs",
+  "scripts": { "generar": "node generar.js" },
+  "dependencies": { "pptxgenjs": "3.12.0" }
+}

@@ -1,0 +1,548 @@
+<title>Báscula de Láminas Ventanas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="estilos.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+/* Modo oscuro. El interruptor de la barra pone data-theme="dark" o "light" en <html>; estilos.css ya tiene
+   los colores de los dos modos, así que la escena, las pantallas y las tablas cambian solas.
+   Sin elección guardada sigue el tema del equipo. La elección se guarda en este navegador si lo permite. */
+(function(){
+  var raiz=document.documentElement, CLAVE='ventanas-tema';
+  var mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+  try{var g=localStorage.getItem(CLAVE); if(g==='dark'||g==='light') raiz.setAttribute('data-theme',g);}catch(e){}
+  function oscuro(){var t=raiz.getAttribute('data-theme'); return t?t==='dark':!!(mq&&mq.matches);}
+  function pintar(){var b=document.getElementById('btnTema'); if(b) b.setAttribute('aria-pressed',String(oscuro()));}
+  document.addEventListener('click',function(ev){
+    if(!(ev.target.closest&&ev.target.closest('#btnTema'))) return;
+    var t=oscuro()?'light':'dark';
+    raiz.setAttribute('data-theme',t);
+    try{localStorage.setItem(CLAVE,t);}catch(e){}
+    pintar();
+  });
+  if(mq){if(mq.addEventListener) mq.addEventListener('change',pintar); else if(mq.addListener) mq.addListener(pintar);}
+  if(window.MutationObserver) new MutationObserver(pintar).observe(raiz,{attributes:true,attributeFilter:['data-theme']});
+  document.addEventListener('DOMContentLoaded',pintar);
+})();
+</script>
+
+<header class="top">
+  <div class="wrap">
+    <p class="eyebrow">Codelco División Ventanas · Refinería · Báscula N9 · Propuesta Ingmétrica</p>
+    <h1>Pesaje e identificación en la Báscula N9</h1>
+    <p class="lead">Cómo se identifica y se pesa lo que llega a la báscula de la refinería: cátodos comerciales, EW, láminas y restos de ánodos. Quién hace qué, qué revisa el sistema y qué cambia respecto de hoy.</p>
+    <div class="hoy">
+      <div><p class="hoy-h">Hoy</p><p>Los cátodos se marcan con plumón (celda, lado y grupo, como 12P31) y a veces llegan sin marca; el EW llega sin rótulo. El pesador lee el terminal y anota en un cuaderno o una planilla. Resta con calculadora la tara de cada carro con su rack y, si llegan dos pallets montados, calcula la diferencia a mano. Después lo pasa a Excel y a los sistemas de Cátodos y de Ánodos.</p></div>
+      <div><p class="hoy-h">Propuesta</p><p>Etiqueta con QR al armar la carga, con el mismo rótulo de hoy. En la báscula, la cámara la lee desde arriba, el peso se toma solo del terminal, se descuenta la tara correcta y queda registrado. Con dos pallets montados, el sistema hace la resta. Dos balizas avisan al operador si algo no está bien.</p></div>
+    </div>
+  </div>
+</header>
+
+<nav class="secc" aria-label="Secciones">
+  <div class="wrap">
+    <div class="secc-links">
+      <a href="#simulacion">Simulación</a>
+      <a href="#flujo">Flujo</a>
+      <a href="#etiqueta">Etiquetas</a>
+      <a href="#reglas">Balizas y reglas</a>
+      <a href="#sistema">Sistemas actuales</a>
+      <a href="#registro">Registro</a>
+    </div>
+    <button type="button" class="tema" id="btnTema" aria-pressed="false" aria-label="Modo oscuro">
+      <svg class="tema-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <span class="tema-txt">Modo oscuro</span>
+      <span class="tema-sw"></span>
+    </button>
+  </div>
+</nav>
+
+<main>
+<section class="blk" id="simulacion">
+  <div class="wrap">
+    <div class="casos" id="casos" role="group" aria-label="Casos de pesaje"></div>
+    <div class="escena">
+      <div class="card vista">
+        <div class="scroll-x"><svg class="iso" id="iso" viewBox="-300 -160 1090 648" role="img" aria-label="Vista isométrica de la Báscula N9 con la caseta del pesador"></svg></div>
+        <div class="senales">
+          <div class="sen"><i id="eCam"></i><small>Cámara</small><span id="tCam">—</span></div>
+          <div class="sen"><i id="eB1"></i><small>Baliza B1 · peso</small><span id="tB1">—</span></div>
+          <div class="sen"><i id="eB2"></i><small>Baliza B2 · estado</small><span id="tB2">—</span></div>
+        </div>
+        <ol class="leyenda" id="leyenda" aria-label="Lugares de la estación"></ol>
+        <ol class="pasos" id="pasos" aria-label="Pasos del caso"></ol>
+      </div>
+
+      <aside class="lado">
+        <article class="card paso" id="paso">
+          <p class="paso-n" id="pasoN">Cátodos · paso 1 de 6</p>
+          <h2 class="paso-t" id="pasoT">—</h2>
+          <p class="lugar" id="lugar"><i>A</i><span>Etiquetado en la nave</span></p>
+          <dl class="quien">
+            <div class="q-op"><dt id="pQuien">Operador</dt><dd id="pOpe"></dd></div>
+            <div class="q-sis"><dt>Sistema</dt><dd id="pSis"></dd></div>
+          </dl>
+          <div class="prueba" id="prueba" hidden>
+            <div class="pr-ctrl">
+              <label class="pr-f"><span>Producto</span><select id="pProd"><option value="catodos">Cátodos</option><option value="anodos">Restos de ánodos</option><option value="laminas">Láminas</option></select></label>
+              <label class="pr-f"><span>Etiqueta</span><select id="pEtq"><option value="si">Llega con etiqueta</option><option value="no">Llega sin etiqueta</option></select></label>
+              <label class="pr-f"><span>Peso neto real de la carga <output id="oNeto">4.860 kg</output></span><input type="range" id="pNeto" min="2000" max="5600" step="10" value="4860"></label>
+              <div class="pr-checks">
+                <label><input type="checkbox" id="pVeh"> Vehículo sobre la báscula</label>
+                <label><input type="checkbox" id="pNod"> Nódulos en la plataforma</label>
+                <label><input type="checkbox" id="pOrden"> Llega fuera de orden</label>
+              </div>
+              <label class="pr-f" data-solo="anodos" hidden><span>Tara de carro + rack</span><select id="pCarro"><option value="si">Registrada</option><option value="no">Sin registrar</option></select></label>
+              <label class="pr-f" data-solo="anodos" hidden><span>Tara real vs registrada <output id="oTara">igual</output></span><input type="range" id="pTara" min="-60" max="60" step="5" value="0"></label>
+            </div>
+            <ul class="pr-res" id="pRes" aria-live="polite"></ul>
+          </div>
+          <div class="ctrl">
+            <button class="btn" id="bAnt" type="button">Anterior</button>
+            <button class="btn pri" id="bSig" type="button">Siguiente</button>
+            <button class="btn" id="bPlay" type="button">Reproducir</button>
+          </div>
+        </article>
+
+        <div>
+          <div class="tablet" aria-live="polite">
+            <div class="tb-top"><span id="scrSis">Sistema de Cátodos · Ingreso pesaje producción</span><b id="scrTitulo">—</b></div>
+            <div class="tb-peso">
+              <small>PESO BRUTO · TERMINAL DE LA BÁSCULA</small>
+              <div class="tb-num"><span id="scrPeso">0</span><em>kg</em></div>
+              <span class="chip" id="scrPst">CERO</span>
+            </div>
+            <div class="tb-form" id="scrForm"></div>
+            <div class="tb-calc" id="scrCalc"></div>
+            <div class="tb-banner" id="scrBanner" hidden></div>
+            <div class="tb-acc" id="scrAcc"></div>
+          </div>
+          <p class="tb-nota">La pantalla cambia según la carga: Sistema de Cátodos para cátodos y láminas; para restos de ánodos, la lista de carros (hoy cuaderno y Excel) y, al cerrar el grupo, el Sistema de Ánodos. En cobre, lo que llena solo la propuesta desde la etiqueta y la báscula. El botón resaltado es el que toca el pesador.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="blk" id="flujo">
+  <div class="wrap">
+    <header class="sh">
+      <p class="eyebrow">Flujo</p>
+      <h2>Seis pasos, un control en cada uno</h2>
+      <p class="sub">Arriba, quién hace qué. Al medio, lo que revisa el sistema. Abajo, lo que pasa si no se cumple: se enciende la alerta, se corrige y se repite el mismo paso. Toque un paso o un caso para verlo en la simulación.</p>
+    </header>
+    <div class="card flujo scroll-x">
+      <div class="fl-grid">
+        <div class="fl-lab"></div>
+        <button class="fl-step uno" type="button" data-caso="catodos" data-paso="0"><b>1</b>Etiqueta</button>
+        <button class="fl-step" type="button" data-caso="catodos" data-paso="1"><b>2</b>Llega</button>
+        <button class="fl-step" type="button" data-caso="catodos" data-paso="2"><b>3</b>Se lee</button>
+        <button class="fl-step" type="button" data-caso="catodos" data-paso="3"><b>4</b>Se pesa</button>
+        <button class="fl-step" type="button" data-caso="catodos" data-paso="4"><b>5</b>Se registra</button>
+        <button class="fl-step" type="button" data-caso="catodos" data-paso="5"><b>6</b>Sale</button>
+
+        <div class="fl-lab op"><i></i>Quién lo hace</div>
+        <div class="fl-c op"><strong>Operador de la nave</strong>Elige en la pantalla qué es (celda, lado y grupo, o tipo de lámina) e imprime la etiqueta.</div>
+        <div class="fl-c op"><strong>Operador de grúa o tractor</strong>Deja la carga en la báscula y sale de ella.</div>
+        <div class="fl-c op"><strong>Nadie</strong>La cámara lee la etiqueta desde arriba.</div>
+        <div class="fl-c op"><strong>Operador de grúa o tractor</strong>Espera fuera y mira las balizas.</div>
+        <div class="fl-c op"><strong>Pesador</strong>Revisa en su pantalla. No anota ni calcula.</div>
+        <div class="fl-c op"><strong>Operador de grúa o tractor</strong>Retira la carga por la salida.</div>
+
+        <div class="fl-lab sis"><i></i>Sistema revisa</div>
+        <div class="fl-c sis">¿Es la celda o el número que sigue en el orden?</div>
+        <div class="fl-c sis">¿Báscula en cero? ¿Vehículo fuera? ¿Carga dentro del área?</div>
+        <div class="fl-c sis">¿Hay etiqueta y se lee?</div>
+        <div class="fl-c sis">¿Peso estable? ¿Dentro de lo esperado, ya descontada la tara?</div>
+        <div class="fl-c sis">¿Datos completos para el sistema de Codelco?</div>
+        <div class="fl-c sis">¿La báscula vuelve a cero?</div>
+
+        <div class="fl-lab mal"><i></i>Si no se cumple</div>
+        <div class="fl-c mal"><span class="bz"><i class="ambar"></i>B1 ámbar</span>Avisar a la nave o registrar con nota.<button class="ver" type="button" data-caso="orden">Ver caso</button></div>
+        <div class="fl-c mal"><span class="bz"><i class="rojo"></i>B2 roja</span>Sacar el vehículo de la báscula.<button class="ver" type="button" data-caso="grua">Ver caso</button><span class="bz"><i class="rojo"></i>B2 roja intermitente</span>Retirar nódulos.<button class="ver" type="button" data-caso="nodulos">Ver caso</button><span class="bz"><i class="rojo"></i>B2 roja</span>Carro fuera del área: acomodarlo.<button class="ver" type="button" data-caso="carrofuera">Ver caso</button></div>
+        <div class="fl-c mal"><span class="bz"><i class="ambar"></i>B1 ámbar</span>El pesador identifica la carga con un toque.<button class="ver" type="button" data-caso="sinetiqueta">Ver caso</button></div>
+        <div class="fl-c mal"><span class="bz"><i class="rojo"></i>B1 roja</span>Revisar la carga o registrar con nota.<button class="ver" type="button" data-caso="rango">Ver caso</button></div>
+        <div class="fl-c mal">Carro sin tara registrada: pesarlo vacío, con su rack, una vez.</div>
+        <div class="fl-c mal">Aviso: quedaron nódulos sobre la plataforma.</div>
+      </div>
+      <div class="fl-fin">
+        <span><strong>Restos de ánodos:</strong> la cámara lee el número del carro, el sistema descuenta la tara de carro + rack y suma el carro a su grupo. Al cerrar el grupo deja lista la pantalla del Sistema de Ánodos. <button class="ver" type="button" data-caso="anodos">Ver caso</button></span>
+        <span><strong>Láminas:</strong> se descuentan 12 kg por pallet. <button class="ver" type="button" data-caso="laminas">Ver caso</button></span>
+        <span><strong>Dos pallets montados:</strong> se pesan por diferencia y el sistema calcula los dos netos. <button class="ver" type="button" data-caso="dospallets">Ver caso</button></span>
+        <span><strong>Lado parcial (P):</strong> el sistema no espera las 21 celdas y "Finaliza grupo" lo cierra. <button class="ver" type="button" data-caso="parcial">Ver caso</button></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="blk" id="etiqueta">
+  <div class="wrap">
+    <header class="sh">
+      <p class="eyebrow">Etiquetas</p>
+      <h2>Una etiqueta por carga, con el rótulo de hoy</h2>
+      <p class="sub">Se imprime al armar la carga, antes de la báscula, así que no lleva el peso. Lleva lo mismo que hoy se escribe a mano, más un código QR que la cámara lee desde arriba.</p>
+    </header>
+    <div class="etq-grid">
+      <div class="etqs">
+        <div class="label" id="lbl1"></div>
+        <p class="etq-cap">Cátodos: celda, lado y grupo, igual que el plumón. Va en la lámina de arriba del paquete.</p>
+        <div class="label" id="lbl2"></div>
+        <p class="etq-cap">Restos de ánodos: tarjeta en el carro. La tara de carro + rack sale del número pintado del carro.</p>
+        <div class="label" id="lbl3"></div>
+        <p class="etq-cap">Láminas: fecha y correlativo del mes, como el rótulo de hoy. La tara del pallet es fija: 12 kg.</p>
+      </div>
+      <div class="etq-lado">
+        <div class="card rotulo">
+          <h3>Cómo se lee el rótulo de los cátodos</h3>
+          <div class="rot-cod" role="img" aria-label="12P31: celda 12, lado parcial, grupo 31">
+            <span><b>12</b><small>Celda</small></span><span><b>P</b><small>Lado</small></span><span><b>31</b><small>Grupo</small></span>
+          </div>
+          <dl class="rot-def">
+            <div><dt>Celda</dt><dd>De 1 a 21 y de 22 a 42. En el Sistema de Cátodos se llama "Cuba".</dd></div>
+            <div><dt>Lado</dt><dd>T, lado total, o P, lado parcial. El 22-10 el grupo 21 tuvo un lado T de 21 paquetes y un lado P de 14.</dd></div>
+            <div><dt>Grupo</dt><dd>El número del grupo.</dd></div>
+          </dl>
+          <p class="ejemplo">Así se lee la marca de la foto de la visita, "37T3": celda 37, lado total, grupo 3.</p>
+        </div>
+        <dl class="card specs">
+          <div><dt>Tamaño</dt><dd>100 × 70 mm (propuesto).</dd></div>
+          <div><dt>Código</dt><dd>QR de 40 mm o más, legible por la cámara a unos 2,5 m. Lleva el producto y lo que identifica la carga: celda, lado y grupo; número de carro; o fecha y correlativo.</dd></div>
+          <div><dt>Texto grande</dt><dd>El rótulo de hoy en números grandes, para leerlo a la distancia como el plumón.</dd></div>
+          <div><dt>Dónde se imprime</dt><dd>En una pantalla táctil con impresora donde hoy se escribe con plumón, al armar la carga.</dd></div>
+          <div><dt>Material</dt><dd>Sintético con adhesivo industrial, resistente a humedad y electrolito. Impresión térmica con cinta de resina, terminación mate.</dd></div>
+          <div><dt>Dónde se pega</dt><dd>Siempre en el mismo lugar y con el código hacia arriba: esquina de la lámina de arriba, o tarjeta en el carro.</dd></div>
+        </dl>
+      </div>
+    </div>
+    <div class="card prods">
+      <h3>Qué se pesa en la Báscula N9 y cómo viene marcado hoy</h3>
+      <div class="scroll-x">
+        <table>
+          <thead><tr><th>Producto</th><th>Cómo llega</th><th>Rótulo de hoy</th><th>Cómo se pesa</th></tr></thead>
+          <tbody>
+            <tr><td>Cátodo comercial</td><td>Grúa horquilla, directo a la báscula</td><td>Plumón: celda + lado + grupo <small>por ejemplo 12P31</small></td><td>Un paquete por vez, sin tara</td></tr>
+            <tr><td>Cátodos EW</td><td>Grúa horquilla, directo a la báscula</td><td>Sin rótulo</td><td>Un paquete por vez</td></tr>
+            <tr><td>Láminas aprobadas</td><td>En pallet</td><td>Fecha + correlativo del mes <small>263 a 273 el 21-10</small></td><td>Cada pallet solo, o dos montados por diferencia. Se descuentan 12 kg por pallet</td></tr>
+            <tr><td>Láminas C.O</td><td>En pallet</td><td>Fecha + "C.O" <small>en la planilla, 36 y 37 el 21-10</small></td><td>Igual que las aprobadas</td></tr>
+            <tr><td>Láminas rechazo S/O</td><td>En pallet</td><td>Fecha + correlativo <small>63 a 65 el 21-10</small></td><td>En pallet, con tara de 12 kg</td></tr>
+            <tr><td>Láminas venta</td><td>En pallet</td><td class="pend">No lo indica el correo</td><td class="pend">Por confirmar</td></tr>
+            <tr><td>Despuntes</td><td>En cajas <small>de guillotina y de orejas</small></td><td class="pend">No lo indica el correo <small>en la planilla, D.G y D.O</small></td><td class="pend">Por confirmar</td></tr>
+            <tr><td>Láminas rechazo C/O</td><td class="pend" colspan="3">Por confirmar</td></tr>
+            <tr><td>Restos de ánodos</td><td>Carro + rack, con tractor</td><td>Número pintado en el carro</td><td>Un carro por vez, dentro del área marcada. Tara de carro + rack</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="nota-tol">El correlativo de las láminas vuelve a 1 cada mes: en septiembre llegó al 559. Por eso la etiqueta lleva la fecha además del número. Las C.O se rotulan solo con fecha y "C.O"; la etiqueta les agrega el número que ya usa la planilla, para que cada pallet sea único.</p>
+      <p class="ejemplo">Según el correo de Codelco y las planillas "Hoja de láminas despegue" y "Cajas-Lam-Cu sucio" del 21-10-2026.</p>
+    </div>
+  </div>
+</section>
+
+<section class="blk" id="reglas">
+  <div class="wrap">
+    <header class="sh">
+      <p class="eyebrow">Balizas y reglas</p>
+      <h2>Qué dice cada color y con qué reglas decide el sistema</h2>
+    </header>
+    <div class="reglas">
+      <div class="card">
+        <h3>Baliza B1 · el peso y la identificación</h3>
+        <table>
+          <tr><th>Color</th><th>Significado</th></tr>
+          <tr><td><span class="dot off"></span>Apagada</td><td>No hay pesaje en curso.</td></tr>
+          <tr><td><span class="dot verde"></span>Verde</td><td>Peso dentro de lo esperado para lo que dice la etiqueta.</td></tr>
+          <tr><td><span class="dot rojo"></span>Roja</td><td>Peso fuera de lo esperado. Revisar la carga.</td></tr>
+          <tr><td><span class="dot amarillo blink"></span>Ámbar intermitente</td><td>Falta identificar (sin etiqueta o sin tara) o llegó fuera de orden.</td></tr>
+        </table>
+        <h3>Baliza B2 · estado de la báscula</h3>
+        <table>
+          <tr><th>Color</th><th>Significado</th></tr>
+          <tr><td><span class="dot off"></span>Apagada</td><td>Báscula libre y en cero.</td></tr>
+          <tr><td><span class="dot azul"></span>Azul</td><td>Carga llegando.</td></tr>
+          <tr><td><span class="dot amarillo blink"></span>Amarilla intermitente</td><td>Estabilizando. No tocar la carga.</td></tr>
+          <tr><td><span class="dot verde"></span>Verde</td><td>Peso estable y capturado.</td></tr>
+          <tr><td><span class="dot rojo"></span>Roja</td><td>Grúa o tractor sobre la báscula, o carga fuera del área marcada.</td></tr>
+          <tr><td><span class="dot rojo blink"></span>Roja intermitente</td><td>Sin cero o algo roza: nódulos en la plataforma.</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h3>Reglas por producto</h3>
+        <table>
+          <tr><th>Producto</th><th>Tara</th><th class="num">Neto esperado</th></tr>
+          <tr><td>Cátodo comercial (un paquete por celda)</td><td>Sin tara</td><td class="num">4.200 – 5.000 kg</td></tr>
+          <tr><td>Cátodos EW</td><td>Por confirmar</td><td class="num">Por confirmar</td></tr>
+          <tr><td>Restos de ánodos (carro + rack)</td><td>La de carro + rack, según el número del carro</td><td class="num">2.800 – 4.000 kg</td></tr>
+          <tr><td>Láminas aprobadas (pallet)</td><td>12 kg por pallet</td><td class="num">3.200 – 3.900 kg</td></tr>
+          <tr><td>Láminas C.O (pallet)</td><td>12 kg por pallet</td><td class="num">Por definir<small>2.152 y 2.261 el 21-10</small></td></tr>
+          <tr><td>Láminas rechazo S/O (pallet)</td><td>12 kg por pallet</td><td class="num">Por definir<small>1.852 a 1.949 el 21-10</small></td></tr>
+        </table>
+        <p class="nota-tol">Los rangos salen de los pesajes de la visita. El 22-10 los paquetes de cátodos pesaron entre 4.310 y 4.869 kg y los carros de restos entre 2.046 y 3.912 kg (el último del grupo viene incompleto). El 21-10 las láminas aprobadas pesaron entre 3.262 y 3.814 kg.</p>
+        <p class="nota-tol">La Báscula N9 tiene 4 celdas de carga. Si el terminal entrega la lectura de cada una, el sistema puede ver además hacia qué borde se carga el peso, como pasa con un carro que se pasa de la plataforma. Si no la entrega, eso lo cubre la cámara con el área marcada.</p>
+        <h3>Orden, lados y correlativos</h3>
+        <ol class="lista">
+          <li>Cátodos: el rótulo es celda + lado + grupo (12P31). Las celdas van de 1 a 21 y de 22 a 42. El 22-10 se pesaron de la 01 a la 21 subiendo y desde la 42 bajando.</li>
+          <li>T es lado total y P es lado parcial. Como la etiqueta trae la letra, en un lado P el sistema no espera las 21 celdas: "Finaliza grupo" lo cierra con las que hubo.</li>
+          <li>El sistema sabe qué celda sigue. Si llega otra, B1 se pone ámbar.</li>
+          <li>Láminas: el número es correlativo dentro del mes y vuelve a 1 al empezar el siguiente. El sistema revisa que no se salte ninguno.</li>
+          <li>Dos pallets montados: se pesan juntos, se saca el de arriba y se pesa el de abajo. El sistema calcula los dos netos y descuenta 12 kg a cada uno.</li>
+          <li>Las muestras (S) se registran aparte, como hoy.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="blk" id="sistema">
+  <div class="wrap">
+    <header class="sh">
+      <p class="eyebrow">Sistemas actuales</p>
+      <h2>Los dos sistemas que usa hoy el pesador</h2>
+      <p class="sub">En la caseta de la Báscula N9 el pesador trabaja en dos aplicaciones del portal de sistemas de información de la División: el Sistema de Cátodos y el Sistema de Ánodos. En el mismo portal están Control de Calidad y el Sistema de Recepción (SIPA). Esto es lo que muestran las 12 fotos de pantalla de la visita.</p>
+    </header>
+
+    <div class="sis-dos">
+      <article class="card sis-sys">
+        <div class="sis-h">
+          <h3>Sistema de Cátodos</h3>
+          <p>Registra cada carga por separado: paquetes de cátodos, despuntes y láminas.</p>
+          <small>Fotos 1 y 7 a 12</small>
+        </div>
+        <div class="pant">
+          <div class="pant-bar"><b>Ingreso pesaje producción</b><span>Versión 3</span></div>
+          <div class="pant-body">
+            <div class="pr"><span>Tipo movimiento</span><i class="sel">Producción</i></div>
+            <div class="pr"><span>Producto</span><i class="sel auto">Cátodos</i></div>
+            <div class="pr"><span>Sub-producto</span><i class="sel auto">Cátodo comercial</i></div>
+            <div class="pr"><span>Fecha de pesaje</span><i class="sel">22</i><i class="sel">Octubre</i><i class="sel">2026</i></div>
+            <div class="pr"><span>Peso automático</span><i class="chk" aria-label="Casilla marcada"></i></div>
+            <div class="pr"><span>Último ingreso</span><em>Grupo 21 · Cuba 29</em></div>
+            <div class="pr"><span>Grupo</span><i class="auto"></i><span class="sp">Cuba</span><i class="auto"></i><small>F: Finaliza grupo</small></div>
+            <div class="pr"><span>Lado (P/T)</span><i class="auto"></i><span class="sp">Muestra (S/N)</span><i class="auto">N</i></div>
+            <div class="pr"><span>Peso producción</span><i class="auto w"></i></div>
+            <div class="pant-btn"><i class="on">Grabar</i><i>Ver datos</i><i>Limpiar</i><i>Salir</i></div>
+          </div>
+        </div>
+        <p class="pant-ley"><i></i><span>En cobre, lo que llenaría la propuesta. Con Otros pesajes (por ejemplo Láminas aprobadas N.E.) no aparecen grupo ni cuba: quedan Peso tara, donde se digita 12, y Peso producción (3.125 en la foto).</span></p>
+        <ul class="sis-lista">
+          <li><b>Productos:</b> Cátodos (código 18), Despuntes y láminas (48), Otros pesajes (66), Restos ánodos y Ánodos. En la foto, Sales y Barros refinería están tachados.</li>
+          <li><b>Consultas:</b> "Detalle pesaje de producción" (grupo, muestra, lado, cuba, peso y hora pesada) y "Resumen de pesaje de producción" (lado P, lado T, muestra, total y paquetes, más los totales del mes). Se imprimen o se pasan a Excel.</li>
+        </ul>
+      </article>
+
+      <article class="card sis-sys">
+        <div class="sis-h">
+          <h3>Sistema de Ánodos</h3>
+          <p>Registra la producción de restos por grupo, no carro por carro, y genera la hornada.</p>
+          <small>Fotos 2 a 6</small>
+        </div>
+        <div class="pant">
+          <div class="pant-bar"><b>Producción restos ánodos Ctte</b><span>Ánodos</span></div>
+          <div class="pant-body">
+            <div class="pr"><span>Fecha producción</span><i class="sel auto">22</i><i class="sel auto">Octubre</i><i class="sel auto">2026</i><i class="sel">15</i><i class="sel">59</i></div>
+            <div class="pr"><span>Grupo</span><i class="sel auto">Nº</i><span class="sp">Lado</span><i class="sel"></i><i class="bt">Buscar</i><span class="sp">Factor %</span><i></i></div>
+            <div class="pr"><span>Fecha carga ánodos</span><i class="sel off">8</i><i class="sel off">Octubre</i><i class="sel off">2026</i><i class="sel off">12</i><i class="sel off">48</i></div>
+            <div class="pr"><span>Total unidades Ctes</span><i></i><span class="sp">Peso unidades Ctes</span><i></i></div>
+            <table class="pant-t">
+              <thead><tr><th>Tipo producto</th><th>Unidades</th><th>Peso</th></tr></thead>
+              <tbody>
+                <tr><td>Ánodos Anglo American SA corriente</td><td><i></i></td><td><i></i></td></tr>
+                <tr><td>Ánodos Ctes. exposición/embarque</td><td><i></i></td><td><i></i></td></tr>
+                <tr><td>Ánodos HVL corriente</td><td><i></i></td><td><i></i></td></tr>
+                <tr><td>Ánodos Salvador corriente</td><td><i></i></td><td><i></i></td></tr>
+                <tr><td>Ánodos Teniente corriente</td><td><i></i></td><td><i></i></td></tr>
+                <tr><td>Ánodos Ventanas corriente</td><td><i></i></td><td><i></i></td></tr>
+                <tr><td>Restos ánodos H.M.</td><td><i></i></td><td><i></i></td></tr>
+                <tr class="tot"><td>Total</td><td><i>0</i></td><td><i>0</i></td></tr>
+              </tbody>
+            </table>
+            <div class="pr"><span>Peso producción</span><i class="auto w"></i><span class="sp">Peso ánodos Ctes</span><i></i><span class="sp">Peso restos H.M.</span><i></i></div>
+            <div class="pant-btn"><i class="on">Generar hornada</i><i>Limpiar</i><i>Ver datos</i><i>Salir</i></div>
+          </div>
+        </div>
+        <p class="pant-ley"><i></i><span>En cobre, lo que llenaría la propuesta con la suma de los carros. La fecha de carga de ánodos aparece en gris. El reparto por tipo de ánodo queda por confirmar.</span></p>
+        <div>
+          <p class="sis-cap">Ver datos · producción del 22-10-2026</p>
+          <div class="scroll-x"><table class="sis-ver">
+            <thead><tr><th>Grupo</th><th>Hornada</th><th class="num">Unidades</th><th class="num">Peso kg</th><th>Lado/Cuba</th></tr></thead>
+            <tbody><tr><td>21</td><td>985812</td><td class="num">819</td><td class="num">37.961</td><td>M</td></tr></tbody>
+          </table></div>
+          <p class="ejemplo">Cada fila tiene una casilla para marcarla y abajo está el botón "Elimina producción".</p>
+        </div>
+        <div>
+          <p class="sis-cap">Menú del Sistema de Ánodos</p>
+          <ul class="menu-sis">
+            <li>Relación lotes</li>
+            <li>Recepciones externas</li>
+            <li>Recepción externa Teniente</li>
+            <li>Producción Ventana</li>
+            <li class="dis">Recepción Anglo American <small>deshabilitada</small></li>
+            <li class="dis">Pesaje automático de ánodos y restos <small>deshabilitada</small></li>
+            <li>Beneficios Ctes, Esp y H.M.</li>
+            <li>Beneficio de restos hojas madres</li>
+            <li>Producción restos ánodos hojas madres</li>
+            <li class="usa">Producción restos ánodos Ctte <small>abierta en las fotos 3 y 4</small></li>
+            <li>Traspaso a RAF (ánodos rech., blister y cát.)</li>
+            <li>Traspaso restos de ánodos</li>
+          </ul>
+          <p class="ejemplo">El menú sigue más abajo, pero la foto lo corta ahí.</p>
+        </div>
+      </article>
+    </div>
+
+    <div class="card cadena">
+      <h3>Cómo llega hoy un peso a cada sistema</h3>
+      <div class="cad-fila">
+        <b class="cad-prod">Cátodos</b>
+        <ol class="cad">
+          <li>Terminal de la báscula</li>
+          <li>Planilla impresa, a mano<small>grupo, lado, cuba y peso</small></li>
+          <li class="fin">Sistema de Cátodos<small>un ingreso por paquete, a veces en tanda</small></li>
+        </ol>
+      </div>
+      <div class="cad-fila">
+        <b class="cad-prod">Láminas y despuntes</b>
+        <ol class="cad">
+          <li>Terminal de la báscula<small>dos lecturas si vienen dos pallets montados</small></li>
+          <li>Resta a mano<small>diferencia entre lecturas y 12 kg por pallet</small></li>
+          <li>Excel "Hoja de láminas despegue"<small>número, bruto, tara 12 y neto, por turno</small></li>
+          <li class="fin">Sistema de Cátodos<small>Despuntes y láminas u Otros pesajes</small></li>
+        </ol>
+      </div>
+      <div class="cad-fila">
+        <b class="cad-prod">Restos de ánodos</b>
+        <ol class="cad">
+          <li>Terminal: bruto del carro</li>
+          <li>Lista de taras y calculadora</li>
+          <li>Cuaderno<small>neto por carro, una columna por grupo</small></li>
+          <li>Excel "Recepción de restos de ánodos comerciales"<small>un bloque por grupo, hasta 12 carros</small></li>
+          <li class="fin">Sistema de Ánodos<small>total del grupo y hornada</small></li>
+        </ol>
+      </div>
+      <p class="nota-tol">El resumen de octubre del Sistema de Cátodos solo trae los productos 18, 48 y 66. Su lista ofrece "Restos ánodos", pero en el mes no hay ningún kilo registrado ahí: los restos se registran en el Sistema de Ánodos.</p>
+    </div>
+
+    <div class="sis-grid">
+      <div class="card sis-card">
+        <h3>Productos del Sistema de Cátodos</h3>
+        <div class="scroll-x">
+          <table>
+            <tr><th>Cód.</th><th>Producto</th><th>Sub-producto</th><th class="num">Octubre al 22 (kg)</th></tr>
+            <tr><td>18</td><td>Cátodos</td><td>Cátodo comercial</td><td class="num">12.481.159</td></tr>
+            <tr><td>18</td><td>Cátodos</td><td>Cátodos electro. Ventanas</td><td class="num">91.990</td></tr>
+            <tr><td>48</td><td>Despuntes y láminas</td><td>Láminas iniciales</td><td class="num">279.900</td></tr>
+            <tr><td>48</td><td>Despuntes y láminas</td><td>Despuntes de orejas</td><td class="num">37.595</td></tr>
+            <tr><td>48</td><td>Despuntes y láminas</td><td>Despuntes de guillotina</td><td class="num">29.657</td></tr>
+            <tr><td>48</td><td>Despuntes y láminas</td><td>Láminas rechazadas con orejas</td><td class="num">25.986</td></tr>
+            <tr><td>48</td><td>Despuntes y láminas</td><td>Láminas rechazadas sin orejas</td><td class="num">119.832</td></tr>
+            <tr><td>66</td><td>Otros pesajes</td><td>Láminas aprobadas N.E.</td><td class="num">706.204</td></tr>
+            <tr><td>66</td><td>Otros pesajes</td><td>Láminas C.O.</td><td class="num">78.734</td></tr>
+            <tr><td>66</td><td>Otros pesajes</td><td>Láminas venta</td><td class="num">1.971</td></tr>
+            <tr><td>66</td><td>Otros pesajes</td><td>Láminas rechazo S/oreja</td><td class="num">116.311</td></tr>
+          </table>
+        </div>
+        <p class="nota-tol">La lista de Despuntes y láminas también trae Láminas, Otros despuntes y láminas, Láminas rechazadas y Cobre sucio refinería; "Despuntes de guillotina" aparece dos veces. El EW que nombra Codelco sería "Cátodos electro. Ventanas"; falta confirmarlo.</p>
+      </div>
+      <div class="card sis-card">
+        <h3>Cómo calza la propuesta</h3>
+        <div class="scroll-x">
+          <table>
+            <tr><th>Dato</th><th>Hoy</th><th>Con la propuesta</th></tr>
+            <tr><td>Producto y sub-producto</td><td>Lo elige el pesador</td><td>Viene en la etiqueta</td></tr>
+            <tr><td>Grupo, cuba, lado, muestra</td><td>Lee el plumón y digita</td><td>La cámara lee la etiqueta</td></tr>
+            <tr><td>Peso de cada carga</td><td>Terminal, planilla o cuaderno, y después el sistema</td><td>Terminal de la báscula, al estabilizar</td></tr>
+            <tr><td>Tara</td><td>Digita 12, o busca la de carro + rack en la lista</td><td>12 por pallet, o registro de carro + rack por número</td></tr>
+            <tr><td>Dos pallets montados</td><td>Dos lecturas y resta a mano</td><td>Guarda las dos lecturas y calcula cada neto</td></tr>
+            <tr><td>Neto de cada carro de restos</td><td>Calculadora, cuaderno y Excel</td><td>Bruto menos tara, al capturar</td></tr>
+            <tr><td>Total del grupo de restos</td><td>Suma del Excel, digitada en el Sistema de Ánodos</td><td>Suma de los carros, lista en la pantalla de producción</td></tr>
+            <tr><td>Hora pesada</td><td>Cuando digita</td><td>Cuando la báscula captura</td></tr>
+            <tr><td>Finaliza grupo</td><td>Tecla F</td><td>Igual</td></tr>
+            <tr><td>Grabar</td><td>Después de digitar</td><td>Con un toque, si B1 y B2 están en verde</td></tr>
+            <tr><td>Generar hornada</td><td>Después de sumar el Excel</td><td>Al cerrar el grupo, con el total listo</td></tr>
+          </table>
+        </div>
+        <p class="nota-tol">Falta definir con TI de Codelco cómo entran los datos a cada sistema: directo a la base, o dejando la pantalla llena para que el pesador toque Grabar o Generar hornada.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="blk" id="registro">
+  <div class="wrap">
+    <header class="sh">
+      <p class="eyebrow">Registro</p>
+      <h2>Así queda hoy un día en los sistemas</h2>
+      <p class="sub">El 22-10-2026, grupo 21, tal como se vio en la visita: los cátodos en el Sistema de Cátodos, y los restos de ánodos del mismo grupo, desde el cuaderno hasta el Sistema de Ánodos. Con la propuesta, cada fila se graba al pesar y con su hora real.</p>
+    </header>
+    <h3 class="reg-sub">Cátodos · consulta "Detalle pesaje de producción"</h3>
+    <div class="reg-grid">
+      <div class="card tabla tabla-alta">
+        <table>
+          <thead><tr><th>Grupo</th><th>Muestra</th><th>Lado</th><th>Cuba</th><th class="num">Peso kg</th><th class="num">Hora pesada</th></tr></thead>
+          <tbody id="tReg"></tbody>
+        </table>
+      </div>
+      <div class="reg-lado">
+        <div class="card tabla scroll-x">
+          <table>
+            <thead><tr><th>Día</th><th>Prod.</th><th>Descripción</th><th>Grupo</th><th class="num">Lado-P</th><th class="num">Lado-T</th><th class="num">Muestra</th><th class="num">Tot-peso</th><th class="num">Col-parc</th><th class="num">Col-total</th><th class="num">Tot-coli</th></tr></thead>
+            <tbody id="tRes"></tbody>
+          </table>
+        </div>
+        <p class="nota-tol"><strong>Las horas no son las del pesaje.</strong> Las cubas 01 a 10 (en color) quedaron "pesadas" en 62 segundos, una cada 6 s: se digitaron en tanda desde el cuaderno. Una grúa no trae diez paquetes en un minuto. Con la propuesta, la hora es la de la captura en la báscula.</p>
+        <p class="nota-tol">Ese día el lado T fue total (21 paquetes, cubas 01 a 21) y el lado P parcial (14 paquetes, de la 42 a la 29): son los Col-total y Col-parc del resumen. Con el rótulo de la nave serían 1T21 a 21T21 y 42P21 a 29P21. La muestra se graba como cuba 00, sin lado.</p>
+      </div>
+    </div>
+
+    <h3 class="reg-sub">Restos de ánodos · del cuaderno al Sistema de Ánodos</h3>
+    <div class="reg-grid reg-ano">
+      <div class="card tabla">
+        <table>
+          <caption>Cuaderno y Excel "Recepción de restos de ánodos comerciales"</caption>
+          <thead><tr><th>Carro</th><th class="num">Neto kg</th></tr></thead>
+          <tbody id="tAno"></tbody>
+        </table>
+      </div>
+      <div class="reg-lado">
+        <div class="card tabla scroll-x">
+          <table>
+            <caption>Sistema de Ánodos · Ver datos</caption>
+            <thead><tr><th>Grupo</th><th>Hornada</th><th class="num">Unidades</th><th class="num">Peso kg</th><th>Lado/Cuba</th></tr></thead>
+            <tbody id="tHor"></tbody>
+          </table>
+        </div>
+        <p class="nota-tol"><strong>El mismo peso se escribe tres veces.</strong> El neto de cada carro (bruto menos la tara de la lista, con calculadora) se anota en el cuaderno, se pasa al Excel, y el total del grupo se digita en el Sistema de Ánodos. <span id="chkAno"></span></p>
+        <p class="nota-tol">Con la propuesta, cada carro queda en la lista al pesarse, con su número y su tara. Al cerrar el grupo, la pantalla de producción ya tiene el total y el pesador solo toca Generar hornada.</p>
+      </div>
+    </div>
+    <p class="ejemplo">Datos de las consultas, el cuaderno y el Excel fotografiados en la visita. Las sumas calculadas aquí coinciden con lo que guardó cada sistema: cátodos 165.252 kg en 35 paquetes (lado P 64.309, lado T 100.089, muestra 854) y restos de ánodos 37.961 kg en 11 carros.</p>
+  </div>
+</section>
+
+<section class="blk">
+  <div class="wrap">
+    <header class="sh">
+      <p class="eyebrow">Por confirmar</p>
+      <h2>Supuestos a validar con la planta</h2>
+    </header>
+    <ol class="lista card" style="padding:16px">
+      <li>Que la etiqueta se imprima y se pegue donde hoy se escribe con plumón, al armar la carga en la nave.</li>
+      <li>Las taras reales de cada carro con su rack (hoy en una lista impresa), si cada rack va siempre en el mismo carro y si el número pintado se ve desde arriba.</li>
+      <li>EW: con qué producto y datos se registra en el Sistema de Cátodos (¿"Cátodos electro. Ventanas"?), cuánto pesa un paquete y quién podría etiquetarlo, porque hoy llega sin rótulo.</li>
+      <li>Láminas: cómo se rotulan las Rechazo C/O, las Láminas venta y los Despuntes, y si a las C.O se les puede agregar un número.</li>
+      <li>El rango normal de peso de cada producto (usamos lo visto el 21 y el 22-10-2026).</li>
+      <li>Si el terminal de la báscula entrega la lectura de cada una de sus 4 celdas de carga.</li>
+      <li>En restos de ánodos: qué es el lado "M", de dónde salen las unidades (819 en el grupo 21) y si el pesador reparte el peso por tipo de ánodo (Ventanas, Teniente, Salvador, HVL, Anglo American).</li>
+      <li>Cómo enviar los datos a los sistemas de Codelco. Hoy el pesador los digita, aunque el Sistema de Cátodos ya toma el peso automático y el Sistema de Ánodos tiene una opción "Pesaje automático de ánodos y restos" deshabilitada.</li>
+      <li>Dónde van la cámara (brazo desde el techo de la caseta) y las balizas (a la vista del operador de grúa).</li>
+      <li>Qué otros productos, menos frecuentes, se pesan en la báscula. Codelco quedó de confirmarlo.</li>
+    </ol>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap">Ingmétrica · Propuesta para Codelco División Ventanas · Simulación ilustrativa, sin conexión a equipos reales.</div></footer>
+
+<script src="iso.js"></script>
+<script src="casos.js"></script>
+<script src="sim.js"></script>
+<script src="prueba.js"></script>
