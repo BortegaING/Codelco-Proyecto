@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>TerminalVentanas</AssemblyName>
+    <RootNamespace>TerminalVentanas</RootNamespace>
+    <Version>1.0.0</Version>
+    <Product>Terminal Rotulado Ventanas</Product>
+    <Company>Ingmétrica</Company>
+    <Description>Terminal de rotulado y pesaje de la Báscula N9 (Refinería Ventanas) para la VT1200</Description>
+    <!-- Siempre self-contained: la VT1200 no tiene .NET instalado -->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4314.35" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- wwwroot lo arma construir.py desde terminal-vt1200.html, con las librerías y fuentes locales -->
+    <None Include="wwwroot\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="appsettings.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

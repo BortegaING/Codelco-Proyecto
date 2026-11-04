@@ -45,7 +45,17 @@ for (const [k, v] of Object.entries(esperado)) {
 const kg = n => n.toLocaleString('es-CL');
 
 /* ---------- Ayudas ---------- */
-function tamPng(f) { const b = fs.readFileSync(f); return { w: b.readUInt32BE(16), h: b.readUInt32BE(20) }; }
+// Ancho y alto de un PNG o un JPG, para mantener la proporción de cada imagen
+function tamPng(f) {
+  const b = fs.readFileSync(f);
+  if (b[0] === 0x89) return { w: b.readUInt32BE(16), h: b.readUInt32BE(20) };
+  for (let i = 2; i < b.length;) {
+    const m = b[i + 1], len = b.readUInt16BE(i + 2);
+    if (m >= 0xC0 && m <= 0xC3) return { w: b.readUInt16BE(i + 7), h: b.readUInt16BE(i + 5) };
+    i += 2 + len;
+  }
+  throw new Error('No se pudo leer el tamaño de ' + f);
+}
 function imagen(s, f, x, y, opt) {
   const t = tamPng(f), r = t.h / t.w;
   let w = opt.w, h = opt.h;
@@ -184,9 +194,67 @@ pres.addSection({ title: 'Situación actual' });
   s.addNotes('Las etiquetas son las mismas que imprime la maqueta de la VT1200: el rótulo de siempre más un QR.');
 }
 
+/* Láminas que se sacaron del deck el 04-11 a pedido de Benjamin (las 5 a 8): las tres de "Cómo se registra hoy"
+   y la del gráfico del grupo 21. Quedan aquí apagadas; con true vuelven a salir. */
+const INCLUIR = { sistema: false, diaReal: false };
+
+/* ===================== 4b. Cómo se registra hoy: imágenes del sistema y de las planillas (visita del 22-10) ===================== */
+// Recortes de las fotos de la visita, sin barra de direcciones, IP ni nombres de personas
+function encaja(s, f, x, y, w, h, alt) {
+  const t = tamPng(f), r = Math.min(w / t.w, h / t.h), iw = t.w * r, ih = t.h * r;
+  s.addImage({ path: f, x: x + (w - iw) / 2, y, w: iw, h: ih, altText: alt, objectName: path.basename(f) });
+  return ih;
+}
+if (INCLUIR.sistema) {
+  const s = lamina('Situación actual', 'CÓMO SE REGISTRA HOY · SISTEMA DE CÁTODOS', 'El pesador digita cada pesaje en el sistema');
+  const h = encaja(s, IMG('sis_form_catodos.jpg'), 0.6, 1.5, 7.0, 3.4, 'Pantalla Ingreso pesaje producción del Sistema de Cátodos: tipo de movimiento, producto, sub-producto, fecha, peso automático, peso tara y peso producción');
+  texto(s, [
+    { text: 'Lo que llena por cada carga: ', options: { bold: true, color: TEMA.colors.dk1 } },
+    { text: 'tipo de movimiento, producto, sub-producto, fecha de pesaje, peso automático (sí o no), peso tara y peso producción. Para cátodos, además grupo, cuba, lado y muestra, y "F" para finalizar el grupo.' },
+  ], { x: 0.6, y: 1.65 + h, w: 7.0, h: 1.3, fontSize: 14, color: P.mut });
+  const h1 = encaja(s, IMG('sis_productos.jpg'), 7.95, 1.5, 2.3, 2.1, 'Lista de productos del sistema: cátodos, despuntes y láminas, otros pesajes, restos de ánodos y ánodos');
+  const h2 = encaja(s, IMG('sis_subproductos.jpg'), 10.4, 1.5, 2.3, 2.1, 'Lista de sub-productos de despuntes y láminas');
+  texto(s, 'Producto', { x: 7.95, y: 1.58 + h1, w: 2.3, h: 0.3, fontSize: 12, color: P.mut });
+  texto(s, 'Sub-producto (despuntes y láminas)', { x: 10.4, y: 1.58 + h2, w: 2.3, h: 0.5, fontSize: 12, color: P.mut });
+  tarjeta(s, 7.95, 4.3, 4.75, 2.35, { fill: { color: P.cobreSuave }, line: { color: TEMA.colors.accent2, width: 1 } });
+  texto(s, 'En la propuesta', { x: 8.25, y: 4.5, w: 4.2, h: 0.4, fontFace: CABEZA, fontSize: 17, color: C.accent1 });
+  texto(s, 'La pantalla Báscula trae los mismos datos: los llena la etiqueta y el peso estable, y el pesador los puede corregir antes o después de grabar.',
+    { x: 8.25, y: 4.95, w: 4.2, h: 1.6, fontSize: 14, color: P.mut });
+  s.addNotes('Fotos de la visita del 22-10-2026. Se recortaron la barra de direcciones, la IP y los nombres de usuario.');
+}
+if (INCLUIR.sistema) {
+  const s = lamina('Situación actual', 'CÓMO SE REGISTRA HOY · CONSULTAS', 'Lo que queda en el sistema: detalle, resumen y restos por grupo');
+  const h = encaja(s, IMG('sis_detalle.jpg'), 0.6, 1.5, 4.4, 4.75, 'Detalle pesaje de producción del 22-10-2026: grupo, muestra, lado, cuba, peso y hora pesada');
+  texto(s, 'Detalle del día: las cubas 01 a 10 quedaron entre las 10:06:40 y las 10:07:42. Se digitan en tanda, así que la hora no es la del pesaje.',
+    { x: 0.6, y: 1.6 + h, w: 4.4, h: 0.8, fontSize: 12, color: P.mut });
+  const h3 = encaja(s, IMG('sis_resumen.jpg'), 5.35, 1.5, 7.35, 2.75, 'Resumen de pesaje de producción: Lado-P 64.309, Lado-T 100.089, muestra 854, total 165.252 y totales del mes por producto');
+  texto(s, 'Resumen: Lado-P 64.309, Lado-T 100.089, muestra 854 y total 165.252 kg, más los totales del mes por producto (18, 48 y 66).',
+    { x: 5.35, y: 1.58 + h3, w: 7.35, h: 0.5, fontSize: 12, color: P.mut });
+  const y4 = 2.25 + h3;
+  encaja(s, IMG('sis_anodos.jpg'), 5.35, y4, 4.3, 6.75 - y4, 'Sistema de Ánodos: producción de restos ánodos corriente, con fecha, grupo, lado y unidades y peso por tipo de ánodo');
+  texto(s, [
+    { text: 'Sistema de Ánodos', options: { bold: true, color: TEMA.colors.dk1, breakLine: true } },
+    { text: 'Producción de restos por grupo: fecha y hora, grupo, lado, unidades y peso por tipo de ánodo, y "Generar hornada". El grupo 21 cerró con 37.961 kg.' },
+  ], { x: 9.9, y: y4, w: 2.8, h: 2.3, fontSize: 12, color: P.mut });
+}
+if (INCLUIR.sistema) {
+  const s = lamina('Situación actual', 'CÓMO SE REGISTRA HOY · PLANILLAS', 'Y en paralelo, cuatro planillas del pesador');
+  const celdas = [
+    ['pla_cuaderno.jpg', 0.6, 1.5, 5.6, 2.75, 'Cuaderno de cátodos: grupo, celdas 1 a 21 (T) y 42 a 22 (P), muestra, totales T, P y M, hora y control de cero.'],
+    ['pla_subproductos.jpg', 0.6, 4.92, 5.6, 1.42, 'Subproductos en PM (Excel): D.G, D.O, láminas de rechazo y venta, Cu sucio; cajas y peso por turno A y C.'],
+    ['pla_laminas.jpg', 6.55, 1.5, 3.0, 3.6, 'Hoja de láminas despegue (Excel): número, bruto, tara 12, neto y Nº de paquete, en bloques H. INIC., C.O, venta y rechazo S/O.'],
+    ['pla_restos.jpg', 9.7, 1.5, 3.0, 3.6, 'Restos de ánodos (Excel): un bloque por grupo, carros 1 a 12 con su neto y el total del grupo.'],
+  ];
+  celdas.forEach(([f, x, y, w, hm, cap]) => {
+    const h = encaja(s, IMG(f), x, y, w, hm, cap);
+    texto(s, cap, { x, y: y + h + 0.06, w, h: 0.8, fontSize: 12, color: P.mut });
+  });
+  s.addNotes('Son los datos que la pantalla Báscula de la VT1200 tiene que dejar ingresar y corregir. Fotos de la visita, recortadas sin nombres.');
+}
+
 /* ===================== 5. Un día real ===================== */
 pres.addSection({ title: 'Datos' });
-{
+if (INCLUIR.diaReal) {
   const s = lamina('Datos', 'UN DÍA REAL · 22-10-2026', 'Grupo 21: 35 paquetes, todos en un rango estrecho');
   const kpi = [[`${kg(total)} kg`, 'cátodos del grupo 21: lado total, lado parcial y muestra'],
     ['35 paquetes', '21 del lado total y 14 del lado parcial'],

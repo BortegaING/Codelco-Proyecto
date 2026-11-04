@@ -188,7 +188,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15p
 .sq.sel{background:#DA8B4F;border-color:#DA8B4F;color:#1A0F07}
 .sq:active{filter:brightness(1.25)}
 .sq small{display:block;margin-top:3px;font:600 10.5px/1 "JetBrains Mono",Consolas,monospace;letter-spacing:-.03em;color:#B9F6CA;opacity:.85}
-.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.seg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .seg button{min-height:90px;border-radius:14px;border:1px solid #2C4450;background:#0E181E;display:grid;align-content:center;gap:4px;text-align:left;padding:0 18px}
 .seg b{font:700 27px/1.05 "Barlow Condensed","Arial Narrow",sans-serif}
 .seg i{font:600 15px "Barlow",Arial,sans-serif;font-style:normal;color:#86A0AB}
@@ -234,6 +234,55 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15p
 .toast svg{width:26px;height:26px}
 .toast.ok{background:#123C25;border-color:#2F8C55;color:#E9FFF1} .toast.info{background:#13324F;border-color:#3D72B0;color:#E6F1FF}
 .toast.warn{background:#3F3005;border-color:#A07A12;color:#FFF4D6} .toast.err{background:#4A1713;border-color:#B63A30;color:#FFE9E6}
+
+/* Pantalla Báscula: el pesaje con los datos de las planillas y del sistema, editables */
+.bal-ab{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:0 12px;border-radius:8px;border:1px solid #DA8B4F;background:transparent;color:#F6C79F;
+  font:600 14px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.1em;text-transform:uppercase}
+.bal-ab svg{width:15px;height:15px}
+.bal-h .bal-t{margin-right:auto}
+.bs-bar{flex:none;display:flex;align-items:center;gap:12px;height:56px}
+.bs-bar .t{margin-right:auto;font:700 24px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.turno{display:flex;border:1px solid #35505C;border-radius:10px;overflow:hidden}
+.turno button{min-height:46px;padding:0 16px;border:0;background:transparent;font:600 17px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#86A0AB}
+.turno button.on{background:#DA8B4F;color:#1A0F07}
+.cero-b{min-height:46px;padding:0 14px;border-radius:10px;border:1px solid #2F8C55;background:#123C25;color:#B9F6CA;display:flex;align-items:center;gap:8px;
+  font:600 16px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+.cero-b.mal{border-color:#B63A30;background:#4A1713;color:#FFC9C2} .cero-b.pend{border-color:#A07A12;background:#3F3005;color:#FFF4D6}
+.cero-b svg{width:20px;height:20px}
+.bs-top{flex:none;display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:12px}
+.bs-peso{display:grid;grid-template-columns:minmax(0,1fr) 96px;align-items:center;gap:8px 12px;background:#0A1317;border:1px solid #2A3F49;border-radius:16px;padding:12px 16px}
+.bs-peso .bal-res{grid-column:1/-1;min-height:0}
+.bs-prod{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bs-prod button{min-height:66px;border-radius:12px;border:1px solid #2C4450;background:#0E181E;display:flex;align-items:center;gap:10px;padding:0 12px;text-align:left;
+  font:700 19px/1.1 "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#86A0AB}
+.bs-prod button svg{width:34px;height:26px;color:#5F7883}
+.bs-prod button.on{border:2px solid #DA8B4F;background:#1A2A33;color:#D6E5EB} .bs-prod button.on svg{color:#F0B37E}
+.bs-prod button:disabled{opacity:.35}
+.bs-form{flex:1;min-height:0;background:#16242C;border:1px solid #24363F;border-radius:16px;padding:12px 16px 14px;display:flex;flex-direction:column;gap:10px}
+.bs-modo{display:flex;align-items:center;gap:10px;font:600 15px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#86A0AB}
+.bs-modo b{color:#D6E5EB;font-weight:700}
+.bs-modo em{margin-left:auto;font:500 14px "Barlow",Arial,sans-serif;font-style:normal;letter-spacing:0;text-transform:none}
+.campos{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.cp{position:relative;min-height:96px;min-width:0;border-radius:12px;border:1px solid #2C4450;background:#0E181E;padding:10px 14px;display:grid;align-content:space-between;text-align:left}
+.cp.s2{grid-column:span 2}
+.cp small{font:600 13.5px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#86A0AB}
+.cp b{font:700 32px/1.1 "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:18px}
+.cp.auto{border-color:#7A5130;box-shadow:inset 4px 0 0 #DA8B4F} .cp.auto b{color:#F6C79F}
+.cp.ed{border-color:#4F92E2;box-shadow:inset 4px 0 0 #4F92E2} .cp.ed b{color:#FFFFFF}
+.cp.calc{background:#13202A;border-style:dashed} .cp.calc b{color:#B9CAD2}
+.cp.vacio b{color:#6F8893}
+.cp i{position:absolute;right:12px;top:10px;font:600 12px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.08em;text-transform:uppercase;font-style:normal;color:#86A0AB}
+.cp.ed i{color:#A9CBF2}
+.cp>svg{position:absolute;right:12px;bottom:12px;width:18px;height:18px;color:#86A0AB}
+.cp:active:not(.calc){filter:brightness(1.2)}
+.aviso{flex:none;display:flex;align-items:center;gap:10px;min-height:48px;padding:8px 14px;border-radius:12px;border:1px solid;font:600 18px/1.25 "Barlow",Arial,sans-serif}
+.aviso svg{width:24px;height:24px}
+.aviso.ok{background:#123C25;border-color:#2F8C55;color:#E9FFF1} .aviso.info{background:#13324F;border-color:#3D72B0;color:#E6F1FF}
+.aviso.warn{background:#3F3005;border-color:#A07A12;color:#FFF4D6} .aviso.err{background:#4A1713;border-color:#B63A30;color:#FFE9E6}
+.opts.tres{grid-template-columns:1fr 1fr}
+.opts.tres .opt{min-height:82px;padding:10px 18px;gap:2px} .opts.tres .opt span{font-size:24px} .opts.tres .opt i{font-size:15px}
+.lista td.bts{display:flex;gap:8px;justify-content:flex-end}
+.lista button.ed{border-color:#DA8B4F;color:#F6C79F}
 
 /* Ingreso */
 .login{height:100%;display:grid;place-items:center}
@@ -282,6 +331,17 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15p
 .est{display:inline-block;font:700 13px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px;white-space:nowrap}
 .est.camino{background:#1E4F86} .est.bascula{background:#8A6200} .est.pesada{background:#17703D} .est.sintara{background:#A12A21}
 .xls-nota{font:500 15px/1.4 "Barlow",Arial,sans-serif;color:#86A0AB}
+/* Dentro de la app de la VT1200 (WebView2): solo la pantalla, a tamaño completo; la guía de prueba se abre con F2 */
+.g-app{display:none}
+html.app body{margin:0;background:#000;overflow:hidden}
+html.app .pagina{max-width:none;padding:0;display:block}
+html.app .ph,html.app .marco-pie{display:none}
+html.app .zona{display:block}
+html.app .marco{position:fixed;inset:0;height:auto!important;border-radius:0;background:#000;box-shadow:none}
+html.app .guia{position:fixed;top:0;right:0;bottom:0;width:350px;overflow:auto;z-index:50;padding:12px;background:var(--bg);align-content:start;
+  box-shadow:-10px 0 30px rgba(0,0,0,.55);transform:translateX(105%);transition:transform .25s ease}
+html.app.demo .guia{transform:none}
+html.app .g-app{display:grid}
 @media (prefers-reduced-motion:reduce){.hero.imprimiendo .sticker,.hero.impresa .st-ok,.bal-on i,.bal-pic .cel{animation:none}.bal-pic .carga,.bal-pic .grua{transition:none}}
 </style>
 
@@ -311,6 +371,11 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15p
     </div>
 
     <aside class="guia">
+      <section class="g-bloque g-app">
+        <h2>Panel de prueba</h2>
+        <p class="nota">Solo para la demostración en la VT1200. Se abre y se cierra con la tecla F2.</p>
+        <div class="ph-acc"><button class="bt-p pri" id="btnPanel" type="button">Cerrar el panel</button><button class="bt-p" id="btnReset2" type="button">Reiniciar el registro</button></div>
+      </section>
       <section class="g-bloque">
         <h2>Qué hace el operador</h2>
         <ol class="pasos">
@@ -329,6 +394,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15p
           <li><span class="chip estable">Estable</span><span>Toma el peso, lo compara con lo esperado y lo registra.</span></li>
           <li><span class="chip bloqueado">Bloqueado</span><span>Grúa encima, carro fuera del área o báscula sin cero: no registra.</span></li>
         </ul>
+        <p class="nota">Toque <b>Abrir</b> en la báscula para ver el pesaje con los datos de las planillas y del sistema: grupo, cuba, lado y muestra; número, bruto, tara y neto; grupo, carro y tara de carro + rack; despuntes D.G y D.O, Cu sucio, láminas MFCI y botes de hojas madres. Todo se puede corregir antes o después de grabar, y ahí están el turno A o C y el control de cero.</p>
         <p class="nota">Lo esperado: cátodos 4.200 a 5.000 kg; láminas aprobadas 3.200 a 3.900 kg netos (tara 12 kg por pallet); restos 2.800 a 4.000 kg netos (tara de carro + rack). Los cuatro puntos del dibujo son las 4 celdas de carga de la báscula.</p>
       </section>
       <section class="g-bloque">
@@ -337,6 +403,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15p
           <button type="button" data-esc="grua" aria-pressed="false"><b>Grúa encima</b><span>La grúa deja el paquete y no retrocede.</span></button>
           <button type="button" data-esc="fuera" aria-pressed="false"><b>Carro fuera del área</b><span>El tractor deja el carro pasado de la plataforma.</span></button>
           <button type="button" data-esc="cero" aria-pressed="false"><b>Báscula sin cero</b><span>Quedan nódulos en la junta: vacía marca 6 kg.</span></button>
+          <button type="button" data-esc="caja" aria-pressed="false"><b>Caja sin etiqueta</b><span>Llega una caja de despuntes: se ingresa a mano en la pantalla Báscula.</span></button>
         </div>
         <p class="nota" id="escNota">Elija una situación y mírela en la báscula de la pantalla.</p>
       </section>
@@ -344,7 +411,8 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15p
         <h2>El Excel</h2>
         <ul class="hace">
           <li>Una hoja por producto, con las columnas de las planillas de hoy: cátodos (grupo, cuba, lado, muestra, peso), láminas (número, bruto, tara 12, neto) y restos (carro, bruto, tara de carro + rack, neto y total del grupo).</li>
-          <li>Cada fila trae la hora real en que la báscula tomó el peso y lo que dijo el control.</li>
+          <li>Cada fila trae la hora real en que la báscula tomó el peso, el turno y lo que dijo el control.</li>
+          <li>Con la forma de las planillas de hoy: el cuaderno de cátodos por grupo (T, P, M y total), la hoja de láminas despegue por bloque, los restos por grupo y el formulario de subproductos en PM por turno.</li>
           <li>Una hoja Resumen con las mismas columnas que el Resumen del Sistema de Cátodos: Lado-P, Lado-T, Muestra, Tot-peso, Col-parc, Col-total y Tot-coli.</li>
         </ul>
         <p class="nota">En la VT1200 real el Excel se guarda solo, por turno, en la carpeta de la báscula. En esta maqueta se baja con el botón Excel.</p>
@@ -365,6 +433,10 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15p
 const $=s=>document.querySelector(s);
 const vt=$('#vt'), pant=$('#pant'), mdl=$('#modal'), toastEl=$('#toast');
 const reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+/* Corre dentro de la app de la VT1200 (WebView2): pantalla completa, impresión a la Zebra y Excel a la carpeta de la báscula */
+const APP=!!(window.chrome&&window.chrome.webview);
+if(APP) document.documentElement.classList.add('app');
+const aEquipo=msg=>{try{if(APP) window.chrome.webview.postMessage(msg);}catch(e){}};
 const f0=v=>Math.round(v).toLocaleString('es-CL');
 const pad2=n=>String(n).padStart(2,'0');
 const FECHA='22-10-2026', DIA='22', MES='10', FQ='20261022', GUARDA='ventanas-rotulado-v6';
@@ -379,12 +451,25 @@ const RESTOS_NETOS=[3413,3878,3488,3718,3868,3464,3506,3274,3394,3912,2046];
 /* Tara de carro + rack por número pintado: valores de ejemplo (la lista real la tiene el pesador) */
 const TARA_CARRO={7:2120,11:2180,15:2165,22:2150,26:2210,30:2135,33:2190,41:2175};
 /* Láminas: números y netos de la hoja del 21-10 (los últimos de cada tipo); el número del mes sigue desde ahí */
-const LAM=[
-  {id:'aprob',nombre:'Láminas aprobadas N.E.',corto:'Aprobadas N.E.',q:'LAPNE',prev:[[270,3477],[271,3814],[272,3629],[273,3262]]},
-  {id:'co',nombre:'Láminas C.O',corto:'C.O',q:'LCO',prev:[[36,2261],[37,2152]]},
-  {id:'rso',nombre:'Láminas rechazo S/O',corto:'Rechazo S/O',q:'LRSO',prev:[[63,1885],[64,1949],[65,1852]]}];
 /* Netos de la hoja de láminas del 21-10: se usan como ejemplo para simular la báscula con los números nuevos */
 const LAM_EJ=[3458,3743,3701,3485,3620,3724,3547,3477,3814,3629,3262];
+/* Los bloques de la "Hoja de láminas despegue": H. INIC. (aprobadas), C.O, L.VENTA y L.RECHAZO S/O */
+const LAM=[
+  {id:'aprob',nombre:'Láminas aprobadas N.E.',corto:'Aprobadas N.E.',q:'LAPNE',prev:[[270,3477],[271,3814],[272,3629],[273,3262]],ej:LAM_EJ},
+  {id:'co',nombre:'Láminas C.O',corto:'C.O',q:'LCO',prev:[[36,2261],[37,2152]],ej:[2261,2152]},
+  {id:'venta',nombre:'Láminas venta',corto:'Venta',q:'LVTA',prev:[],ej:LAM_EJ},
+  {id:'rso',nombre:'Láminas rechazo S/O',corto:'Rechazo S/O',q:'LRSO',prev:[[63,1885],[64,1949],[65,1852]],ej:[1885,1949,1852]}];
+/* Lo que no lleva etiqueta y se ingresa en la báscula: las filas del "Formulario entrega y recepción de subproductos en PM"
+   y los botes de restos de hojas madres. Pesos de cajas de ejemplo: los del 21-10 (D.G 329, 400 y 312; D.O 1.192) */
+const SUB=[
+  {id:'dg',nombre:'Despuntes de guillotina',corto:'D.G',caja:true},
+  {id:'do',nombre:'Despuntes de orejas',corto:'D.O',caja:true},
+  {id:'lvm',nombre:'Láminas venta MFCI',corto:'Lám. venta MFCI'},
+  {id:'lrsm',nombre:'Láminas rechazo S/O MFCI',corto:'Lám. rech. S/O MFCI'},
+  {id:'lrco',nombre:'Láminas rechazo C/O',corto:'Lám. rech. C/O'},
+  {id:'cus',nombre:'Cu sucio',corto:'Cu sucio'},
+  {id:'hm',nombre:'Restos de hojas madres (bote)',corto:'Hojas madres',bote:true}];
+const CAJAS_EJ=[329,400,312,1192];
 /* Orden de pesaje que se vio el 22-10: celdas 1 a 21 subiendo y después desde la 42 bajando */
 const ORDEN=[]; for(let i=1;i<=21;i++) ORDEN.push(i); for(let i=42;i>=22;i--) ORDEN.push(i);
 const LADO_TXT={T:'total',P:'parcial'};
@@ -407,6 +492,8 @@ const ICON={
   info:`<svg viewBox="0 0 24 24" aria-hidden="true">${g('<circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5v.5"/>',2.4)}</svg>`,
   err:`<svg viewBox="0 0 24 24" aria-hidden="true">${g('<circle cx="12" cy="12" r="9.5"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7"/>',2.4)}</svg>`,
   tag:`<svg viewBox="0 0 24 24" aria-hidden="true">${g('<path d="M3 5v6l9 9 8-8-9-9H5z"/><circle cx="7.5" cy="8.5" r="1.5"/>')}</svg>`,
+  caja:`<svg viewBox="0 0 96 72" aria-hidden="true">${g('<path d="M16 30h64v30H16zM16 30l10-14h44l10 14M40 30v9h16v-9"/>',4)}</svg>`,
+  grabar:`<svg viewBox="0 0 24 24" aria-hidden="true">${g('<path d="M4 4h13l3 3v13H4z"/><path d="M8 4v5h8V4M8 20v-6h8v6"/>')}</svg>`,
   muted:`<svg viewBox="0 0 24 24" aria-hidden="true">${g('<path d="M3 15.5h18v3H3z"/><path d="M7 15.5V12h10v3.5"/>')}</svg>`
 };
 
@@ -420,7 +507,8 @@ function nuevoGrupo(gr,a,b){return {g:gr,lados:{a:a||'T',b:b||'T'},celdas:{},mue
 function estadoInicial(){
   uid=0;
   const s={view:'login',rut:'111111111',user:'',prod:'cat',grupo:21,grupos:{},sel:5,muestra:false,msg:null,fase:null,snap:null,md:null,
-    lam:{tipo:'aprob',sig:{aprob:274,co:38,rso:66},ej:0},rs:{grupo:21,carro:'',lista:[]},labels:[],min:10*60+5,ultPes:9*60+58};
+    lam:{tipo:'aprob',sig:{aprob:274,co:38,venta:1,rso:66},ej:0},rs:{grupo:21,carro:'',lista:[]},labels:[],min:10*60+5,ultPes:9*60+58,
+    turno:'A',cero:{h:'09:35',ok:true},bf:null};
   const g21=nuevoGrupo(21,'T','P'); s.grupos[21]=g21;
   /* Celdas 1 a 3 ya pesadas y la 4 en camino: llega a la báscula apenas se entra */
   [9*60+41,9*60+48,9*60+55,10*60+2].forEach((m,i)=>{const n=i+1, h=hhmm(m), l=etqCat(21,n,'T',h,PESO_CELDA[n],'Operador prueba'); l.id=++uid; l.m=m;
@@ -429,7 +517,7 @@ function estadoInicial(){
     s.labels.unshift(l);});
   return s;
 }
-const DURABLE=['grupo','grupos','sel','prod','lam','rs','labels','min','ultPes'];
+const DURABLE=['grupo','grupos','sel','prod','lam','rs','labels','min','ultPes','turno','cero'];
 function guardar(){try{const o={uid:uid}; DURABLE.forEach(k=>o[k]=S[k]); localStorage.setItem(GUARDA,JSON.stringify(o));}catch(e){}}
 function recuperar(){try{const t=localStorage.getItem(GUARDA); return t?JSON.parse(t):null;}catch(e){return null;}}
 function olvidar(){try{localStorage.removeItem(GUARDA);}catch(e){}}
@@ -466,6 +554,12 @@ function etqRs(gr,carro,n,h,neto,tara,oper){
     pie:tara?`Tara carro + rack ${f0(tara)} kg · ${FECHA} ${h}`:`Sin tara registrada · ${FECHA} ${h}`,ref:{g:gr,carro:carro,n:n}};
 }
 const etqVacia=tag=>({tag:tag,codigo:'—',qr:'VEN',cajas:[['—','—'],['—','—'],['—','—']],pie:'Sin etiqueta pendiente'});
+/* Subproductos y hojas madres: no llevan etiqueta, se ingresan en la báscula */
+const codSub=(T,bote)=>T.corto+(bote?` · bote ${bote}`:'');
+function etqSub(T,cant,bote,h,peso,oper){
+  return {hora:h,prod:'sub',codigo:codSub(T,bote),detalle:T.nombre+(cant>1?` · ${cant} ${T.caja?'cajas':'paquetes'}`:''),estado:'camino',neto:peso,tara:0,bruto:peso,oper:oper,
+    tag:'SUBPRODUCTO',qr:'',cajas:[],pie:'',ref:{st:T.id,cant:cant,bote:bote||''}};
+}
 function qrSvg(txt){
   try{const q=qrcode(0,'M');q.addData(txt);q.make();return q.createSvgTag(3,0);}
   catch(e){return '<svg viewBox="0 0 10 10"><rect width="10" height="10" fill="none" stroke="#111" stroke-width=".5"/><text x="5" y="6" font-size="2.4" text-anchor="middle" fill="#111">QR</text></svg>';}
@@ -500,7 +594,7 @@ function trabajoLam(T,n){
   const chips=antes.map(x=>{const i=info.get(x); return `<div class="ch ${i.e}"><b>Nº ${x}</b><small>${i.e==='pesada'?f0(i.kg)+' kg':EST_TXT[i.e]}${i.ayer?' · 21-10':''}</small></div>`;}).join('')+
     `<div class="ch sig"><b>Nº ${n}</b><small>Sigue</small></div><div class="ch vacio"><b>Nº ${n+1}</b><small>&nbsp;</small></div><div class="ch vacio"><b>Nº ${n+2}</b><small>&nbsp;</small></div>`;
   return `<section class="caja"><div class="caja-h"><b>Tipo de lámina</b><span class="cuenta">Una etiqueta por pallet. Si van dos montados, una para cada uno.</span></div><div class="seg">${seg}</div></section>`+
-    `<section class="caja"><div class="caja-h"><b>Número del mes</b><span class="cuenta">El 21-10 terminó en el Nº ${T.prev[T.prev.length-1][0]}. Vuelve a 1 el primer día de cada mes.</span></div><div class="fila">${chips}</div></section>`;
+    `<section class="caja"><div class="caja-h"><b>Número del mes</b><span class="cuenta">${T.prev.length?`El 21-10 terminó en el Nº ${T.prev[T.prev.length-1][0]}`:'El 21-10 no hubo'}. Vuelve a 1 el primer día de cada mes.</span></div><div class="fila">${chips}</div></section>`;
 }
 function trabajoRs(R){
   const hechos=R.lista.filter(x=>x.g===R.grupo), n=hechos.length+1;
@@ -599,17 +693,27 @@ const MODAL={
   rsgrupo(){const v=S.md.val;
     return `<div class="md chico">${mdH('Restos de ánodos','¿De qué grupo son los carros?')}<div class="dsp"><small>Grupo</small><b>${v||'—'}</b></div><div class="kp">${teclasMd()}</div>`+
       `<div class="md-acc"><button class="b-imp" type="button" data-act="ok-rsgrupo"${v?'':' disabled'}>Aceptar</button><button class="b-sec" type="button" data-act="cerrar">Cancelar</button></div></div>`;},
+  bfkp(){const d=CAMPO[S.md.campo], v=S.md.val, f=S.bf, ahora=f[S.md.campo];
+    return `<div class="md chico">${mdH(`Báscula · ${d.lbl}${ahora!=null&&ahora!==''?` · ahora ${d.kg?f0(ahora)+' kg':ahora}`:''}`,d.preg)}<div class="dsp"><small>${d.lbl}${d.kg?' (kg)':''}</small><b>${v?(d.kg?f0(+v):v):'—'}</b></div><div class="kp">${teclasMd()}</div>`+
+      `<div class="md-acc"><button class="b-imp" type="button" data-act="ok-bfkp"${v?'':' disabled'}>Aceptar</button><button class="b-sec" type="button" data-act="cerrar">Cancelar</button></div></div>`;},
+  bfop(){const k=S.md.campo, f=S.bf; let ops, tit, cls='opts dos';
+    if(k==='lado'){tit='¿De qué lado es?'; ops=[['T','Total · T','Se sacaron las 21 celdas'],['P','Parcial · P','Solo algunas celdas']];}
+    if(k==='mu'){tit='¿Es la muestra del grupo?'; ops=[['N','No','Paquete de una celda'],['S','Sí','Se graba como cuba 00, sin lado']];}
+    if(k==='t'){tit='¿Qué tipo de lámina?'; ops=LAM.map(t=>[t.id,t.corto,t.nombre]); cls='opts tres';}
+    if(k==='st'){tit='¿Qué es la carga?'; ops=SUB.map(t=>[t.id,t.corto,t.nombre]); cls='opts tres';}
+    return `<div class="md">${mdH('Báscula',tit)}<div class="${cls}">${ops.map(([v,a,b])=>opt('set-bfop',v,a,b,String(f[k])===v)).join('')}</div>`+
+      `<div class="md-acc"><button class="b-sec" type="button" data-act="cerrar">Cancelar</button></div></div>`;},
   registro(){
     const filas=S.labels.map(l=>`<tr><td>${l.hora}</td><td class="cod">${l.codigo}</td><td>${l.detalle}${l.nota?` <em>· ${l.nota}</em>`:''}${l.ctrl&&l.ctrl!=='Dentro de rango'?` <em>· ${l.ctrl.replace(/^Dentro de rango · /,'').toLowerCase()}</em>`:''}</td>`+
       `<td><span class="est ${l.estado}">${EST_TXT[l.estado]}</span>${l.hp?`<span class="hp">${l.hp}</span>`:''}</td><td class="num">${l.estado==='pesada'?f0(l.neto)+' kg':'—'}</td>`+
-      `<td class="num"><button type="button" data-act="reimprimir" data-v="${l.id}">Reimprimir</button></td></tr>`).join('');
+      `<td class="num bts">${l.prod!=='sub'&&!l.manual?`<button type="button" data-act="reimprimir" data-v="${l.id}">Reimprimir</button>`:''}<button class="ed" type="button" data-act="editar" data-v="${l.id}">Editar</button></td></tr>`).join('');
     return `<div class="md ancho">${mdH(`Registro del ${FECHA}`,`${S.labels.length} etiquetas`)}<div class="lista"><table><thead><tr><th>Etiqueta</th><th></th><th>Detalle</th><th>Báscula</th><th style="text-align:right">Neto</th><th></th></tr></thead><tbody>${filas}</tbody></table></div>`+
       `<p class="xls-nota">El Excel trae una hoja por producto y un resumen como el del Sistema de Cátodos. Los pesos aparecen cuando la báscula los captura.</p>`+
       `<div class="md-acc">${dl?`<button class="b-imp" type="button" data-act="excel">${ICON.xls}<span>Bajar Excel</span></button>`:''}<button class="b-sec" type="button" data-act="cerrar">Cerrar</button></div></div>`;}
 };
 function render(){
   const lst=mdl.querySelector('.lista'), arriba=lst?lst.scrollTop:0;
-  pant.innerHTML=S.view==='login'?vLogin():vMain(S.snap||modelo());
+  pant.innerHTML=S.view==='login'?vLogin():S.view==='bas'?vBas():vMain(S.snap||modelo());
   if(S.md){mdl.innerHTML=MODAL[S.md.tipo](); mdl.hidden=false; const l2=mdl.querySelector('.lista'); if(l2&&arriba) l2.scrollTop=arriba;} else {mdl.hidden=true; mdl.innerHTML='';}
   if(S.view!=='login') guardar();
 }
@@ -619,7 +723,17 @@ function toast(txt,k){toastEl.className='toast '+(k||'info'); toastEl.innerHTML=
   clearTimeout(toastT); toastT=setTimeout(()=>{toastEl.hidden=true;},3800);}
 
 /* ---------- Imprimir: la etiqueta baja de la Zebra, aparece el visto y el terminal pasa a la que sigue ---------- */
+/* La etiqueta en ZPL para la Zebra (203 dpi, 100 x 70 mm): lo mismo que se ve en pantalla */
+function zplDe(l){
+  const t=s=>String(s==null?'':s).replace(/[\^~]/g,' ');
+  let z=`^XA^CI28^PW812^LL568^LH0,0^FO30,28^GB300,56,56^FS^FO44,40^A0N,40,40^FR^FD${t(l.tag)}^FS^FO340,36^A0N,44,44^FB442,1,0,R^FD${t(l.codigo)}^FS`+
+    `^FO26,108^BQN,2,8^FDQA,${t(l.qr)}^FS`;
+  (l.cajas||[]).forEach(([a,b],i)=>{const x=322+i*162;
+    z+=`^FO${x},124^GB150,190,5^FS^FO${x},138^A0N,26,26^FB150,1,0,C^FD${t(a)}^FS^FO${x},182^A0N,100,86^FB150,1,0,C^FD${t(b)}^FS`;});
+  return z+`^FO30,512^A0N,28,28^FB760,1,0,L^FD${t(l.pie)}^FS^XZ`;
+}
 function imprimirEtiqueta(l,m,fin,donde){
+  aEquipo({tipo:'imprimir',codigo:l.codigo,zpl:zplDe(l)});
   S.md=null; S.msg=null;
   S.snap=Object.assign({},m,{lbl:'Imprimiendo…',codigo:l.codigo,corto:cortoDe(l),sticker:l,estado:{k:'info',txt:`Imprimiendo ${l.codigo}…`},imp:{txt:'Imprimiendo…',dis:true}});
   S.fase='imprimiendo'; render();
@@ -648,7 +762,7 @@ function imprimir(){
       const nx=S.sel; return {k:'ok',txt:nx?`${l.codigo} impresa · ahora sigue ${codCat(G,nx)}`:`${l.codigo} impresa · grupo ${G.g} completo`};},
       'Péguela arriba del paquete, en la esquina');
   }else if(S.prod==='lam'){
-    const T=tipoLam(), n=S.lam.sig[T.id], l=etqLam(T,n,tick(),LAM_EJ[(S.lam.ej++)%LAM_EJ.length],S.user); l.m=S.min;
+    const T=tipoLam(), n=S.lam.sig[T.id], l=etqLam(T,n,tick(),T.ej[(S.lam.ej++)%T.ej.length],S.user); l.m=S.min;
     imprimirEtiqueta(l,m,()=>{agregar(l); S.lam.sig[T.id]++; encolar(l); return {k:'ok',txt:`${codLam(T,n)} impresa · ahora sigue el ${n+1}`};},'Péguela en el paquete del pallet');
   }else{
     const R=S.rs, n=R.lista.filter(x=>x.g===R.grupo).length+1, tara=TARA_CARRO[R.carro];
@@ -662,9 +776,9 @@ function agregar(l){l.id=++uid; S.labels.unshift(l);}
 
 /* ---------- Báscula N9 (simulada): marca el peso en vivo, lo controla y lo registra solo ---------- */
 const balanzaInicial=()=>({lect:0,meta:0,ruido:0,carga:null,prodPic:'cat',pic:'vacia',chip:'cero',res:{k:'muted',t1:'Báscula libre',t2:'Esperando la próxima carga'}});
-const cortoDe=l=>l.prod==='rs'?`C${l.ref.carro}`:l.prod==='lam'?`Nº ${l.ref.n}`:l.ref&&l.ref.m?'MUESTRA':l.codigo;
-const rangoDe=l=>l.prod==='cat'?(l.ref.m?null:RANGO.cat):l.prod==='lam'?(RANGO[l.ref.t]||null):RANGO.rs;
-const picClase=()=>`bal-pic ${B.pic} p-${B.prodPic}`;
+const cortoDe=l=>l.prod==='rs'?`C${l.ref.carro}`:l.prod==='lam'?`Nº ${l.ref.n}`:l.prod==='cat'&&l.ref&&l.ref.m?'MUESTRA':l.codigo;
+const rangoDe=l=>l.prod==='cat'?(l.ref.m?null:RANGO.cat):l.prod==='lam'?(RANGO[l.ref.t]||null):l.prod==='rs'?RANGO.rs:null;
+const picClase=()=>`bal-pic ${B.pic} p-${B.prodPic==='sub'?'lam':B.prodPic}`;
 /* Plataforma vista en isométrico: cubierta, área marcada, nódulos en la junta, las 4 celdas de carga y lo que está encima */
 const PIC_SVG=
   '<path d="M6 42L48 63L90 42V46L48 67L6 46Z" fill="#0B1418"/><path d="M48 21L90 42L48 63L6 42Z" fill="#22343D" stroke="#3A5462"/>'+
@@ -686,7 +800,8 @@ const PIC_SVG=
 const resHtml=()=>`${ICON[B.res.k]}<div><b>${B.res.t1}</b><small>${B.res.t2}</small></div>`;
 function balanzaHtml(){
   const ch=CHIP[B.chip], t=f0(Math.max(0,Math.round(B.lect)));
-  return `<section class="balanza" aria-label="Báscula N9 en vivo"><div class="bal-h"><span class="bal-t">Báscula N9 · en vivo</span><span class="bal-on"><i></i>En línea</span></div>`+
+  return `<section class="balanza" aria-label="Báscula N9 en vivo"><div class="bal-h"><span class="bal-t">Báscula N9</span><span class="bal-on"><i></i>En línea</span>`+
+    `<button class="bal-ab" type="button" data-act="abrir-bas">Abrir${ICON.lapiz}</button></div>`+
     `<div class="bal-dsp"><div class="bal-lect"><span class="chip ${ch[0]}" id="balChip">${ch[1]}</span><div class="bal-num${t.length>5?' largo':''}"><b id="balNum">${t}</b><em>kg</em></div></div>`+
     `<svg class="${picClase()}" id="balPic" viewBox="0 0 96 68" aria-hidden="true">${PIC_SVG}</svg></div>`+
     `<div class="bal-res ${B.res.k}" id="balRes" role="status">${resHtml()}</div></section>`;
@@ -715,8 +830,9 @@ function fijar(chip,res){B.chip=chip; B.res=res; pintarBal();}
 function evaluar(l,W){
   const c=cortoDe(l), R=rangoDe(l);
   if(l.prod==='rs'&&l.sinTara) return {k:'warn',t1:`${c} · bruto ${f0(W)} kg`,t2:'Sin tara: falta pesar el carro vacío',estado:'sintara',ctrl:'Sin tara de carro + rack',corto:'sin tara'};
-  const neto=l.prod==='lam'?W-12:l.prod==='rs'?W-l.tara:W;
-  const det=l.prod==='lam'?`Bruto ${f0(W)} − tara 12`:l.prod==='rs'?`Bruto ${f0(W)} − tara ${f0(l.tara)}`:'';
+  const tl=l.prod==='lam'?(l.tara!=null?l.tara:12):l.tara;
+  const neto=l.prod==='lam'||l.prod==='rs'?W-tl:W;
+  const det=l.prod==='lam'||l.prod==='rs'?`Bruto ${f0(W)} − tara ${f0(tl)}`:'';
   const t1=`${c} · ${det?'neto ':''}${f0(neto)} kg`;
   if(!R) return {k:'ok',t1:t1,t2:det?`${det} · rango por definir`:'Peso capturado · rango por definir',estado:'pesada',ctrl:'Rango por definir',corto:'rango por definir'};
   if(neto<R[0]||neto>R[1]){
@@ -726,19 +842,22 @@ function evaluar(l,W){
   }
   return {k:'ok',t1:t1,t2:det?`${det} · dentro de rango`:`Dentro de rango (${f0(R[0])} a ${f0(R[1])})`,estado:'pesada',ctrl:'Dentro de rango',corto:'dentro de rango'};
 }
-function registrar(l,r,extra){
-  const m=Math.max((l.m||S.min)+3,(S.ultPes||0)+1); S.ultPes=m; if(m>S.min) S.min=m;
-  l.hp=hhmm(m); l.ctrl=r.ctrl+(extra?' · '+extra:'');
+/* Deja el peso en el registro: neto, hora real del pesaje, turno y lo que dijo el control */
+function registrar(l,r,extra,ahora){
+  const m=Math.max(ahora?S.min:(l.m||S.min)+3,(S.ultPes||0)+1); S.ultPes=m; if(m>S.min) S.min=m;
+  if(r.estado==='pesada') l.neto=l.prod==='lam'?l.bruto-(l.tara!=null?l.tara:12):l.prod==='rs'?l.bruto-l.tara:l.bruto;
+  l.hp=hhmm(m); l.turno=S.turno; l.ctrl=r.ctrl+(extra?' · '+extra:'')+(l.editado?' · datos corregidos en la báscula':'');
   marcar(l,r.estado); refrescar();
 }
 /* Una carga sobre la báscula: llega, se estabiliza, se controla, se registra y sale */
 async function pesar(l,yo){
-  const vivo=()=>yo===gen, c=cortoDe(l), W=l.bruto;
-  const grua=ESC.grua, fuera=ESC.fuera&&l.prod==='rs';
+  const vivo=()=>yo===gen, sinEtq=!!l.sinEtq, c=sinEtq?'Sin etiqueta':cortoDe(l), W=l.bruto;
+  const grua=!sinEtq&&ESC.grua, fuera=!sinEtq&&ESC.fuera&&l.prod==='rs';
   if(grua) ESC.grua=false; if(fuera) ESC.fuera=false; if(grua||fuera) pintarEsc();
   const desvio=grua?1850:fuera?-960:0;
-  B.carga=l; B.prodPic=l.prod; B.pic='vacia'; B.chip='espera'; B.res={k:'info',t1:`Llega ${c}`,t2:'La cámara lee la etiqueta'};
-  marcar(l,'bascula'); refrescar();
+  B.carga=l; B.prodPic=l.prod; B.pic='vacia'; B.chip='espera';
+  B.res=sinEtq?{k:'warn',t1:'Llega una carga sin etiqueta',t2:'La cámara no encuentra código'}:{k:'info',t1:`Llega ${c}`,t2:'La cámara lee la etiqueta'};
+  marcar(l,'bascula'); bfSeguir(l); refrescar();
   await dormir(60); if(!vivo()) return;
   B.pic=grua?'grua':fuera?'fuera':'sobre'; pintarBal();
   await dormir(700); if(!vivo()) return;
@@ -749,6 +868,20 @@ async function pesar(l,yo){
   B.ruido=3;
   await dormir(700); if(!vivo()) return;
   B.ruido=0; B.lect=B.meta;
+  if(sinEtq){
+    /* Sin etiqueta no se registra sola: el pesador la ingresa en la pantalla Báscula y graba */
+    B.esperando=true; fijar('estable',{k:'warn',t1:`Sin etiqueta · ${f0(W)} kg`,t2:'Ingrésela a mano: toque Abrir'});
+    if(S.view==='bas'&&S.bf&&!S.bf.dirty){S.bf=formNuevo('sub'); S.bf.bruto=W; S.bf.tomado=true; S.bf.msg={k:'warn',txt:'Carga sin etiqueta: elija qué es, revise los datos y toque Grabar'}; render();}
+    const rec=await new Promise(res=>{B.liberar=res;}); if(!vivo()) return;
+    B.esperando=false; B.liberar=null;
+    fijar('estable',{k:'ok',t1:`${rec.codigo} · ${f0(rec.neto)} kg`,t2:`Ingresada a mano · registrada ${rec.hp}`});
+    await dormir(1600); if(!vivo()) return;
+    B.pic='sale'; B.meta=0; B.ruido=30; fijar('inestable',{k:'muted',t1:`${rec.codigo} sale de la báscula`,t2:'Quedó registrada'});
+    await dormir(900); if(!vivo()) return;
+    B.ruido=0; B.lect=0; B.meta=0; B.carga=null; B.pic='vacia';
+    fijar('cero',{k:'muted',t1:'Báscula libre',t2:'Esperando la próxima carga'});
+    return;
+  }
   let extra='';
   if(grua||fuera){
     fijar('bloqueado',grua?{k:'err',t1:'Grúa sobre la báscula',t2:`Marca ${f0(W+desvio)} kg. Retroceda para pesar.`}:{k:'err',t1:'Carro fuera del área',t2:'Se pasa de la plataforma. Acomódelo.'});
@@ -797,7 +930,173 @@ function marcar(l,e){
   l.estado=e;
   if(l.prod==='cat'&&l.ref&&l.ref.n){const G=S.grupos[l.ref.g], c=G&&G.celdas[l.ref.n]; if(c){c.e=e; if(e==='pesada') c.p=l.neto;}}
 }
-function refrescar(){if(S.fase) {guardar(); return;} if(S.view!=='login') render(); else guardar();}
+function refrescar(){
+  if(S.fase) {guardar(); return;}
+  /* Si la pantalla Báscula muestra un registro sin cambios a medio hacer, lo trae al día */
+  if(S.view==='bas'&&S.bf&&!S.bf.dirty&&S.bf.id){const l=S.labels.find(x=>x.id===S.bf.id); if(l){const m=S.bf.msg; S.bf=formDe(l,S.bf.modo); S.bf.msg=m;}}
+  if(S.view!=='login') render(); else guardar();
+}
+
+/* ---------- Pantalla Báscula: los datos de las planillas, editables ---------- */
+/* Qué se anota hoy en cada planilla: cuaderno de cátodos, hoja de láminas despegue, restos de ánodos y formulario de subproductos */
+const CAMPO={
+  g:{lbl:'Grupo',preg:'¿De qué grupo es?',max:2}, n:{lbl:'Cuba (celda)',preg:'¿Qué celda o cuba?',max:2},
+  num:{lbl:'Número',preg:'¿Qué número tiene el pallet?',max:4}, nr:{lbl:'Nº en el grupo',preg:'¿Qué carro del grupo es? (1 a 12)',max:2},
+  carro:{lbl:'Carro',preg:'¿Qué número tiene pintado el carro?',max:3}, tara:{lbl:'Tara',preg:'¿Cuál es la tara?',max:5,kg:true},
+  bruto:{lbl:'Peso bruto',preg:'¿Cuánto pesa? (lo que marca la báscula)',max:5,kg:true}, cant:{lbl:'Cajas o paquetes',preg:'¿Cuántas cajas o paquetes son?',max:2},
+  bote:{lbl:'Nº de bote',preg:'¿Qué número tiene el bote?',max:3}};
+const regDe=id=>id?S.labels.find(x=>x.id===id):null;
+function formNuevo(prod){
+  const f={modo:'nuevo',id:null,prod:prod,ed:[],dirty:false,msg:null,bruto:null,tomado:false,tara:null};
+  if(prod==='cat'){const G=grupoAct(), n=siguiente(G)||1; Object.assign(f,{g:G.g,n:n,lado:ladoDe(G,n),mu:'N'});}
+  if(prod==='lam'){Object.assign(f,{t:S.lam.tipo,num:S.lam.sig[S.lam.tipo],tara:12});}
+  if(prod==='rs'){const R=S.rs; Object.assign(f,{g:R.grupo,nr:Math.min(12,R.lista.filter(x=>x.g===R.grupo).length+1),carro:'',tara:null});}
+  if(prod==='sub') Object.assign(f,{st:'dg',cant:1,bote:''});
+  return f;
+}
+function formDe(l,modo){
+  const f={modo:modo||'editar',id:l.id,prod:l.prod,ed:[],dirty:false,msg:null,tomado:false,
+    bruto:(l.estado==='pesada'||l.estado==='sintara')?l.bruto:null,tara:l.prod==='lam'?(l.tara!=null?l.tara:12):l.prod==='rs'?(l.sinTara?null:l.tara):null};
+  if(l.prod==='cat') Object.assign(f,{g:l.ref.g,n:l.ref.m?0:l.ref.n,lado:l.lado||'',mu:l.ref.m?'S':'N'});
+  if(l.prod==='lam') Object.assign(f,{t:l.ref.t,num:l.ref.n});
+  if(l.prod==='rs') Object.assign(f,{g:l.ref.g,nr:l.ref.n,carro:String(l.ref.carro)});
+  if(l.prod==='sub') Object.assign(f,{st:l.ref.st,cant:l.ref.cant||1,bote:l.ref.bote||''});
+  return f;
+}
+/* Cuando llega una carga con etiqueta y la pantalla Báscula está abierta sin cambios, muestra sus datos */
+function bfSeguir(l){if(S.view==='bas'&&S.bf&&!S.bf.dirty&&!l.sinEtq&&l.id) S.bf=formDe(l,'carga');}
+const netoBF=f=>f.bruto==null?null:f.prod==='lam'||f.prod==='rs'?(f.tara==null?null:f.bruto-f.tara):f.bruto;
+function camposDe(f){
+  const l=regDe(f.id), pesable=!l||l.estado==='pesada'||l.estado==='sintara', kg=v=>v==null?'—':f0(v)+' kg';
+  const peso=s2=>pesable?{k:'bruto',lbl:'Peso bruto',v:f.bruto!=null?kg(f.bruto):'Toque Tomar peso',vacio:f.bruto==null,s2:s2,tag:f.ed.includes('bruto')?'digitado':f.bruto!=null?'báscula':''}
+    :{k:'bruto',lbl:'Peso bruto',v:'Se toma al pesar',calc:true,vacio:true,s2:s2};
+  if(f.prod==='cat'){const mu=f.mu==='S', R=mu?null:RANGO.cat;
+    return [{k:'g',lbl:'Grupo',v:f.g},{k:'n',lbl:'Cuba (celda)',v:mu?'00':pad2(f.n||0),dis:mu},{k:'lado',lbl:'Lado',v:mu?'—':f.lado==='P'?'P · parcial':'T · total',dis:mu},
+      {k:'mu',lbl:'Muestra',v:mu?'Sí':'No',dis:f.modo!=='nuevo'},peso(true),{k:'x',lbl:'Esperado',v:R?`${f0(R[0])} a ${f0(R[1])} kg`:'Sin rango',calc:true,s2:true}];}
+  if(f.prod==='lam'){const T=LAM.find(t=>t.id===f.t), d=S.labels.filter(x=>x.prod==='lam'&&x.ref.t===f.t).sort((a,b)=>a.id-b.id), i=l?d.indexOf(l):-1;
+    return [{k:'t',lbl:'Tipo de lámina',v:T.corto,s2:true},{k:'num',lbl:'Número',v:'Nº '+f.num},{k:'x',lbl:'Nº de paquete',v:i>=0?i+1:d.length+1,calc:true},
+      peso(false),{k:'tara',lbl:'Peso tara',v:kg(f.tara)},{k:'x',lbl:'Producción neto',v:kg(netoBF(f)),calc:true,s2:true}];}
+  if(f.prod==='rs'){const nt=netoBF(f);
+    return [{k:'g',lbl:'Grupo',v:f.g},{k:'nr',lbl:'Nº en el grupo',v:f.nr},{k:'carro',lbl:'Carro (pintado)',v:f.carro?'C'+f.carro:'—',vacio:!f.carro},
+      {k:'tara',lbl:'Tara carro + rack',v:f.tara!=null?kg(f.tara):'Sin tara',vacio:f.tara==null,tag:f.ed.includes('tara')?'digitada':f.tara!=null?'lista':''},
+      peso(true),{k:'x',lbl:'Neto',v:nt!=null?kg(nt):f.tara==null?'Falta la tara':'—',calc:true,s2:true}];}
+  const T=SUB.find(t=>t.id===f.st);
+  return [{k:'st',lbl:'Qué es',v:T.corto,s2:true},{k:'cant',lbl:'Cajas o paquetes',v:f.cant},
+    T.bote?{k:'bote',lbl:'Nº de bote',v:f.bote||'—',vacio:!f.bote}:{k:'x',lbl:'Turno',v:S.turno,calc:true},
+    peso(true),{k:'x',lbl:'Destino',v:T.bote?'Traspaso a RAF':'Productos finales',calc:true,s2:true}];
+}
+function camposHtml(f){
+  const nuevo=f.modo==='nuevo';
+  return camposDe(f).map(c=>{
+    const ed=f.ed.includes(c.k), calc=c.calc||c.dis, cls='cp'+(c.s2?' s2':'')+(calc?' calc':ed?' ed':' auto')+(c.vacio?' vacio':'');
+    const tag=c.tag!=null?c.tag:calc?'':ed?'cambiado':nuevo?'propuesto':'etiqueta';
+    return calc?`<div class="${cls}"><small>${c.lbl}</small><b>${c.v}</b></div>`
+      :`<button class="${cls}" type="button" data-act="bf-campo" data-v="${c.k}"><small>${c.lbl}</small><b>${c.v}</b>${tag?`<i>${tag}</i>`:''}${ICON.lapiz}</button>`;
+  }).join('');
+}
+function vBas(){
+  const f=S.bf, l=regDe(f.id), ch=CHIP[B.chip], t=f0(Math.max(0,Math.round(B.lect)));
+  const prodB=(v,ic,tx)=>`<button class="${f.prod===v?'on':''}" type="button" data-act="bf-prod" data-v="${v}"${f.modo!=='nuevo'&&f.prod!==v?' disabled':''} aria-pressed="${f.prod===v}">${ic}<span>${tx}</span></button>`;
+  const cero=!S.cero?`<button class="cero-b pend" type="button" data-act="cero">${ICON.warn}<span>Hacer control de cero</span></button>`
+    :S.cero.ok?`<button class="cero-b" type="button" data-act="cero">${ICON.ok}<span>Cero OK ${S.cero.h}</span></button>`
+    :`<button class="cero-b mal" type="button" data-act="cero">${ICON.err}<span>Cero: falla ${S.cero.h}</span></button>`;
+  const modo=l?`<b>${l.codigo}</b> · ${l.estado==='pesada'?`registrado ${l.hp}`:EST_TXT[l.estado].toLowerCase()}${l.manual?' · ingreso manual':''}`
+    :B.esperando?'<b>Pesaje nuevo</b> · carga sin etiqueta en la báscula':'<b>Pesaje nuevo</b> · sin etiqueta';
+  return `<div class="bs-bar"><button class="b-out" type="button" data-act="cerrar-bas">‹ Volver</button><span class="t">Báscula N9 · pesaje</span>`+
+    `<div class="turno" role="group" aria-label="Turno">${['A','C'].map(x=>`<button class="${S.turno===x?'on':''}" type="button" data-act="turno" data-v="${x}" aria-pressed="${S.turno===x}">Turno ${x}</button>`).join('')}</div>${cero}</div>`+
+    `<div class="bs-top"><section class="bs-peso" aria-label="Lectura de la Báscula N9"><div class="bal-lect"><span class="chip ${ch[0]}" id="balChip">${ch[1]}</span>`+
+    `<div class="bal-num${t.length>5?' largo':''}"><b id="balNum">${t}</b><em>kg</em></div></div><svg class="${picClase()}" id="balPic" viewBox="0 0 96 68" aria-hidden="true">${PIC_SVG}</svg>`+
+    `<div class="bal-res ${B.res.k}" id="balRes" role="status">${resHtml()}</div></section>`+
+    `<div class="bs-prod">${prodB('cat',ICON.cat,'Cátodos')}${prodB('lam',ICON.lam,'Láminas')}${prodB('rs',ICON.rs,'Restos de ánodos')}${prodB('sub',ICON.caja,'Despuntes y otros')}</div></div>`+
+    `<section class="bs-form"><p class="bs-modo"><span>${modo}</span><em>Toque un dato para cambiarlo</em></p><div class="campos">${camposHtml(f)}</div></section>`+
+    (f.msg?`<p class="aviso ${f.msg.k}" role="status">${ICON[f.msg.k]}<span>${f.msg.txt}</span></p>`:'')+
+    `<div class="acc"><button class="b-imp" type="button" data-act="grabar">${ICON.grabar}<span>${f.modo==='nuevo'?'Grabar':'Grabar cambios'}</span></button>`+
+    `<button class="b-sec" type="button" data-act="tomar">${ICON.muted}<span>Tomar peso</span></button>`+
+    `<button class="b-sec" type="button" data-act="registro">${ICON.lista}<span>Ver datos</span><span class="n">${S.labels.length}</span></button>`+
+    `<button class="b-sec" type="button" data-act="limpiar"><span>Limpiar</span></button></div>`;
+}
+function fallo(txt){S.bf.msg={k:'err',txt:txt}; render(); return false;}
+function validarBF(f,pesable){
+  if((f.prod==='cat'||f.prod==='rs')&&!(f.g>0)) return 'Falta el grupo';
+  if(f.prod==='cat'&&f.mu!=='S'&&!(f.n>=1&&f.n<=42)) return 'La cuba va de 1 a 42';
+  if(f.prod==='lam'&&!(f.num>0)) return 'Falta el número del pallet';
+  if(f.prod==='rs'&&!(f.nr>=1&&f.nr<=12)) return 'El carro del grupo va de 1 a 12';
+  if(f.prod==='rs'&&!f.carro) return 'Falta el número pintado del carro';
+  if(f.prod==='sub'&&!(f.cant>=1)) return 'Faltan las cajas o paquetes';
+  if(f.prod==='sub'&&f.st==='hm'&&!f.bote) return 'Falta el número de bote';
+  if(pesable&&!(f.bruto>0)) return 'Falta el peso: toque Tomar peso o el recuadro del peso';
+  if(pesable&&(f.prod==='lam'||f.prod==='rs')&&f.tara!=null&&f.bruto-f.tara<=0) return 'La tara es mayor que el peso';
+  return null;
+}
+/* Pesaje sin etiqueta: se crea el registro con lo que puso el pesador */
+function crearManual(f){
+  const h=hora(); let l;
+  if(f.prod==='cat'){const G=S.grupos[f.g]||(S.grupos[f.g]=nuevoGrupo(f.g));
+    if(f.mu==='S'){if(G.muestra) return fallo(`La muestra del grupo ${f.g} ya está registrada`); l=etqMuestra(f.g,h,S.user); G.muestra={h:h};}
+    else{if(G.celdas[f.n]) return fallo(`La celda ${f.n} del grupo ${f.g} ya tiene registro: edítela desde Ver datos`); l=etqCat(f.g,f.n,f.lado||ladoDe(G,f.n),h,f.bruto,S.user);}}
+  else if(f.prod==='lam'){const T=LAM.find(t=>t.id===f.t);
+    if(S.labels.some(x=>x.prod==='lam'&&x.ref.t===f.t&&x.ref.n===f.num)) return fallo(`El Nº ${f.num} de ${T.corto} ya tiene registro`);
+    l=etqLam(T,f.num,h,f.bruto-f.tara,S.user); if(f.num>=S.lam.sig[f.t]) S.lam.sig[f.t]=f.num+1;}
+  else if(f.prod==='rs'){if(S.rs.lista.some(x=>x.g===f.g&&(x.carro===f.carro||x.n===f.nr))) return fallo(`El carro C${f.carro} o el Nº ${f.nr} ya está en el grupo ${f.g}`);
+    l=etqRs(f.g,f.carro,f.nr,h,f.tara!=null?f.bruto-f.tara:0,f.tara,S.user);}
+  else l=etqSub(SUB.find(t=>t.id===f.st),f.cant,f.bote,h,f.bruto,S.user);
+  l.bruto=f.bruto; if(f.prod==='lam'||f.prod==='rs') l.tara=f.tara||0; if(f.prod==='rs') l.sinTara=f.tara==null;
+  agregar(l); l.m=S.min; l.manual=true; l.nota=[l.nota,'sin etiqueta: ingresada en la báscula'].filter(Boolean).join(' · ');
+  if(f.prod==='cat'&&!l.ref.m) S.grupos[f.g].celdas[f.n]={e:'camino',h:h,id:l.id};
+  if(f.prod==='rs') S.rs.lista.push({g:f.g,carro:f.carro,n:f.nr,id:l.id});
+  const r=evaluar(l,f.bruto);
+  S.bf=formDe(l,'editar'); registrar(l,r,'ingreso manual',true);
+  S.bf=formDe(l,'editar'); S.bf.msg={k:r.k==='ok'?'ok':'warn',txt:`Grabado ${l.hp} · ${l.codigo} · ${f0(l.estado==='pesada'?l.neto:l.bruto)} kg${r.k==='ok'?'':' · '+r.t2}`};
+  if(B.esperando&&B.liberar) B.liberar(l);
+  render(); return true;
+}
+/* Corregir un registro: con o sin etiqueta, antes o después de pesar */
+function aplicarBF(l,f,pesable){
+  const antes=l.codigo;
+  if(l.prod==='cat'&&!l.ref.m&&(f.g!==l.ref.g||f.n!==l.ref.n||f.lado!==l.lado)){
+    const G2=S.grupos[f.g]||(S.grupos[f.g]=nuevoGrupo(f.g)), ya=G2.celdas[f.n];
+    if(ya&&ya.id!==l.id) return fallo(`La celda ${f.n} del grupo ${f.g} ya tiene registro`);
+    const G1=S.grupos[l.ref.g]; if(G1&&G1.celdas[l.ref.n]&&G1.celdas[l.ref.n].id===l.id) delete G1.celdas[l.ref.n];
+    G2.celdas[f.n]={e:l.estado,p:l.neto,h:l.hora,id:l.id};
+    l.ref={g:f.g,n:f.n}; l.lado=f.lado; l.codigo=`${f.n}${f.lado}${f.g}`; l.detalle=`Celda ${f.n}, lado ${LADO_TXT[f.lado]}, grupo ${f.g}`;
+    l.cajas=[['CELDA',String(f.n)],['LADO',f.lado],['GRUPO',String(f.g)]]; l.qr=`VEN|CAT|C${pad2(f.n)}|L${f.lado}|G${f.g}|M-N`;
+    l.pie=`Cátodo comercial · lado ${LADO_TXT[f.lado]} · ${FECHA} ${l.hora}`;
+  }
+  if(l.prod==='lam'){const T=LAM.find(t=>t.id===f.t);
+    if((f.t!==l.ref.t||f.num!==l.ref.n)&&S.labels.some(x=>x!==l&&x.prod==='lam'&&x.ref.t===f.t&&x.ref.n===f.num)) return fallo(`El Nº ${f.num} de ${T.corto} ya tiene registro`);
+    l.ref={t:f.t,n:f.num}; l.codigo=codLam(T,f.num); l.detalle=T.nombre; l.tipoNombre=T.nombre; l.tara=f.tara; l.cajas=[['DÍA',DIA],['MES',MES],['Nº',String(f.num)]];}
+  if(l.prod==='rs'){
+    if(S.rs.lista.some(x=>x.id!==l.id&&x.g===f.g&&(x.carro===f.carro||x.n===f.nr))) return fallo(`El carro C${f.carro} o el Nº ${f.nr} ya está en el grupo ${f.g}`);
+    const x=S.rs.lista.find(y=>y.id===l.id); if(x) Object.assign(x,{g:f.g,carro:f.carro,n:f.nr});
+    l.ref={g:f.g,carro:f.carro,n:f.nr}; l.codigo=`G${f.g} · C${f.carro}`; l.detalle=`Restos de ánodos · carro ${f.nr} del grupo ${f.g}`;
+    l.tara=f.tara||0; l.sinTara=f.tara==null; l.cajas=[['GRUPO',String(f.g)],['CARRO',f.carro],['Nº',String(f.nr)]];
+    l.pie=f.tara!=null?`Tara carro + rack ${f0(f.tara)} kg · ${FECHA} ${l.hora}`:`Sin tara registrada · ${FECHA} ${l.hora}`;}
+  if(l.prod==='sub'){const T=SUB.find(t=>t.id===f.st); l.ref={st:f.st,cant:f.cant,bote:f.st==='hm'?f.bote:''}; l.codigo=codSub(T,l.ref.bote);
+    l.detalle=T.nombre+(f.cant>1?` · ${f.cant} ${T.caja?'cajas':'paquetes'}`:'');}
+  l.editado=true;
+  if(pesable){const corr=f.bruto!==l.bruto; l.bruto=f.bruto;
+    const r=evaluar(l,l.bruto); if(r.estado==='pesada') l.neto=l.prod==='lam'||l.prod==='rs'?l.bruto-l.tara:l.bruto;
+    marcar(l,r.estado); l.ctrl=r.ctrl+(corr?' · peso digitado':'')+` · corregido ${hora()}`;}
+  guardar();
+  S.bf=formDe(l,'editar'); S.bf.msg={k:'ok',txt:`Cambios grabados · ${l.codigo}${antes!==l.codigo?` (antes ${antes})`:''}${pesable&&l.estado==='pesada'?` · neto ${f0(l.neto)} kg`:''}`};
+  render(); toast(`Registro corregido: ${l.codigo}`,'ok'); return true;
+}
+function grabarBF(){
+  const f=S.bf, l=regDe(f.id), pesable=!l||l.estado==='pesada'||l.estado==='sintara';
+  const e=validarBF(f,pesable); if(e) return fallo(e);
+  if(!l) return crearManual(f);
+  if(!f.dirty){f.msg={k:'info',txt:'No hay cambios que grabar'}; render(); return false;}
+  return aplicarBF(l,f,pesable);
+}
+function tomarPeso(){
+  const f=S.bf, l=regDe(f.id);
+  if(l&&l.estado!=='pesada'&&l.estado!=='sintara'){f.msg={k:'info',txt:`${l.codigo} se registra sola cuando el peso se estabiliza`}; return render();}
+  if(B.chip==='bloqueado'||B.chip==='sincero'){f.msg={k:'err',txt:`Báscula bloqueada: ${B.res.t1}`}; return render();}
+  if(B.chip==='inestable'||B.chip==='espera'){f.msg={k:'warn',txt:'Espere que el peso se estabilice'}; return render();}
+  if(Math.round(B.lect)<1){f.msg={k:'warn',txt:'La báscula está vacía: suba la carga o escriba el peso'}; return render();}
+  f.bruto=Math.round(B.lect); f.ed=f.ed.filter(k=>k!=='bruto'); f.tomado=true; f.dirty=true;
+  f.msg={k:'ok',txt:`Peso tomado de la báscula: ${f0(f.bruto)} kg`}; render();
+}
 
 /* ---------- Excel: una hoja por producto y un resumen como el del Sistema de Cátodos ---------- */
 function libroExcel(){
@@ -806,21 +1105,58 @@ function libroExcel(){
   const hoja=(nombre,filas,anchos)=>{const ws=XL.utils.aoa_to_sheet(filas); ws['!cols']=anchos.map(w=>({wch:w})); XL.utils.book_append_sheet(wb,ws,nombre);};
   const de=p=>S.labels.filter(l=>l.prod===p).slice().sort((a,b)=>a.id-b.id);
   const ps=l=>l.estado==='pesada';
-  const suma=a=>a.reduce((x,l)=>x+l.neto,0);
-  const cat=de('cat'), lam=de('lam'), rs=de('rs');
-  hoja('Cátodos',[['Fecha','Hora etiqueta','Hora pesaje','Etiqueta','Grupo','Cuba (celda)','Lado (P/T)','Muestra (S/N)','Peso kg','Estado','Control báscula','Operador','Nota'],
-    ...cat.map(l=>[FECHA,l.hora,l.hp||'',l.codigo,l.ref.g,l.ref.m?'00':pad2(l.ref.n),l.ref.m?'':l.lado,l.ref.m?'S':'N',ps(l)?l.neto:'',EST_TXT[l.estado],l.ctrl||'',l.oper||'',l.nota||''])],
-    [11,13,12,13,7,12,10,13,10,13,34,18,15]);
-  hoja('Láminas',[['Fecha','Hora etiqueta','Hora pesaje','Tipo','Número','Peso bruto','Peso tara','Producción neto','Estado','Control báscula','Operador'],
-    ...lam.map(l=>[FECHA,l.hora,l.hp||'',l.tipoNombre,l.ref.n,ps(l)?l.bruto:'',12,ps(l)?l.neto:'',EST_TXT[l.estado],l.ctrl||'',l.oper||''])],
-    [11,13,12,24,9,11,10,15,13,34,18]);
-  const fr=[['Fecha','Hora tarjeta','Hora pesaje','Grupo','Nº en el grupo','Carro (pintado)','Peso bruto','Tara carro + rack','Neto','Estado','Control báscula','Operador']];
+  const suma=a=>a.reduce((x,l)=>x+(l.neto||0),0);
+  const cat=de('cat'), lam=de('lam'), rs=de('rs'), sub=de('sub'), ctl=l=>l.ctrl||'';
+  const cero=S.cero?`${S.cero.ok?'OK':'Falla'} ${S.cero.h}`:'Pendiente';
+  /* 1. Cátodos, como el cuaderno del pesador: un bloque por grupo (lado de 1 a 21 y de 42 a 22, T, P, M y total) y el detalle */
+  const C=[['Registro de cátodos comerciales · Báscula N9'],['Fecha',FECHA,'','Control de cero',cero]];
+  [...new Set(cat.map(l=>l.ref.g))].forEach(gr=>{
+    const d=cat.filter(l=>l.ref.g===gr&&ps(l)), G=S.grupos[gr]||nuevoGrupo(gr), pe=n=>{const l=d.find(x=>!x.ref.m&&x.ref.n===n); return l?l.neto:'';};
+    const hs=d.map(l=>l.hp).filter(Boolean).sort(), T=d.filter(l=>!l.ref.m&&l.lado==='T'), P=d.filter(l=>!l.ref.m&&l.lado==='P'), M=d.filter(l=>l.ref.m);
+    C.push([],['Grupo',gr,'','Hora',hs[0]||''],['Celda',`Lado ${G.lados.a} (kg)`,'','Celda',`Lado ${G.lados.b} (kg)`]);
+    for(let i=0;i<21;i++) C.push([i+1,pe(i+1),'',42-i,pe(42-i)]);
+    C.push(['T',suma(T)],['P',suma(P)],['M',suma(M)],['TOTAL',suma(T)+suma(P)+suma(M)]);});
+  C.push([],['Detalle'],['Fecha','Turno','Hora etiqueta','Hora pesaje','Etiqueta','Grupo','Cuba (celda)','Lado (P/T)','Muestra (S/N)','Peso kg','Estado','Control báscula','Operador','Nota']);
+  cat.forEach(l=>C.push([FECHA,l.turno||'',l.hora,l.hp||'',l.codigo,l.ref.g,l.ref.m?'00':pad2(l.ref.n),l.ref.m?'':l.lado,l.ref.m?'S':'N',ps(l)?l.neto:'',EST_TXT[l.estado],ctl(l),l.oper||'',l.nota||'']));
+  hoja('Cátodos',C,[22,13,10,16,13,8,12,10,13,10,13,40,18,30]);
+  /* 2. Láminas, como la "Hoja de láminas despegue": bloques H. INIC., C.O, L.VENTA y L.RECHAZO S/O con su total */
+  const Lm=[['HOJA DE LÁMINAS DESPEGUE'],['Fecha',FECHA,'','Turno','A - C'],[],['Tipo','Número','Peso bruto','Peso tara','Producción neto','Número de paquetes','Turno','Hora pesaje','Control báscula']];
+  [['aprob','TOTAL H. INIC.'],['co','TOTAL C.O'],['venta','TOTAL VENTA'],['rso','TOTAL RECHAZO S/O']].forEach(([t,tot])=>{
+    const T=LAM.find(x=>x.id===t), d=lam.filter(l=>l.ref.t===t);
+    d.forEach((l,i)=>Lm.push([T.corto,l.ref.n,ps(l)?l.bruto:'',l.tara!=null?l.tara:12,ps(l)?l.neto:'',i+1,l.turno||'',l.hp||'',ps(l)?ctl(l):EST_TXT[l.estado]]));
+    Lm.push([tot,'','','',suma(d.filter(ps)),d.length,'','','']);});
+  hoja('Láminas despegue',Lm,[20,9,11,10,15,18,8,12,40]);
+  /* 3. Restos de ánodos, como "Recepción de restos de ánodos comerciales": un bloque por grupo con los carros 1 a 12 */
+  const Rs=[['RECEPCIÓN DE RESTOS DE ÁNODOS COMERCIALES'],['PRODUCCIÓN DE RESTOS','','','','',FECHA],[]];
   const gruposRs=[...new Set(rs.map(l=>l.ref.g))];
-  gruposRs.forEach(gr=>{const d=rs.filter(l=>l.ref.g===gr);
-    d.forEach(l=>fr.push([FECHA,l.hora,l.hp||'',gr,l.ref.n,Number(l.ref.carro),(ps(l)||l.estado==='sintara')?l.bruto:'',l.tara||'',ps(l)?l.neto:'',EST_TXT[l.estado],l.ctrl||'',l.oper||'']));
-    fr.push(['','','',`Total grupo ${gr}`,`${d.length} carros`,'','','',suma(d.filter(ps)),'','','']);});
-  hoja('Restos de ánodos',fr,[11,13,12,15,14,15,11,16,10,13,34,18]);
-  const R=[['Resumen del día',FECHA],[],['Cátodos (mismas columnas que el Resumen del Sistema de Cátodos)'],
+  for(let k=0;k<gruposRs.length;k+=4){
+    const base=Rs.length; for(let r=0;r<14;r++) Rs.push([]);
+    gruposRs.slice(k,k+4).forEach((gr,j)=>{const c=j*3, d=rs.filter(l=>l.ref.g===gr);
+      Rs[base][c]='GRUPO'; Rs[base][c+1]=gr;
+      for(let i=1;i<=12;i++){const l=d.find(x=>x.ref.n===i); Rs[base+i][c]=i; Rs[base+i][c+1]=l?(ps(l)?l.neto:l.estado==='sintara'?'sin tara':''):'';}
+      Rs[base+13][c]='TOTAL'; Rs[base+13][c+1]=suma(d.filter(ps));});
+    Rs.push([]);
+  }
+  const hm=sub.filter(l=>l.ref.st==='hm');
+  Rs.push(['PRODUCCIÓN DE RESTOS DE HOJAS MADRES'],['Nº bote','Peso kg','Turno','Hora pesaje']);
+  hm.forEach(l=>Rs.push([l.ref.bote,l.neto,l.turno||'',l.hp||'']));
+  Rs.push(['TOTAL',suma(hm)],[],['Detalle de carros'],['Fecha','Turno','Hora tarjeta','Hora pesaje','Grupo','Nº en el grupo','Carro (pintado)','Peso bruto','Tara carro + rack','Neto','Estado','Control báscula','Operador']);
+  rs.forEach(l=>Rs.push([FECHA,l.turno||'',l.hora,l.hp||'',l.ref.g,l.ref.n,Number(l.ref.carro),(ps(l)||l.estado==='sintara')?l.bruto:'',l.sinTara?'':l.tara,ps(l)?l.neto:'',EST_TXT[l.estado],ctl(l),l.oper||'']));
+  hoja('Restos de ánodos',Rs,[14,10,10,13,10,12,15,11,16,10,12,40,18]);
+  /* 4. Subproductos, como el "Formulario entrega y recepción de subproductos en PM": cajas y peso por turno, y el peso de cada una */
+  const FILAS=[['D.G · despuntes de guillotina',l=>l.prod==='sub'&&l.ref.st==='dg'],['D.O · despuntes de orejas',l=>l.prod==='sub'&&l.ref.st==='do'],
+    ['Láminas rech S/O despegue',l=>l.prod==='lam'&&l.ref.t==='rso'],['Láminas venta despegue',l=>l.prod==='lam'&&l.ref.t==='venta'],
+    ['Láminas venta MFCI',l=>l.prod==='sub'&&l.ref.st==='lvm'],['Láminas rech S/O MFCI',l=>l.prod==='sub'&&l.ref.st==='lrsm'],
+    ['Láminas rech C/O',l=>l.prod==='sub'&&l.ref.st==='lrco'],['Cu sucio',l=>l.prod==='sub'&&l.ref.st==='cus']];
+  const pes=S.labels.filter(ps).slice().sort((a,b)=>a.id-b.id), cant=a=>a.reduce((x,l)=>x+(l.prod==='sub'?(l.ref.cant||1):1),0), deT=(f,t)=>pes.filter(l=>f(l)&&(l.turno||'A')===t);
+  const Sp=[['Refinería electrolítica'],['De','Báscula N9'],['Ref','Formulario entrega y recepción de subproductos en PM'],['Fecha',FECHA,'','Turno','A y C'],[],
+    ['Despuntes y láminas con destino a productos finales'],['Procedencia del producto','Cajas y paquetes T/A','Cajas y paquetes T/C','Peso kg T/A','Peso kg T/C']];
+  FILAS.forEach(([n,f])=>{const a=deT(f,'A'), c=deT(f,'C'); Sp.push([n,cant(a),cant(c),suma(a),suma(c)]);});
+  Sp.push([],['Peso individual de subproductos (kg)'],['Producto','Turno','Pesos']);
+  FILAS.forEach(([n,f])=>['A','C'].forEach(t=>{const d=deT(f,t); if(d.length) Sp.push([n,t,...d.map(l=>l.neto)]);}));
+  Sp.push([],['Entregó conforme','Pesador turno A','','Pesador turno C'],['Registro de encargados','Productos Metalúrgicos']);
+  hoja('Subproductos',Sp,[34,20,20,13,13,10,10,10,10]);
+  const R=[['Resumen del día',FECHA],['Control de cero',cero],[],['Cátodos (mismas columnas que el Resumen del Sistema de Cátodos)'],
     ['Día','Prod.','Descripción','Grupo','Lado-P','Lado-T','Muestra','Tot-peso','Col-parc','Col-total','Tot-coli']];
   const cp=cat.filter(ps);
   [...new Set(cp.map(l=>l.ref.g))].forEach(gr=>{const d=cp.filter(l=>l.ref.g===gr), P=d.filter(l=>!l.ref.m&&l.lado==='P'), T=d.filter(l=>!l.ref.m&&l.lado==='T'), M=d.filter(l=>l.ref.m);
@@ -829,8 +1165,11 @@ function libroExcel(){
   LAM.forEach(t=>{const d=lam.filter(l=>l.ref.t===t.id&&ps(l)); if(d.length) R.push([t.nombre,d.length,suma(d)]);});
   R.push([],['Restos de ánodos'],['Grupo','Carros pesados','Neto kg']);
   gruposRs.forEach(gr=>{const d=rs.filter(l=>l.ref.g===gr&&ps(l)); R.push([gr,d.length,suma(d)]);});
+  R.push([],['Despuntes y otros (sin etiqueta)'],['Qué es','Registros','Peso kg']);
+  SUB.forEach(t=>{const d=sub.filter(l=>l.ref.st===t.id&&ps(l)); if(d.length) R.push([t.nombre,d.length,suma(d)]);});
   R.push([],['Nota','Solo suman los pesos que ya capturó la báscula. Las etiquetas en camino aparecen en cada hoja sin peso.'],
-    ['','Hora pesaje: la hora real en que la báscula tomó el peso estable (no la hora en que se digita).']);
+    ['','Hora pesaje: la hora real en que la báscula tomó el peso estable (no la hora en que se digita).'],
+    ['','Lo ingresado o corregido a mano en la pantalla Báscula queda marcado en la columna Control báscula.']);
   hoja('Resumen',R,[26,15,18,8,10,10,10,11,10,10,10]);
   return wb;
 }
@@ -843,7 +1182,7 @@ async function bajarExcel(){
   if(!wb){toast('No se pudo armar el Excel en este visor.','err'); return;}
   if(!dl){toast('Este visor no permite bajar archivos.','info'); return;}
   const buf=XL.write(wb,{bookType:'xlsx',type:'array'});
-  try{await dl.save({filename:`Rotulado Bascula N9 ${FECHA}.xlsx`,data:new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}); toast('Excel listo: revise sus descargas.','ok');}
+  try{await dl.save({filename:`Rotulado Bascula N9 ${FECHA}.xlsx`,data:new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}); toast(APP?'Guardando el Excel en la carpeta de la báscula…':'Excel listo: revise sus descargas.','ok');}
   catch(e){const c=e&&e.code; toast(c==='declined'?'Descarga cancelada.':c==='rate_limited'?'Ya hay una descarga abierta. Pruebe en un momento.':'No se pudo bajar el Excel en este visor.',c==='declined'?'info':'warn');}
 }
 
@@ -863,7 +1202,7 @@ const ACT={
   'f-lado'(v){abrir('lado',v);},
   'set-lado'(v){grupoAct().lados[S.md.val]=v; S.msg=null; cerrar();},
   'f-grupo'(){abrir('grupo');},
-  kp(v){S.md.val=editar(v,S.md.val,2); render();},
+  kp(v){S.md.val=editar(v,S.md.val,S.md.max||2); render();},
   'ok-grupo'(){const gr=parseInt(S.md.val,10); if(!gr) return; const nuevo=!S.grupos[gr]; S.grupo=gr; const G=grupoAct(); S.sel=siguiente(G); S.muestra=false;
     S.msg=nuevo?{k:'info',txt:`Grupo ${gr} nuevo · si un lado es parcial, toque su lado`}:null; cerrar();},
   terminar(){abrir('terminar');},
@@ -872,29 +1211,62 @@ const ACT={
   carro(v){S.rs.carro=editar(v,S.rs.carro,3); S.msg=null; render();},
   'f-rsgrupo'(){abrir('rsgrupo');},
   'ok-rsgrupo'(){const gr=parseInt(S.md.val,10); if(!gr) return; S.rs.grupo=gr; S.rs.carro=''; S.msg=null; cerrar();},
-  reimprimir(v){const l=S.labels.find(x=>x.id===+v); if(l) reimprimir(l);}
+  reimprimir(v){const l=S.labels.find(x=>x.id===+v); if(l) reimprimir(l);},
+  /* Pantalla Báscula */
+  'abrir-bas'(){S.md=null; S.view='bas';
+    if(B.esperando){S.bf=formNuevo('sub'); S.bf.bruto=Math.round(B.lect); S.bf.tomado=true; S.bf.msg={k:'warn',txt:'Carga sin etiqueta: elija qué es, revise los datos y toque Grabar'};}
+    else S.bf=B.carga&&B.carga.id?formDe(B.carga,'carga'):formNuevo(S.prod==='rs'||S.prod==='lam'?S.prod:'cat');
+    render();},
+  'cerrar-bas'(){S.md=null; S.view='main'; S.bf=null; render();},
+  editar(v){const l=regDe(+v); if(!l) return; S.md=null; S.view='bas'; S.bf=formDe(l,'editar'); render();},
+  'bf-prod'(v){const f=S.bf; if(f.modo!=='nuevo'||f.prod===v) return; const n=formNuevo(v); if(f.tomado){n.bruto=f.bruto; n.tomado=true;} S.bf=n; render();},
+  'bf-campo'(k){if(['lado','mu','t','st'].includes(k)){S.md={tipo:'bfop',campo:k}; render(); return;}
+    const d=CAMPO[k]; if(!d) return; S.md={tipo:'bfkp',campo:k,val:'',max:d.max}; render();},
+  'ok-bfkp'(){const k=S.md.campo, v=S.md.val, f=S.bf; if(!v) return;
+    f[k]=(k==='carro'||k==='bote')?String(+v):+v; if(!f.ed.includes(k)) f.ed.push(k); f.dirty=true; f.msg=null;
+    if(k==='carro'&&f.prod==='rs'&&!f.ed.includes('tara')){const t=TARA_CARRO[f.carro]; f.tara=t!=null?t:null;}
+    if(k==='n'&&f.prod==='cat'&&!f.ed.includes('lado')){const G=S.grupos[f.g]||nuevoGrupo(f.g); f.lado=ladoDe(G,f.n);}
+    if(k==='bruto') f.tomado=false;
+    cerrar();},
+  'set-bfop'(v){const k=S.md.campo, f=S.bf; f[k]=v; if(!f.ed.includes(k)) f.ed.push(k); f.dirty=true; f.msg=null;
+    if(k==='t'&&f.modo==='nuevo'){f.num=S.lam.sig[v]; f.tara=12;}
+    if(k==='mu'&&v==='N'&&!f.lado){const G=S.grupos[f.g]||nuevoGrupo(f.g); f.n=f.n||siguiente(G)||1; f.lado=ladoDe(G,f.n);}
+    if(k==='st'&&v!=='hm') f.bote='';
+    cerrar();},
+  grabar(){grabarBF();},
+  tomar(){tomarPeso();},
+  limpiar(){const f=S.bf, n=formNuevo(f.prod==='sub'||f.modo==='nuevo'?f.prod:f.prod);
+    if(B.esperando){n.prod='sub'; Object.assign(n,formNuevo('sub')); n.bruto=Math.round(B.lect); n.tomado=true;}
+    S.bf=n; render();},
+  turno(v){S.turno=v; if(S.bf) S.bf.msg={k:'info',txt:`Turno ${v}: lo que se pese desde ahora queda en el turno ${v}`}; render();},
+  cero(){
+    if(B.carga||Math.round(B.lect)>0&&B.pic!=='cero'){toast('Hay carga sobre la báscula: el control de cero se hace con la báscula vacía.','warn'); return;}
+    if(B.pic==='cero'){S.cero={h:hora(),ok:false}; if(S.bf) S.bf.msg={k:'err',txt:`Control de cero: falla. Vacía marca ${f0(Math.round(B.lect))} kg`}; render(); return;}
+    S.cero={h:hora(),ok:true}; if(S.bf) S.bf.msg={k:'ok',txt:`Control de cero OK a las ${S.cero.h}: vacía marca 0 kg`}; render();}
 };
 vt.addEventListener('click',e=>{if(S.fase) return; const b=e.target.closest('[data-act]'); if(!b||b.disabled||!vt.contains(b)) return; const f=ACT[b.dataset.act]; if(f) f(b.dataset.v);});
 document.addEventListener('keydown',e=>{
   if(!S||S.fase||e.target.closest('input,textarea,select')) return;
   if(e.key==='Escape'&&S.md){cerrar();return;}
-  const kp=S.md&&['grupo','rsgrupo'].includes(S.md.tipo);
-  const act=kp?'kp':S.view==='login'?'rut':(!S.md&&S.prod==='rs')?'carro':null;
+  if(e.key==='Escape'&&S.view==='bas'){ACT['cerrar-bas']();return;}
+  const kp=S.md&&['grupo','rsgrupo','bfkp'].includes(S.md.tipo);
+  const act=kp?'kp':S.view==='login'?'rut':(!S.md&&S.view==='main'&&S.prod==='rs')?'carro':null;
   if(act&&/^\d$/.test(e.key)) ACT[act](e.key);
   else if(act&&e.key==='Backspace') ACT[act]('del');
-  else if(e.key==='Enter'){ if(S.view==='login') ACT.entrar(); else if(kp) ACT['ok-'+S.md.tipo](); else if(!S.md) ACT.imprimir(); }
+  else if(e.key==='Enter'){ if(S.view==='login') ACT.entrar(); else if(kp) ACT['ok-'+S.md.tipo](); else if(!S.md&&S.view==='bas') ACT.grabar(); else if(!S.md) ACT.imprimir(); }
 });
 
 /* ---------- Tamaño del equipo en la página ---------- */
 const marco=$('#marco');
 function ajustar(){
-  const fs=document.fullscreenElement===marco;
+  const fs=document.fullscreenElement===marco||APP;
   if(fs){const s=Math.min(innerWidth/1024,innerHeight/768);
     vt.style.transform=`scale(${s})`; vt.style.left=((innerWidth-1024*s)/2)+'px'; vt.style.top=((innerHeight-768*s)/2)+'px'; marco.style.height=''; return;}
   const pad=14, s=Math.min((marco.clientWidth-pad*2)/1024,1);
   vt.style.transform=`scale(${s})`; vt.style.left=pad+'px'; vt.style.top=pad+'px'; marco.style.height=(768*s+pad*2)+'px';
 }
 if(window.ResizeObserver) new ResizeObserver(ajustar).observe(marco.parentElement); else addEventListener('resize',ajustar);
+if(APP) addEventListener('resize',ajustar);
 document.addEventListener('fullscreenchange',ajustar);
 $('#btnFull').addEventListener('click',()=>{
   if(document.fullscreenElement){document.exitFullscreen().catch(()=>{});return;}
@@ -916,6 +1288,7 @@ function arrancar(conGuardado){
 }
 /* Situaciones para probar el control de la báscula (botones de la guía, fuera del equipo) */
 const ESC_TXT={grua:'Grúa encima: se verá con la próxima carga que llegue.',fuera:'Carro fuera del área: se verá con el próximo carro de restos.',cero:'Sin cero: apenas la báscula quede libre.'};
+let cajaN=0;
 function pintarEsc(){
   document.querySelectorAll('[data-esc]').forEach(b=>b.setAttribute('aria-pressed',String(!!ESC[b.dataset.esc])));
   const on=Object.keys(ESC).filter(k=>ESC[k]);
@@ -923,6 +1296,12 @@ function pintarEsc(){
 }
 document.querySelectorAll('[data-esc]').forEach(b=>b.addEventListener('click',()=>{
   const k=b.dataset.esc;
+  if(k==='caja'){
+    /* Una caja sin etiqueta: llega a la báscula y espera que el pesador la ingrese */
+    encolar({sinEtq:true,prod:'sub',codigo:'Sin etiqueta',bruto:CAJAS_EJ[(cajaN++)%CAJAS_EJ.length],ref:{},estado:'camino'},900);
+    $('#escNota').textContent='Caja sin etiqueta: llega a la báscula en un momento. Toque Abrir en la báscula para ingresarla.';
+    return;
+  }
   if(k==='cero'&&!ESC.cero&&!ocupada){
     ocupada=true; const yo=gen;
     sinCero(yo).then(()=>{if(yo!==gen) return; ocupada=false; proximo();});
@@ -931,6 +1310,14 @@ document.querySelectorAll('[data-esc]').forEach(b=>b.addEventListener('click',()
   ESC[k]=!ESC[k]; pintarEsc();
 }));
 $('#btnReset').addEventListener('click',()=>{olvidar(); arrancar(false);});
+/* En la app: F2 abre y cierra el panel de prueba; el equipo avisa dónde dejó el Excel y si la Zebra imprimió */
+const panel=v=>document.documentElement.classList.toggle('demo',v);
+$('#btnPanel').addEventListener('click',()=>panel(false));
+$('#btnReset2').addEventListener('click',()=>{olvidar(); arrancar(false); panel(false);});
+document.addEventListener('keydown',e=>{if(APP&&e.key==='F2'){e.preventDefault(); panel();}});
+if(APP) window.chrome.webview.addEventListener('message',e=>{const m=e.data||{};
+  if(m.tipo==='excel') toast(m.ok?`Excel guardado en ${m.ruta}`:`No se pudo guardar el Excel: ${m.error||''}`,m.ok?'ok':'err');
+  if(m.tipo==='impresion'&&!m.ok) toast(`La Zebra no imprimió: ${m.error||''}`,'err');});
 $('#chkSim').addEventListener('change',e=>{if(e.target.checked) proximo();});
 setInterval(leer,120);
 arrancar(true);
