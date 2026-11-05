@@ -211,10 +211,17 @@ public partial class MainWindow
     private void Agregar(Etiqueta l) { l.Id = ++S.Uid; S.Labels.Insert(0, l); }
 
     /* ---------- Lo que hace cada botón ---------- */
-    private void Rut(string v) { S.Rut = EditarTexto(v, S.Rut, 9); Render(); }
+    /// <summary>Teclado del RUT: la K solo puede ir al final (es el dígito verificador) y después de ella no va nada.</summary>
+    private void Rut(string v)
+    {
+        if (v == "K") { if (S.Rut.Length >= 7 && S.Rut.Length < 9 && !S.Rut.EndsWith('K')) S.Rut += "K"; }
+        else if (v is not ("C" or "del") && S.Rut.EndsWith('K')) { }
+        else S.Rut = EditarTexto(v, S.Rut, 9);
+        Render();
+    }
     internal void Entrar()
     {
-        if (S.Rut.Length < 8) return;
+        if (!D.RutValido(S.Rut)) return;
         S.User = S.Rut == "111111111" ? "Operador prueba" : "Operador " + S.Rut[^5..^1];
         S.View = "main"; S.Msg = null; Render(); Proximo();
     }

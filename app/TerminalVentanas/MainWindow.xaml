@@ -5,12 +5,12 @@
         Background="Black" WindowStartupLocation="CenterScreen" UseLayoutRounding="True">
     <Viewbox Stretch="Uniform">
         <!-- La pantalla de la VT1200: 1024 x 768, escalada a lo que mida el monitor -->
-        <Grid x:Name="Pantalla" Width="1024" Height="768" Background="#0E181E" ClipToBounds="True">
-            <Grid x:Name="Raiz" Margin="20,16,20,16" />
-            <Grid x:Name="Capa" Visibility="Collapsed" Background="#D1050A0E" />
+        <Grid x:Name="Pantalla" Width="1024" Height="768" Background="#F5F6F8" ClipToBounds="True">
+            <Grid x:Name="Raiz" />
+            <Grid x:Name="Capa" Visibility="Collapsed" Background="#73111827" />
             <Border x:Name="Toast" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,118"
-                    MaxWidth="820" CornerRadius="12" BorderThickness="1" Padding="18,14" IsHitTestVisible="False" />
-            <Grid x:Name="PanelPrueba" Visibility="Collapsed" Background="#99050A0E" />
+                    MaxWidth="820" CornerRadius="8" BorderThickness="1" Padding="18,14" IsHitTestVisible="False" />
+            <Grid x:Name="PanelPrueba" Visibility="Collapsed" Background="#59111827" />
         </Grid>
     </Viewbox>
 </Window>

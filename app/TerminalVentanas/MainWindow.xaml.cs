@@ -107,12 +107,13 @@ public partial class MainWindow : Window
     {
         var (fondo, borde, color) = k switch
         {
-            "ok" => ("#123C25", "#2F8C55", "#E9FFF1"), "warn" => ("#3F3005", "#A07A12", "#FFF4D6"),
-            "err" => ("#4A1713", "#B63A30", "#FFE9E6"), _ => ("#13324F", "#3D72B0", "#E6F1FF"),
+            "ok" => ("#E3F2EA", "#1E7B4F", "#1E7B4F"), "warn" => ("#FFF4D6", "#E0B54A", "#8A5300"),
+            "err" => ("#FDECEA", "#B42318", "#B42318"), _ => ("#E1EEF6", "#015D93", "#015D93"),
         };
         Toast.Background = Ui.B(fondo); Toast.BorderBrush = Ui.B(borde);
         var t = Ui.T(txt, 18, FontWeights.SemiBold, Ui.B(color), ajustar: true).Margen(12, 0, 0, 0);
         Toast.Child = Ui.Fila(Ui.Ico(k switch { "ok" => Iconos.Ok, "warn" => Iconos.Warn, "err" => Iconos.Err, _ => Iconos.Info }, 26, 26, Ui.B(color), 2.4), t);
+        Toast.Effect ??= new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 24, ShadowDepth = 6, Direction = 270, Opacity = 0.2 };
         Toast.Visibility = Visibility.Visible;
         _toastT.Stop(); _toastT.Start();
     }
@@ -133,6 +134,7 @@ public partial class MainWindow : Window
         var digito = e.Key is >= Key.D0 and <= Key.D9 ? (char)('0' + (e.Key - Key.D0)) : e.Key is >= Key.NumPad0 and <= Key.NumPad9 ? (char)('0' + (e.Key - Key.NumPad0)) : (char?)null;
         var kp = S.Md != null && S.Md.Tipo is "grupo" or "rsgrupo" or "bfkp";
         Action<string>? destino = kp ? Kp : S.View == "login" ? Rut : S.Md == null && S.View == "main" && S.Prod == "rs" ? Carro : null;
+        if (S.View == "login" && S.Md == null && e.Key == Key.K) { Rut("K"); e.Handled = true; return; }
         if (destino != null && digito != null) { destino(digito.Value.ToString()); e.Handled = true; }
         else if (destino != null && e.Key == Key.Back) { destino("del"); e.Handled = true; }
         else if (e.Key == Key.Enter)

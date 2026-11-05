@@ -8,7 +8,11 @@ using System.Windows.Shapes;
 
 namespace TerminalVentanas;
 
-/// <summary>Piezas de la pantalla: colores, fuentes, textos, tarjetas, botones táctiles e íconos. Mismo lenguaje visual que la pantalla del pesador.</summary>
+/// <summary>
+/// Piezas de la pantalla: colores, letra, textos, tarjetas, botones táctiles e íconos.
+/// Diseño Grafito Ingmétrica (la familia de ING-MAESTRO) al estándar de 2026: Fluent 2 (Segoe UI, esquinas de 6 y 8 px, tarjetas
+/// planas con borde) y WCAG 2.2 AA (contraste medido: texto 4,5:1 o más, bordes de control 3:1 o más; ningún estado solo por color).
+/// </summary>
 public static class Ui
 {
     public static SolidColorBrush B(string hex)
@@ -18,50 +22,54 @@ public static class Ui
         return b;
     }
 
-    public static readonly SolidColorBrush Fondo = B("#0E181E"), Panel = B("#16242C"), Panel2 = B("#1A2A33"), Linea = B("#24363F"), Linea2 = B("#35505C"),
-        Linea3 = B("#2C4450"), Tecla = B("#1D2E37"), Tinta = B("#D6E5EB"), Mut = B("#86A0AB"), Mut2 = B("#5F7883"), Mut3 = B("#9DB3BD"),
-        Cobre = B("#DA8B4F"), CobreClaro = B("#F6C79F"), CobreMedio = B("#F0B37E"), Oscuro = B("#0A1317"), Blanco = B("#FFFFFF"), Negro = B("#111111"),
-        SobreCobre = B("#1A0F07"), Brillo = B("#EEF6F8"),
-        VerdeT = B("#8FE0A9"), AmbarT = B("#F3C969"), AzulT = B("#A9CBF2"), RojoT = B("#FF9C92"), VerdeXls = B("#5FD38F"),
-        VerdeF = B("#1B4D2B"), VerdeL = B("#3BB86F"), VerdeC = B("#B9F6CA"), AzulF = B("#13324F"), AzulL = B("#4F92E2"), AzulC = B("#CFE3FA"),
-        AmbarF = B("#4A3B06"), AmbarL = B("#E3A824"), AmbarC = B("#FFE7A3"), RojoF = B("#3A1714"), RojoL = B("#EE5B4D"), RojoC = B("#FF9C92");
+    public static readonly SolidColorBrush
+        Fondo = B("#F5F6F8"), Tarjeta0 = B("#FFFFFF"), Linea = B("#E1E4E8"), LineaControl = B("#7B8494"),
+        Texto = B("#111827"), Texto2 = B("#5B6472"),
+        Grafito = B("#151B26"), Grafito2 = B("#232B39"), SobreGrafito = B("#A3ACB9"),
+        Azul = B("#015D93"), AzulOsc = B("#014A75"), AzulTinte = B("#E1EEF6"), Amarillo = B("#E1E101"),
+        Verde = B("#1E7B4F"), VerdeTinte = B("#E3F2EA"), Rojo = B("#B42318"), RojoTinte = B("#FDECEA"),
+        Ambar = B("#8A5300"), AmbarTinte = B("#FFF4D6"), AmbarBorde = B("#E0B54A"),
+        VerdeXls = B("#1D6F42"), Blanco = B("#FFFFFF"), Negro = B("#111111");
 
-    public static readonly FontFamily Barlow = new(new Uri("pack://application:,,,/"), "./Fuentes/#Barlow");
+    /// <summary>La letra de Windows (Fluent 2): ya viene en el equipo, no se embebe.</summary>
+    public static readonly FontFamily Fuente = new("Segoe UI");
+    /// <summary>Solo para la etiqueta impresa, que imita el papel que sale de la Zebra.</summary>
     public static readonly FontFamily Cond = new(new Uri("pack://application:,,,/"), "./Fuentes/#Barlow Condensed");
-    public static readonly FontFamily Mono = new(new Uri("pack://application:,,,/"), "./Fuentes/#JetBrains Mono");
 
-    public static Brush ColorEstado(string k) => k switch { "ok" => VerdeT, "warn" => AmbarT, "err" => RojoT, "info" => AzulT, _ => Mut };
+    public static Brush ColorEstado(string k) => k switch { "ok" => Verde, "warn" => Ambar, "err" => Rojo, "info" => Azul, _ => Texto2 };
+    public static Brush TinteEstado(string k) => k switch { "ok" => VerdeTinte, "warn" => AmbarTinte, "err" => RojoTinte, _ => AzulTinte };
 
     public static TextBlock T(string s, double tam, FontWeight peso, Brush color, FontFamily? fuente = null, bool mayus = false, bool ajustar = false)
     {
         var t = new TextBlock
         {
             Text = mayus ? s.ToUpperInvariant() : s,
-            FontSize = tam, FontWeight = peso, Foreground = color, FontFamily = fuente ?? Barlow,
+            FontSize = tam, FontWeight = peso, Foreground = color, FontFamily = fuente ?? Fuente,
             TextWrapping = ajustar ? TextWrapping.Wrap : TextWrapping.NoWrap,
             TextTrimming = ajustar ? TextTrimming.None : TextTrimming.CharacterEllipsis,
             VerticalAlignment = VerticalAlignment.Center,
         };
+        System.Windows.Documents.Typography.SetNumeralAlignment(t, FontNumeralAlignment.Tabular);
         TextOptions.SetTextFormattingMode(t, TextFormattingMode.Ideal);
         return t;
     }
 
-    /// <summary>Rótulo chico en mayúsculas (Barlow Condensed), como los títulos de cada recuadro.</summary>
-    public static TextBlock Rotulo(string s, double tam = 15, Brush? color = null) => T(s, tam, FontWeights.SemiBold, color ?? Mut, Cond, true);
+    /// <summary>El nombre de un recuadro o de un dato: en minúscula normal, gris y semibold (sin mayúsculas).</summary>
+    public static TextBlock Rotulo(string s, double tam = 15, Brush? color = null) => T(s, tam, FontWeights.SemiBold, color ?? Texto2);
 
-    public static Border Tarjeta(UIElement hijo, Brush? fondo = null, Brush? borde = null, double radio = 16, Thickness? relleno = null, double grosor = 1) => new()
+    public static Border Tarjeta(UIElement hijo, Brush? fondo = null, Brush? borde = null, double radio = 8, Thickness? relleno = null, double grosor = 1) => new()
     {
-        Child = hijo, Background = fondo ?? Panel, BorderBrush = borde ?? Linea, BorderThickness = new Thickness(grosor),
+        Child = hijo, Background = fondo ?? Tarjeta0, BorderBrush = borde ?? Linea, BorderThickness = new Thickness(grosor),
         CornerRadius = new CornerRadius(radio), Padding = relleno ?? new Thickness(16, 12, 16, 14), SnapsToDevicePixels = true,
     };
 
     /// <summary>Un recuadro que se toca. Funciona con el dedo (el toque llega como clic) y da un brillo al apretar.</summary>
-    public static Border Boton(UIElement contenido, Action? alTocar, Brush? fondo = null, Brush? borde = null, double radio = 10,
+    public static Border Boton(UIElement contenido, Action? alTocar, Brush? fondo = null, Brush? borde = null, double radio = 6,
         Thickness? relleno = null, double minAlto = 0, Thickness? grosor = null, bool centrar = true)
     {
         var b = new Border
         {
-            Child = contenido, Background = fondo ?? Brushes.Transparent, BorderBrush = borde ?? Linea2, BorderThickness = grosor ?? new Thickness(1),
+            Child = contenido, Background = fondo ?? Brushes.Transparent, BorderBrush = borde ?? LineaControl, BorderThickness = grosor ?? new Thickness(1),
             CornerRadius = new CornerRadius(radio), Padding = relleno ?? new Thickness(14, 0, 14, 0), MinHeight = minAlto, SnapsToDevicePixels = true,
         };
         if (contenido is FrameworkElement fe && centrar) { fe.HorizontalAlignment = HorizontalAlignment.Center; fe.VerticalAlignment = VerticalAlignment.Center; }
@@ -102,13 +110,18 @@ public static class Ui
     public static Viewbox IcoEstado(string k, double tam) =>
         Ico(k switch { "ok" => Iconos.Ok, "warn" => Iconos.Warn, "err" => Iconos.Err, "info" => Iconos.Info, _ => Iconos.Bascula }, tam, tam, ColorEstado(k), 2.4);
 
-    public static Border Chip(string texto, string clase, double tam = 13)
+    /// <summary>El estado de la báscula: color y además ícono y texto (no solo color).</summary>
+    public static Border Chip(string texto, string clase, double tam = 14)
     {
-        var fondo = clase switch { "espera" => B("#1E4F86"), "inestable" => B("#8A6200"), "estable" => B("#17703D"), "bloqueado" => B("#A12A21"), _ => B("#2A3A43") };
+        var (fondo, ico) = clase switch
+        {
+            "espera" => (Azul, Iconos.Info), "inestable" => (Ambar, Iconos.Reloj), "estable" => (Verde, Iconos.Ok),
+            "bloqueado" => (Rojo, Iconos.Err), _ => (Texto2, Iconos.Bascula),
+        };
         return new Border
         {
-            Background = fondo, CornerRadius = new CornerRadius(5), Padding = new Thickness(10, 3, 10, 3), HorizontalAlignment = HorizontalAlignment.Left,
-            Child = T(texto, tam, FontWeights.Bold, Brillo, Cond, true),
+            Background = fondo, CornerRadius = new CornerRadius(4), Padding = new Thickness(8, 3, 10, 4), HorizontalAlignment = HorizontalAlignment.Left,
+            Child = Fila(Ico(ico, 15, 15, Blanco, 2.6), T(texto, tam, FontWeights.Bold, Blanco).Margen(6, 0, 0, 0)),
         };
     }
 
@@ -196,4 +209,6 @@ public static class Iconos
     public const string Bascula = "M3 15.5h18v3H3z M7 15.5V12h10v3.5";
     public const string Grabar = "M4 4h13l3 3v13H4z M8 4v5h8V4M8 20v-6h8v6";
     public const string Retroceso = "M9 5h11v14H9l-6-7z M12 9l5 6M17 9l-5 6";
+    public const string Flecha = "M6 9l6 6 6-6";
+    public static readonly string Reloj = Circulo(12, 12, 9.5) + " M12 7v5l3 2";
 }

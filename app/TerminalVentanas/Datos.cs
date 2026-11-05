@@ -62,5 +62,17 @@ public static class D
     public static string Hhmm(int m) => $"{(m / 60) % 24:00}:{m % 60:00}";
     public static string Pad2(int n) => n.ToString("00");
     public static string FmtRut(string r) => r.Length < 2 ? r : Miles(r[..^1]) + "-" + r[^1];
+
+    /// <summary>Dígito verificador del RUT (módulo 11): 0 a 9 o K.</summary>
+    public static char DvRut(string cuerpo)
+    {
+        int suma = 0, mult = 2;
+        for (var i = cuerpo.Length - 1; i >= 0; i--) { suma += (cuerpo[i] - '0') * mult; mult = mult == 7 ? 2 : mult + 1; }
+        var r = 11 - suma % 11;
+        return r == 11 ? '0' : r == 10 ? 'K' : (char)('0' + r);
+    }
+
+    /// <summary>RUT completo (7 u 8 números más el dígito) y con el dígito verificador que corresponde.</summary>
+    public static bool RutValido(string r) => r.Length is >= 8 and <= 9 && r[..^1].All(char.IsDigit) && char.ToUpperInvariant(r[^1]) == DvRut(r[..^1]);
     private static string Miles(string s) => long.TryParse(s, out var n) ? n.ToString("#,0", Cl) : s;
 }

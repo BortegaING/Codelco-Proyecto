@@ -28,7 +28,6 @@ public partial class MainWindow
     private TextBlock? _balNum;
     private Border? _balChip;
     private ContentControl? _balRes;
-    private Pictograma? _pic;
 
     private static string CortoDe(Etiqueta l) => l.Prod == "rs" ? $"C{l.Ref.Carro}" : l.Prod == "lam" ? $"Nº {l.Ref.N}" : l.Prod == "cat" && l.Ref.M ? "MUESTRA" : l.Codigo;
     private static (int Min, int Max)? RangoDe(Etiqueta l) => l.Prod switch
@@ -51,7 +50,7 @@ public partial class MainWindow
     {
         if (_balNum == null) return;
         var t = D.Kg((int)Math.Max(0, Math.Round(B.Lect)));
-        if (_balNum.Text != t) { _balNum.Text = t; _balNum.FontSize = t.Length > 5 ? 48 : 58; }
+        if (_balNum.Text != t) { _balNum.Text = t; _balNum.FontSize = t.Length > 5 ? 48 : 56; }
     }
 
     private void Fijar(string chip, string k, string t1, string t2) { B.Chip = chip; B.Res = new Resultado(k, t1, t2); PintarBal(); }
@@ -66,7 +65,6 @@ public partial class MainWindow
             _balChip.Background = nuevo.Background; _balChip.Child = texto;
         }
         if (_balRes != null) _balRes.Content = VRes();
-        _pic?.Poner(B.Pic, B.ProdPic, true);
         PintarNum();
     }
 

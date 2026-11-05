@@ -8,238 +8,314 @@ using static System.Windows.FontWeights;
 
 namespace TerminalVentanas;
 
-/// <summary>Las pantallas: ingreso, principal (etiqueta que sigue, báscula en vivo, área de trabajo y botones) y la pantalla Báscula.</summary>
+/// <summary>
+/// Las pantallas: ingreso, principal (etiqueta que sigue, báscula en vivo, área de trabajo y botones) y la pantalla Báscula.
+/// Diseño Grafito Ingmétrica: barra grafito arriba, fondo claro, tarjetas blancas con borde, azul de la empresa para lo
+/// pesado y la acción, amarillo para lo que sigue. Textos en minúscula normal.
+/// </summary>
 public partial class MainWindow
 {
     /* ---------- Piezas que se repiten ---------- */
-    private static Border Dsp(string etiqueta, string valor, double tam)
+
+    /// <summary>La barra grafito de arriba: lo de la izquierda y lo de la derecha.</summary>
+    private static Border BarraGrafito(UIElement izq, UIElement der)
     {
-        var lbl = Ui.Rotulo(etiqueta, 14); lbl.VerticalAlignment = VerticalAlignment.Bottom; lbl.Margin = new Thickness(0, 0, 0, 6);
-        var v = Ui.T(valor, tam, Bold, Ui.CobreClaro, Ui.Mono); v.HorizontalAlignment = HorizontalAlignment.Right;
-        return new Border
-        {
-            Background = Ui.Fondo, BorderBrush = Ui.Cobre, BorderThickness = new Thickness(2), CornerRadius = new CornerRadius(12),
-            Padding = new Thickness(16, 4, 16, 4), MinHeight = 58, Child = Ui.Columnas("* auto", 10, lbl, v),
-        };
+        if (der is FrameworkElement fe) fe.HorizontalAlignment = HorizontalAlignment.Right;
+        return new Border { Background = Ui.Grafito, Padding = new Thickness(16, 0, 16, 0), Child = Ui.Columnas("* auto", 12, izq, der) };
     }
 
-    private UIElement Teclado(Action<string> tecla, double alto, double tam)
+    /// <summary>Botón de contorno sobre la barra grafito (Salir, Volver).</summary>
+    private Border BotonGrafito(string texto, Action a) =>
+        Ui.Boton(Ui.T(texto, 16, SemiBold, Ui.Blanco), A(a), Brushes.Transparent, Ui.SobreGrafito, 6, new Thickness(18, 0, 18, 0), 44);
+
+    /// <summary>Un campo que muestra lo que se escribe con el teclado de la pantalla: el nombre arriba y la caja con el valor.</summary>
+    private static UIElement Dsp(string etiqueta, string valor, double tam, bool error = false, bool cursor = true)
+    {
+        var v = Ui.T(valor, tam, SemiBold, valor == "—" ? Ui.Texto2 : Ui.Texto);
+        var fila = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+        fila.Children.Add(v);
+        if (cursor) fila.Children.Add(new Border { Width = 3, Height = tam, Background = error ? Ui.Rojo : Ui.Azul, Margin = new Thickness(4, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center });
+        var caja = new Border
+        {
+            Background = Ui.Tarjeta0, BorderBrush = error ? Ui.Rojo : Ui.Azul, BorderThickness = new Thickness(2), CornerRadius = new CornerRadius(8),
+            Padding = new Thickness(18, 0, 18, 0), Height = tam + 40, Child = fila,
+        };
+        // El anillo claro alrededor: la caja que está recibiendo lo que se escribe
+        var anillo = new Border { BorderBrush = error ? Ui.RojoTinte : Ui.AzulTinte, BorderThickness = new Thickness(4), CornerRadius = new CornerRadius(11), Child = caja, Margin = new Thickness(-4) };
+        return Ui.Columna(Ui.T(etiqueta, 16, SemiBold, Ui.Texto).Margen(0, 0, 0, 10), anillo);
+    }
+
+    /// <summary>Teclado numérico grande. Con conK, la tecla de abajo a la izquierda es la K del RUT; si no, Borrar.</summary>
+    private UIElement Teclado(Action<string> tecla, double alto, double tam, bool conK = false)
     {
         var teclas = new List<UIElement>();
-        foreach (var d in "123456789") { var c = d.ToString(); teclas.Add(Tecla(Ui.T(c, tam, Bold, Ui.Tinta, Ui.Mono), () => tecla(c), alto)); }
-        teclas.Add(Tecla(Ui.T("BORRAR", 18, SemiBold, Ui.Tinta, Ui.Cond), () => tecla("C"), alto));
-        teclas.Add(Tecla(Ui.T("0", tam, Bold, Ui.Tinta, Ui.Mono), () => tecla("0"), alto));
-        teclas.Add(Tecla(Ui.Ico(Iconos.Retroceso, 30, 30, Ui.Tinta, 2), () => tecla("del"), alto));
-        return Ui.Grilla(3, teclas, 8);
+        foreach (var d in "123456789") { var c = d.ToString(); teclas.Add(Tecla(Ui.T(c, tam, SemiBold, Ui.Texto), () => tecla(c), alto)); }
+        teclas.Add(conK ? Tecla(Ui.T("K", tam - 2, SemiBold, Ui.Texto), () => tecla("K"), alto) : Tecla(Ui.T("Borrar", 18, SemiBold, Ui.Texto), () => tecla("C"), alto));
+        teclas.Add(Tecla(Ui.T("0", tam, SemiBold, Ui.Texto), () => tecla("0"), alto));
+        teclas.Add(Tecla(Ui.Ico(Iconos.Retroceso, 32, 32, Ui.Texto, 2), () => tecla("del"), alto));
+        return Ui.Grilla(3, teclas, 10);
     }
 
-    private Border Tecla(UIElement contenido, Action a, double alto) => Ui.Boton(contenido, A(a), Ui.Tecla, Ui.Linea3, 10, new Thickness(0), alto);
+    private Border Tecla(UIElement contenido, Action a, double alto) => Ui.Boton(contenido, A(a), Ui.Fondo, Ui.LineaControl, 6, new Thickness(0), alto);
 
+    /// <summary>La acción principal de la pantalla: azul relleno. Deshabilitado: gris, sin toque.</summary>
     private Border BotonGrande(string texto, string? icono, Action? a, bool deshabilitado, double alto, double tam)
     {
-        var color = deshabilitado ? Ui.Mut2 : Ui.SobreCobre;
-        var fila = icono == null ? Ui.Fila(Ui.T(texto, tam, Bold, color, Ui.Cond, true))
-            : Ui.Fila(Ui.Ico(icono, tam + 5, tam + 5, color, 2.2), Ui.T(texto, tam, Bold, color, Ui.Cond, true).Margen(14, 0, 0, 0));
-        return Ui.Boton(fila, deshabilitado || a == null ? null : A(a), deshabilitado ? Ui.Linea : Ui.Cobre, Brushes.Transparent, 14, new Thickness(18, 0, 18, 0), alto, new Thickness(0));
+        var color = deshabilitado ? Ui.Texto2 : Ui.Blanco;
+        var fila = icono == null ? Ui.Fila(Ui.T(texto, tam, Bold, color))
+            : Ui.Fila(Ui.Ico(icono, tam, tam, color, 2.2), Ui.T(texto, tam, Bold, color).Margen(14, 0, 0, 0));
+        return Ui.Boton(fila, deshabilitado || a == null ? null : A(a), deshabilitado ? Ui.Linea : Ui.Azul, Brushes.Transparent, 6, new Thickness(18, 0, 18, 0), alto, new Thickness(0));
     }
 
-    private Border BotonSec(UIElement contenido, Action a, double alto = 84, Thickness? relleno = null) =>
-        Ui.Boton(contenido, A(a), Brushes.Transparent, Ui.Linea2, 14, relleno ?? new Thickness(22, 0, 22, 0), alto);
+    private Border BotonSec(UIElement contenido, Action a, double alto = 80, Thickness? relleno = null) =>
+        Ui.Boton(contenido, A(a), Ui.Tarjeta0, Ui.LineaControl, 6, relleno ?? new Thickness(22, 0, 22, 0), alto);
+
+    private static TextBlock TxtSec(string s, double tam = 19) => Ui.T(s, tam, SemiBold, Ui.Texto);
 
     private Border BotonMini(string texto, Action a, bool encendido = false) =>
-        Ui.Boton(Ui.T(texto, 17, SemiBold, encendido ? Ui.SobreCobre : Ui.Tinta, Ui.Cond, true), A(a), encendido ? Ui.Cobre : Brushes.Transparent, encendido ? Ui.Cobre : Ui.Linea2, 10, new Thickness(14, 0, 14, 0), 44);
+        Ui.Boton(Ui.T(texto, 16, SemiBold, encendido ? Ui.Blanco : Ui.Texto), A(a), encendido ? Ui.Azul : Ui.Tarjeta0, encendido ? Ui.Azul : Ui.LineaControl, 6, new Thickness(16, 0, 16, 0), 44);
+
+    /// <summary>Enlace de texto (Cambiar): azul y subrayado, con un área de toque de 44 px.</summary>
+    private Border Enlace(string texto, Action a)
+    {
+        var t = Ui.T(texto, 15, SemiBold, Ui.Azul); t.TextDecorations = TextDecorations.Underline;
+        return Ui.Boton(t, A(a), Brushes.Transparent, Brushes.Transparent, 4, new Thickness(6, 0, 6, 0), 36, new Thickness(0));
+    }
 
     private static Border Insignia(int n) => new()
     {
-        Background = Ui.Linea, CornerRadius = new CornerRadius(999), Padding = new Thickness(9, 1, 9, 2), MinWidth = 30,
-        Child = new TextBlock { Text = n.ToString(), FontFamily = Ui.Mono, FontWeight = Bold, FontSize = 16, Foreground = Ui.Tinta, HorizontalAlignment = HorizontalAlignment.Center },
+        Background = Ui.Amarillo, CornerRadius = new CornerRadius(999), Padding = new Thickness(9, 1, 9, 2), MinWidth = 30, VerticalAlignment = VerticalAlignment.Center,
+        Child = new TextBlock { Text = n.ToString(), FontFamily = Ui.Fuente, FontWeight = Bold, FontSize = 16, Foreground = Ui.Grafito, HorizontalAlignment = HorizontalAlignment.Center },
     };
 
     private static Ellipse Latido()
     {
-        var e = new Ellipse { Width = 9, Height = 9, Fill = Ui.VerdeL };
+        var e = new Ellipse { Width = 9, Height = 9, Fill = Ui.Verde };
         e.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(1, 0.35, TimeSpan.FromSeconds(1)) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever });
         return e;
     }
 
+    /// <summary>Un aviso con su ícono y fondo suave del color del estado (ok, warn, err, info).</summary>
+    private static Border Aviso(string k, string texto, double tam = 17) => new()
+    {
+        Background = Ui.TinteEstado(k), CornerRadius = new CornerRadius(6), Padding = new Thickness(14, 10, 14, 10),
+        Child = Ui.Columnas("24 *", 10, Ui.IcoEstado(k, 24), Ui.T(texto, tam, SemiBold, Ui.ColorEstado(k), ajustar: true)),
+    };
+
+    /// <summary>Estado de un equipo en una píldora (báscula, Zebra).</summary>
+    private static Border Pildora(string icono, Brush color, string texto) => new()
+    {
+        Background = Ui.Tarjeta0, BorderBrush = Ui.Linea, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(20), Height = 40, Padding = new Thickness(14, 0, 16, 0),
+        Child = Ui.Fila(Ui.Ico(icono, 20, 20, color, 2.4), Ui.T(texto, 15, SemiBold, Ui.Texto).Margen(8, 0, 0, 0)),
+    };
+
     /* ---------- Ingreso ---------- */
     private UIElement VLogin()
     {
-        var marca = Ui.Fila(Ui.Ico(Iconos.Etiqueta, 52, 52, Ui.CobreMedio),
-            Ui.Columna(Ui.T("ROTULADO DE CARGAS", 30, Bold, Ui.Tinta, Ui.Cond), Ui.Rotulo("Nave · Báscula N9 · VT1200", 15)).Margen(14, 0, 0, 0));
-        var nota = Ui.T("El RUT de prueba ya está escrito: toque Entrar.", 15, Medium, Ui.Mut); nota.HorizontalAlignment = HorizontalAlignment.Center;
-        var col = Ui.Columna(marca, Dsp("RUT del operador", S.Rut.Length > 0 ? D.FmtRut(S.Rut) : "—", 46).Margen(0, 16, 0, 0),
-            ((FrameworkElement)Teclado(Rut, 70, 30)).Margen(0, 14, 0, 0), BotonGrande("Entrar", null, Entrar, false, 84, 33).Margen(0, 14, 0, 0), nota.Margen(0, 14, 0, 0));
-        col.Width = 520; col.HorizontalAlignment = HorizontalAlignment.Center; col.VerticalAlignment = VerticalAlignment.Center;
+        var marca = Ui.Fila(Ui.Ico(Iconos.Etiqueta, 30, 30, Ui.Amarillo, 2.2),
+            Ui.Columna(Ui.T("Rotulado de cargas", 20, SemiBold, Ui.Blanco), Ui.T("Báscula N9, nave", 14, Regular, Ui.SobreGrafito)).Margen(12, 0, 0, 0));
+        var turno = new TextBlock { FontFamily = Ui.Fuente, FontSize = 16, Foreground = Ui.SobreGrafito, VerticalAlignment = VerticalAlignment.Center };
+        turno.Inlines.Add(new Run("Turno ")); turno.Inlines.Add(new Run(S.Turno) { Foreground = Ui.Blanco, FontWeight = SemiBold });
         // Salir cierra el programa (con pregunta antes): en la VT1200 a pantalla completa no hay otra forma con el dedo
-        var salir = BotonSec(Ui.T("SALIR", 20, SemiBold, Ui.Tinta, Ui.Cond), PedirCerrar, 56, new Thickness(24, 0, 24, 0));
-        salir.HorizontalAlignment = HorizontalAlignment.Right; salir.VerticalAlignment = VerticalAlignment.Top;
-        var g = new Grid(); g.Children.Add(col); g.Children.Add(salir);
-        return g;
+        var der = Ui.Fila(turno, Ui.T(Hora(), 16, Regular, Ui.SobreGrafito).Margen(16, 0, 16, 0), BotonGrafito("Salir", PedirCerrar));
+        var barra = BarraGrafito(marca, der);
+
+        var rut = S.Rut; var completo = rut.Length >= 8; var valido = D.RutValido(rut); var error = completo && !valido;
+        var izq = new StackPanel();
+        izq.Children.Add(Ui.T("Ingrese su RUT", 40, Bold, Ui.Texto).Margen(0, 4, 0, 6));
+        izq.Children.Add(Ui.T("Queda registrado quién imprimió cada etiqueta.", 18, Regular, Ui.Texto2, ajustar: true).Margen(0, 0, 0, 26));
+        izq.Children.Add(Dsp("RUT del operador", rut.Length > 0 ? D.FmtRut(rut) : "—", 54, error));
+        izq.Children.Add(Ui.T("Escriba los números y la K si la tiene. Los puntos y el guion se ponen solos.", 16, Regular, Ui.Texto2, ajustar: true).Margen(0, 12, 0, 0));
+        if (valido) izq.Children.Add(Aviso("ok", "RUT válido. Toque Entrar.").Margen(0, 14, 0, 0));
+        else if (error) izq.Children.Add(Aviso("err", $"El dígito verificador no corresponde: para {D.FmtRut(rut[..^1] + "0")[..^2]} es {D.DvRut(rut[..^1])}. Revise el último número.").Margen(0, 14, 0, 0));
+        var zebra = _cfg.Impresora.Modo == "seco" ? Pildora(Iconos.Warn, Ui.Ambar, "Zebra en modo prueba: no imprime") : Pildora(Iconos.Imprimir, Ui.Verde, "Imprime en la Zebra");
+        var equipos = Ui.Fila(Pildora(Iconos.Bascula, Ui.Verde, "Báscula N9 en línea"), zebra.Margen(10, 0, 0, 0));
+        equipos.VerticalAlignment = VerticalAlignment.Bottom;
+        var colIzq = new Grid(); colIzq.Children.Add(izq); colIzq.Children.Add(equipos);
+
+        var cabTeclado = Ui.Columnas("* auto", 10, Ui.T("Teclado", 16, SemiBold, Ui.Texto2), BotonMini("Borrar todo", () => Rut("C")));
+        var teclado = Ui.Tarjeta(Ui.Filas("auto * auto", 12, cabTeclado, Teclado(Rut, 108, 34, true), BotonGrande("Entrar", null, Entrar, !valido, 88, 30)), relleno: new Thickness(16));
+        var cuerpo = Ui.Columnas("* 400", 24, colIzq, teclado); cuerpo.Margin = new Thickness(28, 28, 28, 24);
+        return Ui.Filas("64 *", 0, barra, cuerpo);
     }
 
     /* ---------- Principal ---------- */
     private UIElement VMain(Modelo m)
     {
-        Border Tab(string v, string txt)
+        UIElement Tab(string v, string txt)
         {
             var on = S.Prod == v;
-            var c = Ui.Fila(Ui.IcoProd(v, 36, 27, on ? Ui.CobreMedio : Ui.Mut2), Ui.T(txt, 21, Bold, on ? Ui.Tinta : Ui.Mut, Ui.Cond, true).Margen(10, 0, 0, 0));
-            return Ui.Boton(c, A(() => Prod(v)), on ? Ui.Panel : Brushes.Transparent, on ? Ui.Cobre : Ui.Linea, 12, new Thickness(18, 0, 18, 0), 56, on ? new Thickness(1, 1, 1, 4) : new Thickness(1));
+            var c = Ui.Fila(Ui.IcoProd(v, 30, 22, on ? Ui.Blanco : Ui.SobreGrafito), Ui.T(txt, 18, SemiBold, on ? Ui.Blanco : Ui.SobreGrafito).Margen(10, 0, 0, 0));
+            var g = new Grid { Height = 64 };
+            g.Children.Add(Ui.Boton(c, A(() => Prod(v)), Brushes.Transparent, Brushes.Transparent, 0, new Thickness(16, 0, 16, 0), 64, new Thickness(0)));
+            if (on) g.Children.Add(new Border { Height = 4, VerticalAlignment = VerticalAlignment.Bottom, Margin = new Thickness(12, 0, 12, 0), Background = Ui.Amarillo, CornerRadius = new CornerRadius(2, 2, 0, 0), IsHitTestVisible = false });
+            return g;
         }
-        var tabs = Ui.Fila(Tab("cat", "Cátodos"), Tab("lam", "Láminas").Margen(8, 0, 0, 0), Tab("rs", "Restos de ánodos").Margen(8, 0, 0, 0));
-        var quien = new TextBlock { FontFamily = Ui.Cond, FontSize = 15, FontWeight = SemiBold, Foreground = Ui.Mut, VerticalAlignment = VerticalAlignment.Center };
-        quien.Inlines.Add(new Run(S.User.ToUpperInvariant()) { Foreground = Ui.Tinta }); quien.Inlines.Add(new Run($" · {Hora()}"));
-        var who = Ui.Fila(quien, BotonSec(Ui.T("SALIR", 17, SemiBold, Ui.Tinta, Ui.Cond), Salir, 46, new Thickness(16, 0, 16, 0)).Margen(12, 0, 0, 0));
-        who.HorizontalAlignment = HorizontalAlignment.Right;
-        var bar = Ui.Columnas("* auto", 12, tabs, who);
-        var top = Ui.Columnas("* 380", 12, Hero(m), Balanza());
+        var tabs = Ui.Fila(Tab("cat", "Cátodos"), Tab("lam", "Láminas"), Tab("rs", "Restos de ánodos"));
+        var who = Ui.Fila(Ui.T(S.User, 16, SemiBold, Ui.Blanco), Ui.T(Hora(), 16, Regular, Ui.SobreGrafito).Margen(16, 0, 16, 0), BotonGrafito("Salir", Salir));
+        var barra = BarraGrafito(tabs, who);
+
+        var top = Ui.Columnas("* 360", 12, Hero(m), Balanza());
         var trabajo = m.Trabajo?.Invoke() ?? new Grid();
-        var registro = BotonSec(Ui.Fila(Ui.Ico(Iconos.Lista, 26, 26, Ui.Mut), Ui.T("REGISTRO", 21, SemiBold, Ui.Tinta, Ui.Cond).Margen(10, 0, 0, 0), Insignia(S.Labels.Count).Margen(10, 0, 0, 0)), () => Abrir("registro"));
-        var excel = BotonSec(Ui.Fila(Ui.Ico(Iconos.Excel, 26, 26, Ui.VerdeXls), Ui.T("EXCEL", 21, SemiBold, Ui.Tinta, Ui.Cond).Margen(10, 0, 0, 0)), BajarExcel);
-        var acc = Ui.Columnas("* auto auto", 12, BotonGrande(m.ImpTxt, Iconos.Imprimir, Imprimir, m.ImpDis, 84, 33), registro, excel);
-        return Ui.Filas("56 auto * 84", 12, bar, top, trabajo, acc);
+        var registro = BotonSec(Ui.Fila(Ui.Ico(Iconos.Lista, 26, 26, Ui.Texto), TxtSec("Registro").Margen(10, 0, 0, 0), Insignia(S.Labels.Count).Margen(10, 0, 0, 0)), () => Abrir("registro"));
+        var excel = BotonSec(Ui.Fila(Ui.Ico(Iconos.Excel, 26, 26, Ui.VerdeXls), TxtSec("Excel").Margen(10, 0, 0, 0)), BajarExcel);
+        var acc = Ui.Columnas("* auto auto", 12, BotonGrande(m.ImpTxt, Iconos.Imprimir, Imprimir, m.ImpDis, 80, 30), registro, excel);
+        var cuerpo = Ui.Filas("244 * 80", 12, top, trabajo, acc); cuerpo.Margin = new Thickness(16, 12, 16, 16);
+        return Ui.Filas("64 *", 0, barra, cuerpo);
     }
 
     private Border Hero(Modelo m)
     {
         var cod = m.Corto ?? m.Codigo; var pre = cod.StartsWith("Nº "); var num = pre ? cod[3..] : cod;
-        var fs = Math.Min(92, Math.Floor((pre ? 240 : 270) / (0.6 * Math.Max(1, num.Length))));
-        var codigo = new TextBlock { FontFamily = Ui.Mono, FontWeight = Bold, FontSize = fs, Foreground = m.Vacio || cod == "—" ? Ui.Mut2 : Ui.Tinta, LineHeight = fs, LineStackingStrategy = LineStackingStrategy.BlockLineHeight };
-        if (pre) codigo.Inlines.Add(new Run("Nº ") { FontFamily = Ui.Cond, FontSize = fs * 0.42, Foreground = Ui.Mut });
+        var fs = Math.Min(118, Math.Floor(300 / (0.62 * Math.Max(1, num.Length + (pre ? 1.2 : 0)))));
+        var codigo = new TextBlock { FontFamily = Ui.Fuente, FontWeight = Bold, FontSize = fs, Foreground = m.Vacio || cod == "—" ? Ui.Texto2 : Ui.Texto, LineHeight = fs, LineStackingStrategy = LineStackingStrategy.BlockLineHeight };
+        System.Windows.Documents.Typography.SetNumeralAlignment(codigo, FontNumeralAlignment.Tabular);
+        if (pre) codigo.Inlines.Add(new Run("Nº ") { FontSize = fs * 0.42, Foreground = Ui.Texto2, FontWeight = SemiBold });
         codigo.Inlines.Add(new Run(num));
         var e = m.Estado;
         var estado = new WrapPanel { Orientation = Orientation.Horizontal };
-        estado.Children.Add(Ui.IcoEstado(e.K, 26).Margen(0, 0, 10, 0));
-        var txt = Ui.T(e.Txt, 19, SemiBold, Ui.ColorEstado(e.K), ajustar: true); txt.MaxWidth = 232; txt.LineHeight = 24;
+        estado.Children.Add(Ui.IcoEstado(e.K, 22).Margen(0, 1, 8, 0));
+        var txt = Ui.T(e.Txt, 17, SemiBold, Ui.ColorEstado(e.K), ajustar: true); txt.MaxWidth = 290; txt.LineHeight = 22;
         estado.Children.Add(txt);
         if (e.Volver != null)
-            estado.Children.Add(Ui.Boton(Ui.T($"Volver a {e.Volver}", 18, Bold, Ui.B("#FFF4D6"), Ui.Cond, true), A(Volver), Ui.B("#3F3005"), Ui.B("#A07A12"), 10, new Thickness(16, 0, 16, 0), 46).Margen(0, 8, 0, 0));
-        var htxt = Ui.Columna(Ui.Rotulo(m.Lbl, 15), codigo.Margen(0, 8, 0, 6), estado);
+            estado.Children.Add(Ui.Boton(Ui.T($"Volver a {e.Volver}", 16, SemiBold, Ui.Ambar), A(Volver), Ui.AmbarTinte, Ui.AmbarBorde, 6, new Thickness(14, 0, 14, 0), 44).Margen(0, 8, 0, 0));
+        var htxt = Ui.Columna(Ui.Rotulo(m.Lbl, 15), codigo.Margen(0, 10, 0, 10), estado);
         htxt.VerticalAlignment = VerticalAlignment.Center;
 
+        // La boca de la Zebra: la etiqueta sale de ahí (baja al imprimir)
         var boca = new Border
         {
-            Width = 266, Height = 16, CornerRadius = new CornerRadius(8), BorderBrush = Ui.B("#3A5563"), BorderThickness = new Thickness(0, 0, 0, 2),
-            Background = new LinearGradientBrush(Ui.B("#22313A").Color, Ui.B("#0A1013").Color, 90),
-            Child = new Border { Height = 2, Margin = new Thickness(14, 6, 14, 0), VerticalAlignment = VerticalAlignment.Top, Background = Ui.B("#05080A") },
+            Width = 266, Height = 14, CornerRadius = new CornerRadius(7), Background = Ui.Grafito2,
+            Child = new Border { Height = 2, Margin = new Thickness(14, 6, 14, 0), VerticalAlignment = VerticalAlignment.Top, Background = Ui.Grafito },
         };
         Panel.SetZIndex(boca, 2);
-        var salida = new Grid { Width = 262, Height = 181, ClipToBounds = true, Margin = new Thickness(0, -6, 0, 0) };
+        var salida = new Grid { Width = 262, Height = 183, ClipToBounds = true, Margin = new Thickness(0, -6, 0, 0) };
         var st = Sticker.Crear(m.Sticker, S.Fase); st.VerticalAlignment = VerticalAlignment.Top; st.Margin = new Thickness(0, 6, 0, 0);
         salida.Children.Add(st);
-        var zebra = new Grid { Width = 266 };
+        var zebra = new Grid { Width = 266, VerticalAlignment = VerticalAlignment.Center };
         zebra.Children.Add(Ui.Columna(boca, salida));
-        return Ui.Tarjeta(Ui.Columnas("* 266", 14, htxt, zebra), relleno: new Thickness(22, 12, 14, 12));
+        return Ui.Tarjeta(Ui.Columnas("* 266", 14, htxt, zebra), relleno: new Thickness(20, 12, 14, 12));
     }
 
     /* ---------- La Báscula N9 en vivo ---------- */
     private Border Balanza()
     {
-        var titulo = Ui.Rotulo("Báscula N9", 15);
-        var vivo = Ui.Fila(Latido(), Ui.T("EN LÍNEA", 13, SemiBold, Ui.VerdeT, Ui.Cond).Margen(7, 0, 0, 0));
-        var abrir = Ui.Boton(Ui.Fila(Ui.T("ABRIR", 14, SemiBold, Ui.CobreClaro, Ui.Cond), Ui.Ico(Iconos.Lapiz, 15, 15, Ui.CobreClaro).Margen(6, 0, 0, 0)),
-            A(AbrirBas), Brushes.Transparent, Ui.Cobre, 8, new Thickness(12, 0, 12, 0), 34);
-        var cab = Ui.Columnas("* auto auto", 10, titulo, vivo, abrir);
-        var lect = Lectura();
-        var dsp = Ui.Tarjeta(Ui.Columnas("* 96", 8, lect, _pic!.Raiz), Ui.Oscuro, Ui.B("#2A3F49"), 12, new Thickness(14, 10, 10, 10));
-        _balRes = new ContentControl { Content = VRes(), MinHeight = 44 };
-        return Ui.Tarjeta(Ui.Filas("auto auto auto", 9, cab, dsp, _balRes), relleno: new Thickness(14, 12, 14, 12));
+        var vivo = Ui.Fila(Latido(), Ui.T("En línea", 14, SemiBold, Ui.Verde).Margen(7, 0, 0, 0));
+        var abrir = BotonMini("Abrir", AbrirBas);
+        var cab = Ui.Columnas("* auto auto", 12, Ui.Rotulo("Báscula N9", 15), vivo, abrir);
+        _balRes = new ContentControl { Content = VRes(), MinHeight = 40 };
+        return Ui.Tarjeta(Ui.Filas("auto * auto", 8, cab, Lectura(), _balRes), relleno: new Thickness(16, 12, 16, 12));
     }
 
+    /// <summary>La lectura en vivo: el estado (chip) y el número grande, en su recuadro.</summary>
     private UIElement Lectura()
     {
         var ch = Chips[B.Chip]; _balChip = Ui.Chip(ch.Txt, ch.Clase);
         var t = D.Kg((int)Math.Max(0, Math.Round(B.Lect)));
-        _balNum = Ui.T(t, t.Length > 5 ? 48 : 58, Bold, Ui.Brillo, Ui.Mono);
-        var kg = Ui.T("kg", 22, SemiBold, Ui.Mut).Margen(6, 0, 0, 7); kg.VerticalAlignment = VerticalAlignment.Bottom;
+        _balNum = Ui.T(t, t.Length > 5 ? 48 : 56, Bold, Ui.Texto);
+        var kg = Ui.T("kg", 24, Medium, Ui.Texto2).Margen(6, 0, 0, 8); kg.VerticalAlignment = VerticalAlignment.Bottom;
         var num = Ui.Fila(_balNum, kg); num.VerticalAlignment = VerticalAlignment.Bottom;
-        _pic = new Pictograma(B.Pic, B.ProdPic);
-        return Ui.Columna(_balChip, num.Margen(0, 6, 0, 0));
+
+        var col = Ui.Columna(_balChip, num.Margen(0, 6, 0, 0)); col.VerticalAlignment = VerticalAlignment.Center;
+        return new Border { Background = Ui.Fondo, BorderBrush = Ui.Linea, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6), Padding = new Thickness(16, 6, 16, 6), Child = col };
     }
 
     private UIElement VRes()
     {
         var r = B.Res;
-        var col = Ui.Columna(Ui.T(r.T1, 19, SemiBold, Ui.ColorEstado(r.K)), Ui.T(r.T2, 14, Medium, Ui.Mut3));
-        var ico = Ui.IcoEstado(r.K, 24); ico.VerticalAlignment = VerticalAlignment.Top; ico.Margin = new Thickness(0, 1, 0, 0);
-        return Ui.Columnas("24 *", 8, ico, col);
+        var t1 = Ui.T(r.T1, 15, SemiBold, r.K is "warn" or "err" ? Ui.ColorEstado(r.K) : Ui.Texto);
+        var col = Ui.Columna(t1, Ui.T(r.T2, 14, Regular, Ui.Texto2));
+        var ico = Ui.IcoEstado(r.K, 20); ico.VerticalAlignment = VerticalAlignment.Top; ico.Margin = new Thickness(0, 1, 0, 0);
+        return Ui.Columnas("20 *", 8, ico, col);
     }
 
     /* ---------- Área de trabajo de cada producto ---------- */
-    private static Border Cuadro(string clase, double tam = 13)
+
+    /// <summary>Muestra de la leyenda: el mismo dibujo que la celda (relleno, borde e ícono).</summary>
+    private static UIElement Muestra(string clase, string texto)
     {
-        var b = new Border { Width = tam, Height = tam, CornerRadius = new CornerRadius(3), Margin = new Thickness(10, 0, 6, 0) };
-        switch (clase)
+        var (fondo, borde, gro) = clase switch
         {
-            case "pes": b.Background = Ui.VerdeL; break;
-            case "bas": b.Background = Ui.AmbarL; break;
-            case "cam": b.Background = Ui.AzulL; break;
-            default: b.BorderBrush = Ui.Cobre; b.BorderThickness = new Thickness(2); break;
-        }
-        return b;
+            "pes" => (Ui.Azul, Ui.Azul, 1.0), "bas" => (Ui.AzulTinte, Ui.Azul, 2.0), "cam" => ((Brush)Ui.Tarjeta0, Ui.Azul, 2.0), _ => (Ui.Amarillo, Ui.Grafito, 2.0),
+        };
+        var b = new Border { Width = 14, Height = 14, CornerRadius = new CornerRadius(3), Background = fondo, BorderBrush = borde, BorderThickness = new Thickness(gro) };
+        return Ui.Fila(b, Ui.T(texto, 14, Regular, Ui.Texto2).Margen(6, 0, 14, 0));
+    }
+
+    /// <summary>Una celda del mapa: color, número e ícono o peso, para que no dependa solo del color.</summary>
+    private UIElement Celda(int n, Celda? c, bool esSig, bool elegida)
+    {
+        Brush fondo = Ui.Fondo, borde = Ui.Linea, color = Ui.Texto2; var grosor = 1.0; UIElement? extra = null; var punteado = false;
+        if (c != null)
+            switch (c.E)
+            {
+                case "pesada": fondo = Ui.Azul; borde = Ui.Azul; color = Ui.Blanco; if (c.P > 0) extra = Ui.T(D.Kg(c.P), 10.5, SemiBold, Ui.Blanco); break;
+                case "bascula": fondo = Ui.AzulTinte; borde = Ui.Azul; color = Ui.Azul; grosor = 2; punteado = true; extra = Ui.Ico(Iconos.Bascula, 16, 16, Ui.Azul, 2.4); break;
+                default: fondo = Ui.Tarjeta0; borde = Ui.Azul; color = Ui.Azul; grosor = 2; extra = Ui.Ico(Iconos.Etiqueta, 14, 14, Ui.Azul, 2.2); break;
+            }
+        else if (elegida) { fondo = Ui.Amarillo; borde = Ui.Grafito; color = Ui.Grafito; grosor = 2; extra = Ui.Ico(Iconos.Flecha, 16, 16, Ui.Grafito, 3); }
+        else if (esSig) { fondo = Ui.Tarjeta0; borde = Ui.Grafito; color = Ui.Grafito; grosor = 2; }
+        if (elegida && c != null) { borde = Ui.Grafito; grosor = 3; }
+        var col = Ui.Columna(Centro(Ui.T(n.ToString(), 19, Bold, color)));
+        if (extra is FrameworkElement fe) col.Children.Add(Centro(fe).Margen(0, 2, 0, 0));
+        col.VerticalAlignment = VerticalAlignment.Center;
+        var b = Ui.Boton(col, A(() => CeldaElegida(n)), fondo, punteado ? Brushes.Transparent : borde, 4, new Thickness(0), 72, new Thickness(punteado ? 0 : grosor));
+        if (!punteado) return b;
+        // En la báscula: borde punteado (Border no dibuja punteado; va un rectángulo encima)
+        var g = new Grid(); g.Children.Add(b);
+        g.Children.Add(new Rectangle { Stroke = borde, StrokeThickness = 2, StrokeDashArray = new DoubleCollection { 2, 1.5 }, RadiusX = 4, RadiusY = 4, IsHitTestVisible = false });
+        return g;
     }
 
     private UIElement TrabajoCat(Grupo G, int? sig)
     {
-        var cel = G.Celdas.Values.ToList(); var pes = cel.Count(c => c.E == "pesada"); var cam = cel.Count - pes;
-        TextBlock L(string s) => Ui.T(s, 14, Medium, Ui.Mut);
-        var ley = Ui.Fila(Cuadro("pes"), L("Pesada"), Cuadro("bas"), L("En báscula"), Cuadro("cam"), L("En camino"), Cuadro("sig"), L("Sigue"));
-        var cab = Ui.Columnas("auto auto * auto auto auto", 12, Ui.T($"GRUPO {G.G}", 21, Bold, Ui.Tinta, Ui.Cond), Ui.T($"{pes} pesadas · {cam} en camino", 15, Medium, Ui.Mut),
-            new Grid(), ley, BotonMini(S.Muestra ? "Muestra: sí" : "Muestra", AlternarMuestra, S.Muestra), BotonMini("Cambiar grupo", () => Abrir("grupo")));
+        var cel = G.Celdas.Values.ToList();
+        int pes = cel.Count(c => c.E == "pesada"), bas = cel.Count(c => c.E == "bascula"), cam = cel.Count - pes - bas;
+        var partes = new List<string> { pes == 1 ? "1 pesada" : $"{pes} pesadas" };
+        if (bas > 0) partes.Add($"{bas} en la báscula");
+        if (cam > 0) partes.Add($"{cam} en camino");
+        var cab = Ui.Columnas("auto auto * auto auto", 12, Ui.T($"Grupo {G.G}", 24, Bold, Ui.Texto), Ui.T(string.Join(", ", partes), 16, Regular, Ui.Texto2),
+            new Grid(), BotonMini(S.Muestra ? "Muestra: sí" : "Muestra", AlternarMuestra, S.Muestra), BotonMini("Cambiar grupo", () => Abrir("grupo")));
         cab.MinHeight = 44;
-        Border Lado(string k)
-        {
-            var l = k == "a" ? G.LadoA : G.LadoB;
-            return Ui.Boton(Ui.Fila(Ui.T($"LADO {LadoTxt(l).ToUpperInvariant()}", 14, SemiBold, Ui.CobreClaro, Ui.Cond), Ui.Ico(Iconos.Lapiz, 16, 16, Ui.CobreClaro).Margen(6, 0, 0, 0)),
-                A(() => Abrir("lado", k)), Brushes.Transparent, Ui.B("#9A6337"), 8, new Thickness(10, 0, 10, 0), 34);
-        }
-        var nota = L("Si el paquete es otro, toque su celda"); nota.HorizontalAlignment = HorizontalAlignment.Right;
-        var f1 = Ui.Columnas("auto auto *", 8, Ui.Rotulo("Celdas 1 a 21 ·", 14), Lado("a"), nota);
-        var f2 = Ui.Columnas("auto auto *", 8, Ui.Rotulo("Celdas 42 a 22 ·", 14), Lado("b"), new Grid());
-        UIElement Sq(int n)
-        {
-            G.Celdas.TryGetValue(n, out var c);
-            Brush fondo = Ui.Fondo, borde = Ui.Linea, color = Ui.Mut; var grosor = 1.0;
-            if (c != null) (fondo, borde, color) = c.E == "pesada" ? (Ui.VerdeF, Ui.VerdeL, Ui.VerdeC) : c.E == "bascula" ? (Ui.AmbarF, Ui.AmbarL, Ui.AmbarC) : (Ui.AzulF, Ui.AzulL, Ui.AzulC);
-            else if (n == sig) { borde = Ui.Cobre; color = Ui.CobreClaro; grosor = 3; }
-            if (!S.Muestra && n == S.Sel && n != sig) { fondo = Ui.Cobre; borde = Ui.Cobre; color = Ui.SobreCobre; }
-            var col = Ui.Columna(Centro(Ui.T(n.ToString(), 19, Bold, color)));
-            if (c is { E: "pesada" } && c.P > 0) { var w = Ui.T(D.Kg(c.P), 10.5, SemiBold, Ui.VerdeC, Ui.Mono); w.Opacity = 0.85; col.Children.Add(Centro(w).Margen(0, 2, 0, 0)); }
-            return Ui.Boton(col, A(() => CeldaElegida(n)), fondo, borde, 9, new Thickness(0), 72, new Thickness(grosor));
-        }
-        var m1 = Ui.Grilla(21, D.Orden.Take(21).Select(Sq), 4);
-        var m2 = Ui.Grilla(21, D.Orden.Skip(21).Select(Sq), 4);
-        var caja = Ui.Tarjeta(Ui.Filas("auto auto auto auto auto", 8, cab, f1, m1, f2, m2));
+        var ley = Ui.Fila(Muestra("pes", "Pesada"), Muestra("bas", "En la báscula"), Muestra("cam", "En camino"), Muestra("sig", "Sigue"));
+        ley.HorizontalAlignment = HorizontalAlignment.Right;
+        var nota = Ui.T("Si el paquete es otro, toque su celda", 14, Regular, Ui.Texto2); nota.HorizontalAlignment = HorizontalAlignment.Right;
+        var f1 = Ui.Columnas("auto auto *", 4, Ui.T($"Lado {LadoTxt(G.LadoA)}, celdas 1 a 21", 15, Regular, Ui.Texto2), Enlace("Cambiar", () => Abrir("lado", "a")), ley);
+        var f2 = Ui.Columnas("auto auto *", 4, Ui.T($"Lado {LadoTxt(G.LadoB)}, celdas 42 a 22", 15, Regular, Ui.Texto2), Enlace("Cambiar", () => Abrir("lado", "b")), nota);
+        var elegida = S.Muestra ? (int?)null : S.Sel ?? sig;
+        UIElement Sq(int n) { G.Celdas.TryGetValue(n, out var c); return Celda(n, c, n == sig, n == elegida); }
+        var m1 = Ui.Grilla(21, D.Orden.Take(21).Select(Sq), 6);
+        var m2 = Ui.Grilla(21, D.Orden.Skip(21).Select(Sq), 6);
+        var caja = Ui.Tarjeta(Ui.Filas("auto auto auto auto auto", 6, cab, f1, m1, f2, m2), relleno: new Thickness(16, 12, 16, 14));
         caja.VerticalAlignment = VerticalAlignment.Top;
         return caja;
     }
 
     private static T Centro<T>(T el) where T : FrameworkElement { el.HorizontalAlignment = HorizontalAlignment.Center; return el; }
 
-    /// <summary>Recuadro chico de un número de lámina o de un carro, con su estado.</summary>
+    /// <summary>Recuadro chico de un número de lámina o de un carro, con su estado (color, borde y texto).</summary>
     private static Border Ficha(string titulo, string sub, string clase, double ancho = 120, double alto = 66, double tam = 22)
     {
-        Brush fondo = Ui.Fondo, borde = Ui.Linea, ct = Ui.Tinta, cs = Ui.Mut; var grosor = 1.0; var op = 1.0;
+        Brush fondo = Ui.Fondo, borde = Ui.Linea, ct = Ui.Texto, cs = Ui.Texto2; var grosor = 1.0; var op = 1.0;
         switch (clase)
         {
-            case "pesada": fondo = Ui.VerdeF; borde = Ui.VerdeL; cs = Ui.VerdeC; break;
-            case "camino": fondo = Ui.AzulF; borde = Ui.AzulL; cs = Ui.AzulC; break;
-            case "bascula": fondo = Ui.AmbarF; borde = Ui.AmbarL; cs = Ui.AmbarC; break;
-            case "sintara": fondo = Ui.RojoF; borde = Ui.RojoL; cs = Ui.RojoC; break;
-            case "sig": borde = Ui.Cobre; grosor = 3; ct = Ui.CobreClaro; cs = Ui.CobreClaro; break;
-            case "vacio": op = 0.5; ct = Ui.Mut; break;
+            case "pesada": fondo = Ui.Azul; borde = Ui.Azul; ct = Ui.Blanco; cs = Ui.Blanco; break;
+            case "camino": fondo = Ui.Tarjeta0; borde = Ui.Azul; grosor = 2; ct = Ui.Azul; cs = Ui.Azul; break;
+            case "bascula": fondo = Ui.AzulTinte; borde = Ui.Azul; grosor = 2; ct = Ui.Azul; cs = Ui.Azul; break;
+            case "sintara": fondo = Ui.RojoTinte; borde = Ui.Rojo; grosor = 2; ct = Ui.Rojo; cs = Ui.Rojo; break;
+            case "sig": fondo = Ui.Amarillo; borde = Ui.Grafito; grosor = 2; ct = Ui.Grafito; cs = Ui.Grafito; break;
+            case "vacio": op = 0.6; ct = Ui.Texto2; break;
         }
-        var col = Ui.Columna(Ui.T(titulo, tam, Bold, ct, Ui.Cond), Ui.T(sub, 13.5, SemiBold, cs, Ui.Cond));
+        var col = Ui.Columna(Ui.T(titulo, tam, Bold, ct), Ui.T(sub, 13.5, SemiBold, cs));
         col.VerticalAlignment = VerticalAlignment.Center;
-        var b = new Border { Background = fondo, BorderBrush = borde, BorderThickness = new Thickness(grosor), CornerRadius = new CornerRadius(12), Padding = new Thickness(12, 0, 12, 0), Height = alto, Opacity = op, Child = col };
+        var b = new Border { Background = fondo, BorderBrush = borde, BorderThickness = new Thickness(grosor), CornerRadius = new CornerRadius(6), Padding = new Thickness(12, 0, 12, 0), Height = alto, Opacity = op, Child = col };
         if (ancho > 0) b.Width = ancho;
         return b;
     }
 
     private UIElement Cabecera(string titulo, string cuenta, UIElement? derecha = null)
     {
-        var g = Ui.Columnas("auto * auto", 12, Ui.T(titulo, 21, Bold, Ui.Tinta, Ui.Cond, true), Ui.T(cuenta, 15, Medium, Ui.Mut), derecha ?? new Grid());
+        var g = Ui.Columnas("auto * auto", 12, Ui.T(titulo, 20, Bold, Ui.Texto), Ui.T(cuenta, 15, Regular, Ui.Texto2), derecha ?? new Grid());
         g.MinHeight = 44; return g;
     }
 
@@ -248,9 +324,9 @@ public partial class MainWindow
         var seg = D.Lam.Select(t =>
         {
             var on = t.Id == T.Id;
-            var col = Ui.Columna(Ui.T(t.Corto, 27, Bold, Ui.Tinta, Ui.Cond), Ui.T($"Sigue Nº {S.Lam.Sig[t.Id]}", 15, SemiBold, on ? Ui.CobreClaro : Ui.Mut));
+            var col = Ui.Columna(Ui.T(t.Corto, 24, Bold, Ui.Texto), Ui.T($"Sigue el Nº {S.Lam.Sig[t.Id]}", 15, SemiBold, on ? Ui.Azul : Ui.Texto2));
             col.HorizontalAlignment = HorizontalAlignment.Left; col.VerticalAlignment = VerticalAlignment.Center;
-            return (UIElement)Ui.Boton(col, A(() => LamTipo(t.Id)), on ? Ui.Panel2 : Ui.Fondo, on ? Ui.Cobre : Ui.Linea3, 14, new Thickness(18, 0, 18, 0), 90, on ? new Thickness(5, 2, 2, 2) : new Thickness(1), false);
+            return (UIElement)Ui.Boton(col, A(() => LamTipo(t.Id)), on ? Ui.AzulTinte : Ui.Tarjeta0, on ? Ui.Azul : Ui.LineaControl, 6, new Thickness(18, 0, 18, 0), 88, new Thickness(on ? 2 : 1), false);
         });
         var caja1 = Ui.Tarjeta(Ui.Filas("auto auto", 8, Cabecera("Tipo de lámina", "Una etiqueta por pallet. Si van dos montados, una para cada uno."), Ui.Grilla(4, seg, 10)));
         var info = new SortedDictionary<int, (string E, int Kg, bool Ayer)>();
@@ -260,7 +336,7 @@ public partial class MainWindow
         foreach (var x in info.Keys.Where(k => k < n).TakeLast(4))
         {
             var i = info[x];
-            fila.Children.Add(Ficha($"Nº {x}", (i.E == "pesada" ? $"{D.Kg(i.Kg)} kg" : D.EstTxt[i.E]) + (i.Ayer ? " · 21-10" : ""), i.E).Margen(0, 0, 8, 0));
+            fila.Children.Add(Ficha($"Nº {x}", (i.E == "pesada" ? $"{D.Kg(i.Kg)} kg" : D.EstTxt[i.E]) + (i.Ayer ? ", 21-10" : ""), i.E).Margen(0, 0, 8, 0));
         }
         fila.Children.Add(Ficha($"Nº {n}", "Sigue", "sig").Margen(0, 0, 8, 0));
         fila.Children.Add(Ficha($"Nº {n + 1}", " ", "vacio").Margen(0, 0, 8, 0));
@@ -281,13 +357,13 @@ public partial class MainWindow
             {
                 var x = hechos[i - 1]; var l = S.Labels.FirstOrDefault(y => y.Id == x.Id);
                 var est = l?.Estado ?? "camino";
-                slots.Add(Ficha($"{i} · C{x.Carro}", est == "pesada" ? $"{D.Kg(l!.Neto)} kg" : D.EstTxt[est], est, 0, 64, 21));
+                slots.Add(Ficha($"Carro {i}: C{x.Carro}", est == "pesada" ? $"{D.Kg(l!.Neto)} kg" : D.EstTxt[est], est, 0, 62, 19));
             }
-            else if (i == n) slots.Add(Ficha($"Carro {i}", "Sigue", "sig", 0, 64, 21));
-            else slots.Add(Ficha($"{i}", " ", "vacio", 0, 64, 21));
+            else if (i == n) slots.Add(Ficha($"Carro {i}", "Sigue", "sig", 0, 62, 19));
+            else slots.Add(Ficha($"{i}", " ", "vacio", 0, 62, 19));
         }
-        var izq = Ui.Tarjeta(Ui.Filas("auto auto", 8, Dsp("Nº pintado del carro", R.Carro.Length > 0 ? R.Carro : "—", 40), Teclado(Carro, 44, 26)));
-        var der = Ui.Tarjeta(Ui.Filas("auto auto", 8, Cabecera($"Carros del grupo {R.Grupo}", $"{hechos.Count} con tarjeta · unos 11 por grupo", BotonMini("Cambiar grupo", () => Abrir("rsgrupo"))), Ui.Grilla(4, slots, 8)));
+        var izq = Ui.Tarjeta(Ui.Filas("auto auto", 10, Dsp("Nº pintado del carro", R.Carro.Length > 0 ? R.Carro : "—", 26), Teclado(Carro, 38, 22)), relleno: new Thickness(16, 12, 16, 12));
+        var der = Ui.Tarjeta(Ui.Filas("auto auto", 8, Cabecera($"Carros del grupo {R.Grupo}", $"{hechos.Count} con tarjeta, unos 11 por grupo", BotonMini("Cambiar grupo", () => Abrir("rsgrupo"))), Ui.Grilla(4, slots, 8)));
         izq.VerticalAlignment = VerticalAlignment.Stretch; der.VerticalAlignment = VerticalAlignment.Stretch;
         return Ui.Columnas("330 *", 12, izq, der);
     }
@@ -307,7 +383,7 @@ public partial class MainWindow
             var mu = f.Mu == "S"; (int, int)? R = mu ? null : D.Rango["cat"];
             return new()
             {
-                new("g", "Grupo", f.G.ToString()), new("n", "Cuba (celda)", mu ? "00" : D.Pad2(f.N), Dis: mu), new("lado", "Lado", mu ? "—" : f.Lado == "P" ? "P · parcial" : "T · total", Dis: mu),
+                new("g", "Grupo", f.G.ToString()), new("n", "Cuba (celda)", mu ? "00" : D.Pad2(f.N), Dis: mu), new("lado", "Lado", mu ? "—" : f.Lado == "P" ? "P, parcial" : "T, total", Dis: mu),
                 new("mu", "Muestra", mu ? "Sí" : "No", Dis: f.Modo != "nuevo"), Peso(true),
                 new("x", "Esperado", R != null ? $"{D.Kg(R.Value.Item1)} a {D.Kg(R.Value.Item2)} kg" : "Sin rango", true, Calc: true),
             };
@@ -358,18 +434,20 @@ public partial class MainWindow
         return g;
     }
 
+    /// <summary>Un dato del pesaje. Se toca para cambiarlo (lápiz); los calculados no se tocan. Cambiado a mano: azul.</summary>
     private UIElement VCampo(Campo c, Form f)
     {
         var calc = c.Calc || c.Dis; var ed = f.Ed.Contains(c.K);
-        var tag = c.Tag ?? (calc ? "" : ed ? "cambiado" : f.Modo == "nuevo" ? "propuesto" : "etiqueta");
-        Brush borde = calc ? Ui.Linea3 : ed ? Ui.AzulL : Ui.Cobre, fondo = calc ? Ui.B("#13202A") : Ui.Fondo;
-        Brush valor = c.Vacio ? Ui.B("#6F8893") : calc ? Ui.B("#B9CAD2") : ed ? Ui.Blanco : Ui.CobreClaro;
-        var g = new Grid { MinHeight = 74 };
-        var lbl = Ui.Rotulo(c.Lbl, 13.5); lbl.VerticalAlignment = VerticalAlignment.Top; g.Children.Add(lbl);
-        if (tag.Length > 0) { var t = Ui.T(tag.ToUpperInvariant(), 12, SemiBold, ed ? Ui.AzulT : Ui.Mut, Ui.Cond); t.HorizontalAlignment = HorizontalAlignment.Right; t.VerticalAlignment = VerticalAlignment.Top; g.Children.Add(t); }
-        var v = Ui.T(c.V, 32, Bold, valor, Ui.Cond); v.VerticalAlignment = VerticalAlignment.Bottom; v.Margin = new Thickness(0, 0, 24, 0); g.Children.Add(v);
-        if (!calc) { var p = Ui.Ico(Iconos.Lapiz, 18, 18, Ui.Mut); p.HorizontalAlignment = HorizontalAlignment.Right; p.VerticalAlignment = VerticalAlignment.Bottom; g.Children.Add(p); }
-        return Ui.Boton(g, calc ? null : A(() => BfCampo(c.K)), fondo, borde, 12, new Thickness(14, 10, 14, 10), 96, calc ? new Thickness(1) : new Thickness(4, 1, 1, 1), false);
+        var tag = c.Tag ?? (calc ? "" : ed ? "Cambiado" : f.Modo == "nuevo" ? "Propuesto" : "De la etiqueta");
+        if (tag.Length > 0) tag = char.ToUpperInvariant(tag[0]) + tag[1..];
+        Brush borde = calc ? Ui.Linea : ed ? Ui.Azul : Ui.LineaControl, fondo = calc ? Ui.Fondo : ed ? Ui.AzulTinte : Ui.Tarjeta0;
+        Brush valor = c.Vacio ? Ui.Texto2 : Ui.Texto;
+        var g = new Grid { MinHeight = 72 };
+        var lbl = Ui.Rotulo(c.Lbl, 14); lbl.VerticalAlignment = VerticalAlignment.Top; g.Children.Add(lbl);
+        if (tag.Length > 0) { var t = Ui.T(tag, 13, SemiBold, ed ? Ui.Azul : Ui.Texto2); t.HorizontalAlignment = HorizontalAlignment.Right; t.VerticalAlignment = VerticalAlignment.Top; g.Children.Add(t); }
+        var v = Ui.T(c.V, 28, SemiBold, valor); v.VerticalAlignment = VerticalAlignment.Bottom; v.Margin = new Thickness(0, 0, 26, 0); g.Children.Add(v);
+        if (!calc) { var p = Ui.Ico(Iconos.Lapiz, 18, 18, ed ? Ui.Azul : Ui.Texto2); p.HorizontalAlignment = HorizontalAlignment.Right; p.VerticalAlignment = VerticalAlignment.Bottom; g.Children.Add(p); }
+        return Ui.Boton(g, calc ? null : A(() => BfCampo(c.K)), fondo, borde, 6, new Thickness(14, 10, 14, 10), 94, new Thickness(ed ? 2 : 1), false);
     }
 
     private UIElement VBas()
@@ -379,58 +457,47 @@ public partial class MainWindow
         Border ProdB(string v, string txt)
         {
             var on = f.Prod == v; var dis = f.Modo != "nuevo" && !on;
-            var rot = Ui.T(txt, 17, Bold, on ? Ui.Tinta : Ui.Mut, Ui.Cond, true, ajustar: true); rot.MaxWidth = 130; rot.LineHeight = 19;
-            var c = Ui.Fila(Ui.IcoProd(v, 34, 26, on ? Ui.CobreMedio : Ui.Mut2), rot.Margen(10, 0, 0, 0));
-            var b = Ui.Boton(c, dis ? null : A(() => BfProd(v)), on ? Ui.Panel2 : Ui.Fondo, on ? Ui.Cobre : Ui.Linea3, 12, new Thickness(12, 0, 12, 0), 66, new Thickness(on ? 2 : 1), false);
+            var rot = Ui.T(txt, 17, SemiBold, Ui.Texto, ajustar: true); rot.MaxWidth = 130; rot.LineHeight = 20;
+            var c = Ui.Fila(Ui.IcoProd(v, 34, 26, on ? Ui.Azul : Ui.Texto2), rot.Margen(10, 0, 0, 0));
+            var b = Ui.Boton(c, dis ? null : A(() => BfProd(v)), on ? Ui.AzulTinte : Ui.Tarjeta0, on ? Ui.Azul : Ui.LineaControl, 6, new Thickness(12, 0, 12, 0), 66, new Thickness(on ? 2 : 1), false);
             ((FrameworkElement)b.Child).VerticalAlignment = VerticalAlignment.Center;
-            if (dis) b.Opacity = 0.35;
+            if (dis) b.Opacity = 0.4;
             return b;
         }
-        Border BotTurno(string x) => Ui.Boton(Ui.T($"TURNO {x}", 17, SemiBold, S.Turno == x ? Ui.SobreCobre : Ui.Mut, Ui.Cond), A(() => this.Turno(x)),
-            S.Turno == x ? Ui.Cobre : Brushes.Transparent, Brushes.Transparent, 0, new Thickness(16, 0, 16, 0), 46, new Thickness(0));
-        var turno = new Border { BorderBrush = Ui.Linea2, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10), ClipToBounds = true, Child = Ui.Fila(BotTurno("A"), BotTurno("C")) };
-        var (cf, cb, cc, ci, ct) = S.Cero == null ? ("#3F3005", "#A07A12", "#FFF4D6", Iconos.Warn, "Hacer control de cero")
-            : S.Cero.Ok ? ("#123C25", "#2F8C55", "#B9F6CA", Iconos.Ok, $"Cero OK {S.Cero.H}") : ("#4A1713", "#B63A30", "#FFC9C2", Iconos.Err, $"Cero: falla {S.Cero.H}");
-        var cero = Ui.Boton(Ui.Fila(Ui.Ico(ci, 20, 20, Ui.B(cc), 2.4), Ui.T(ct.ToUpperInvariant(), 16, SemiBold, Ui.B(cc), Ui.Cond).Margen(8, 0, 0, 0)), A(ControlCero), Ui.B(cf), Ui.B(cb), 10, new Thickness(14, 0, 14, 0), 46);
-        var titulo = Ui.T("BÁSCULA N9 · PESAJE", 24, Bold, Ui.Tinta, Ui.Cond);
-        var bar = Ui.Columnas("auto * auto auto", 12, BotonSec(Ui.T("‹ VOLVER", 17, SemiBold, Ui.Tinta, Ui.Cond), CerrarBas, 46, new Thickness(16, 0, 16, 0)), titulo, turno, cero);
+        Border BotTurno(string x)
+        {
+            var on = S.Turno == x;
+            return Ui.Boton(Ui.T($"Turno {x}", 16, SemiBold, on ? Ui.Grafito : Ui.SobreGrafito), A(() => this.Turno(x)), on ? Ui.Amarillo : Brushes.Transparent, Brushes.Transparent, 0, new Thickness(16, 0, 16, 0), 42, new Thickness(0));
+        }
+        var turno = new Border { BorderBrush = Ui.SobreGrafito, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6), ClipToBounds = true, Child = Ui.Fila(BotTurno("A"), BotTurno("C")) };
+        var (ck, ct) = S.Cero == null ? ("warn", "Hacer control de cero") : S.Cero.Ok ? ("ok", $"Cero OK {S.Cero.H}") : ("err", $"Cero con falla {S.Cero.H}");
+        var cero = Ui.Boton(Ui.Fila(Ui.IcoEstado(ck, 20), Ui.T(ct, 16, SemiBold, Ui.ColorEstado(ck)).Margen(8, 0, 0, 0)), A(ControlCero), Ui.TinteEstado(ck), Brushes.Transparent, 6, new Thickness(14, 0, 14, 0), 44, new Thickness(0));
+        var izqBarra = Ui.Fila(BotonGrafito("‹ Volver", CerrarBas), Ui.T("Báscula N9, pesaje", 20, SemiBold, Ui.Blanco).Margen(16, 0, 0, 0));
+        var barra = BarraGrafito(izqBarra, Ui.Fila(turno, cero.Margen(12, 0, 0, 0)));
 
-        var lect = Lectura();
-        var peso = new Grid();
-        peso.ColumnDefinitions.Add(new ColumnDefinition()); peso.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(96) });
-        peso.RowDefinitions.Add(new RowDefinition()); peso.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        peso.Children.Add(lect); Grid.SetColumn(_pic!.Raiz, 1); _pic.Raiz.VerticalAlignment = VerticalAlignment.Center; peso.Children.Add(_pic.Raiz);
-        _balRes = new ContentControl { Content = VRes(), Margin = new Thickness(0, 8, 0, 0) }; Grid.SetRow(_balRes, 1); Grid.SetColumnSpan(_balRes, 2); peso.Children.Add(_balRes);
-        var pesoCaja = Ui.Tarjeta(peso, Ui.Oscuro, Ui.B("#2A3F49"), 16, new Thickness(16, 12, 16, 12));
+        var peso = Ui.Filas("* auto", 8, Lectura(), _balRes = new ContentControl { Content = VRes() });
+        var pesoCaja = Ui.Tarjeta(peso, relleno: new Thickness(14, 12, 14, 12));
         var prods = Ui.Grilla(2, new UIElement[] { ProdB("cat", "Cátodos"), ProdB("lam", "Láminas"), ProdB("rs", "Restos de ánodos"), ProdB("sub", "Despuntes y otros") }, 8);
         var top = Ui.Columnas("* 420", 12, pesoCaja, prods);
 
-        var modo = new TextBlock { FontFamily = Ui.Cond, FontSize = 15, FontWeight = SemiBold, Foreground = Ui.Mut };
+        var modo = new TextBlock { FontFamily = Ui.Fuente, FontSize = 16, Foreground = Ui.Texto2, VerticalAlignment = VerticalAlignment.Center };
         if (l != null)
         {
-            modo.Inlines.Add(new Run(l.Codigo.ToUpperInvariant()) { Foreground = Ui.Tinta, FontWeight = Bold });
-            modo.Inlines.Add(new Run(" · " + (l.Estado == "pesada" ? $"REGISTRADO {l.Hp}" : D.EstTxt[l.Estado].ToUpperInvariant()) + (l.Manual ? " · INGRESO MANUAL" : "")));
+            modo.Inlines.Add(new Run(l.Codigo) { Foreground = Ui.Texto, FontWeight = Bold });
+            modo.Inlines.Add(new Run(", " + (l.Estado == "pesada" ? $"registrado a las {l.Hp}" : D.EstTxt[l.Estado].ToLowerInvariant()) + (l.Manual ? ", ingreso manual" : "")));
         }
-        else { modo.Inlines.Add(new Run("PESAJE NUEVO") { Foreground = Ui.Tinta, FontWeight = Bold }); modo.Inlines.Add(new Run(B.Esperando ? " · CARGA SIN ETIQUETA EN LA BÁSCULA" : " · SIN ETIQUETA")); }
-        var ayuda = Ui.T("Toque un dato para cambiarlo", 14, Medium, Ui.Mut); ayuda.HorizontalAlignment = HorizontalAlignment.Right;
+        else { modo.Inlines.Add(new Run("Pesaje nuevo") { Foreground = Ui.Texto, FontWeight = Bold }); modo.Inlines.Add(new Run(B.Esperando ? ": carga sin etiqueta en la báscula" : ", sin etiqueta")); }
+        var ayuda = Ui.T("Toque un dato para cambiarlo", 14, Regular, Ui.Texto2); ayuda.HorizontalAlignment = HorizontalAlignment.Right;
         var form = Ui.Tarjeta(Ui.Filas("auto auto", 10, Ui.Columnas("* auto", 10, modo, ayuda), VCampos(f)), relleno: new Thickness(16, 12, 16, 14));
         form.VerticalAlignment = VerticalAlignment.Stretch;
 
-        UIElement aviso = new Grid();
-        if (f.Msg != null)
-        {
-            var (af, ab, ac) = f.Msg.K switch { "ok" => ("#123C25", "#2F8C55", "#E9FFF1"), "warn" => ("#3F3005", "#A07A12", "#FFF4D6"), "err" => ("#4A1713", "#B63A30", "#FFE9E6"), _ => ("#13324F", "#3D72B0", "#E6F1FF") };
-            aviso = new Border
-            {
-                Background = Ui.B(af), BorderBrush = Ui.B(ab), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(12), Padding = new Thickness(14, 8, 14, 8), MinHeight = 48,
-                Child = Ui.Fila(Ui.Ico(f.Msg.K switch { "ok" => Iconos.Ok, "warn" => Iconos.Warn, "err" => Iconos.Err, _ => Iconos.Info }, 24, 24, Ui.B(ac), 2.4), Ui.T(f.Msg.Txt, 18, SemiBold, Ui.B(ac)).Margen(10, 0, 0, 0)),
-            };
-        }
-        var grabar = BotonGrande(f.Modo == "nuevo" ? "Grabar" : "Grabar cambios", Iconos.Grabar, GrabarBF, false, 84, 30);
-        var tomar = BotonSec(Ui.Fila(Ui.Ico(Iconos.Bascula, 26, 26, Ui.Mut), Ui.T("TOMAR PESO", 21, SemiBold, Ui.Tinta, Ui.Cond).Margen(10, 0, 0, 0)), TomarPeso);
-        var ver = BotonSec(Ui.Fila(Ui.Ico(Iconos.Lista, 26, 26, Ui.Mut), Ui.T("VER DATOS", 21, SemiBold, Ui.Tinta, Ui.Cond).Margen(10, 0, 0, 0), Insignia(S.Labels.Count).Margen(10, 0, 0, 0)), () => Abrir("registro"));
-        var limpiar = BotonSec(Ui.T("LIMPIAR", 21, SemiBold, Ui.Tinta, Ui.Cond), LimpiarBF);
+        UIElement aviso = f.Msg != null ? Aviso(f.Msg.K, f.Msg.Txt) : new Grid();
+        var grabar = BotonGrande(f.Modo == "nuevo" ? "Grabar" : "Grabar cambios", Iconos.Grabar, GrabarBF, false, 80, 28);
+        var tomar = BotonSec(Ui.Fila(Ui.Ico(Iconos.Bascula, 26, 26, Ui.Texto), TxtSec("Tomar peso").Margen(10, 0, 0, 0)), TomarPeso);
+        var ver = BotonSec(Ui.Fila(Ui.Ico(Iconos.Lista, 26, 26, Ui.Texto), TxtSec("Ver datos").Margen(10, 0, 0, 0), Insignia(S.Labels.Count).Margen(10, 0, 0, 0)), () => Abrir("registro"));
+        var limpiar = BotonSec(TxtSec("Limpiar"), LimpiarBF);
         var acc = Ui.Columnas("* auto auto auto", 12, grabar, tomar, ver, limpiar);
-        return Ui.Filas("56 auto * auto 84", 12, bar, top, form, aviso, acc);
+        var cuerpo = Ui.Filas("auto * auto 80", 12, top, form, aviso, acc); cuerpo.Margin = new Thickness(16, 12, 16, 16);
+        return Ui.Filas("64 *", 0, barra, cuerpo);
     }
 }
