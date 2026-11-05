@@ -463,16 +463,18 @@ pres.addSection({ title: 'Propuesta' });
 
 /* ===================== 13. Demo ===================== */
 {
-  const s = lamina('Propuesta', 'PRUÉBELO', 'Una simulación de la báscula y una maqueta de la VT1200');
-  imagen(s, IMG('sim_simulacion.png'), 0.6, 1.5, { w: 7.5, alt: 'Simulación de la báscula: escena, pasos del caso y pantalla del pesador' });
-  const bloques = [['Simulación de la báscula', 'Tres productos, dos pallets montados y siete situaciones: sin etiqueta, grúa encima, carro fuera del área, nódulos, fuera de orden, fuera de rango y lado parcial.'],
-    ['Maqueta de la VT1200', 'Imprime etiquetas, muestra la báscula en vivo, prueba grúa encima, carro fuera y sin cero, y baja el Excel del día.'],
-    ['Sin instalar nada', 'Las dos son páginas que se abren en el navegador. Los datos son simulados con los pesos de la visita.']];
+  const s = lamina('Propuesta', 'PRUÉBELO', 'La app de la VT1200 y una simulación de la báscula');
+  imagen(s, IMG('app_impresa.jpg'), 0.6, 1.45, { w: 6.9, alt: 'Captura de TerminalVentanas.exe: etiqueta 5T21 impresa, Báscula N9 en cero y mapa del grupo 21' });
+  texto(s, 'Captura de TerminalVentanas.exe, la app que se instala en la VT1200.', { x: 0.6, y: 6.7, w: 6.9, h: 0.25, fontSize: 11, color: P.mut });
+  const bloques = [['App para la VT1200', 'TerminalVentanas.exe: un programa de Windows que se instala copiando una carpeta. No usa navegador ni internet y no necesita nada más instalado.'],
+    ['Qué hace', 'Imprime la etiqueta en la Zebra, muestra la báscula en vivo, deja corregir el pesaje en la pantalla Báscula y guarda el registro y el Excel en el equipo.'],
+    ['Simulación de la báscula', 'Para mostrar la propuesta en reunión: tres productos, dos pallets montados y siete situaciones. Los pesos son los de la visita; todavía no se conecta a la Báscula N9.']];
   bloques.forEach(([h, b], i) => {
-    const y = 1.55 + i * 1.65;
-    texto(s, h, { x: 8.5, y, w: 4.2, h: 0.4, fontFace: CABEZA, fontSize: 18 });
-    texto(s, b, { x: 8.5, y: y + 0.45, w: 4.2, h: 1.1, fontSize: 14, color: P.mut });
+    const y = 1.55 + i * 1.7;
+    texto(s, h, { x: 7.95, y, w: 4.75, h: 0.4, fontFace: CABEZA, fontSize: 18 });
+    texto(s, b, { x: 7.95, y: y + 0.45, w: 4.75, h: 1.15, fontSize: 14, color: P.mut });
   });
+  s.addNotes('La app de la VT1200 es un .exe nativo de Windows, self-contained: trae el runtime de .NET 8, no abre navegador y funciona sin internet. Release terminal-ventanas-v2.0.0 en GitHub. La simulación de la báscula es solo para presentar.');
 }
 
 /* ===================== 14. Supuestos ===================== */

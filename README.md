@@ -9,14 +9,14 @@ Propuesta de Ingmétrica para la **Báscula N9 de la Refinería Ventanas** (Code
 |---|---|
 | `simulacion-bascula.html` | Simulación de la báscula: escena, cámara, balizas B1 y B2, pantalla del pesador y los sistemas actuales. Usa `estilos.css`, `casos.js`, `sim.js`, `iso.js` y `prueba.js` (tienen que estar en la misma carpeta). |
 | `terminal-vt1200.html` | Maqueta de la pantalla de la VT1200 en la nave (1024 × 768): imprime la etiqueta de cada carga, muestra la Báscula N9 en vivo controlando el peso, deja editar el pesaje con los datos de las planillas (pantalla Báscula), guarda el registro y baja el Excel. |
-| `app/` | La app para instalar en la VT1200: `TerminalVentanas` (WPF + WebView2, .NET 8 self-contained) muestra esa misma pantalla a pantalla completa, sin internet, guarda el Excel en una carpeta del equipo e imprime en la Zebra. `app/construir.py` arma el release. |
+| `app/` | La app para instalar en la VT1200: `TerminalVentanas.exe`, una app nativa de Windows (WPF, .NET 8 self-contained). No usa navegador ni páginas web: trae las mismas pantallas de la maqueta, funciona sin internet, guarda el Excel en una carpeta del equipo e imprime en la Zebra. `app/construir.py` arma el release y lo prueba. |
 | `diagramas/flujo-bascula-n9.svg` | Diagrama del flujo propuesto (también en `.png`). Se genera con `diagramas/generar_diagrama.py`. |
 | `presentacion/Bascula-N9-Ventanas.pptx` | Presentación de 16 láminas con los datos de la visita, las pantallas y los flujos. |
 | `presentacion/fuente/` | Lo que arma la presentación: `generar.js` (pptxgenjs), `capturas.py` (saca las capturas) e `img/`. Las láminas de las imágenes del sistema están apagadas (`INCLUIR` en `generar.js`). |
 
 ## Cómo verlo
 
-Los dos HTML se abren directo en el navegador, sin instalar nada. Necesitan internet solo para las fuentes (Google Fonts) y las librerías (cdnjs: código QR y Excel).
+Lo que va a la VT1200 es la app (`TerminalVentanas.exe`, más abajo). Los dos HTML son material de diseño y de presentación: sirven para mostrar la propuesta en un computador cualquiera y necesitan internet para las fuentes y las librerías.
 
 - **Simulación:** elija un producto (cátodos, restos, láminas, dos pallets montados) o una situación (sin etiqueta, grúa encima, carro fuera del área, nódulos, fuera de orden, fuera de rango, lado parcial).
 - **Maqueta VT1200:** toque Entrar e Imprimir. La báscula de la derecha pesa cada carga. En la guía de la derecha están los botones para probar grúa encima, carro fuera del área y báscula sin cero. El botón Excel baja el registro del día.
@@ -26,7 +26,7 @@ Los dos HTML se abren directo en el navegador, sin instalar nada. Necesitan inte
 Se baja desde **Releases** (`terminal-ventanas-vX.Y.Z-AAAAMMDD.zip`).
 
 1. Descomprimir en la VT1200, por ejemplo en `C:\Users\vt1200\Documents\` (como los releases del calibrador).
-2. Abrir `TerminalVentanas.exe`. Ocupa la pantalla completa; F11 la pasa a ventana y Alt+F4 la cierra.
+2. Abrir `TerminalVentanas.exe`. Es un programa de Windows normal: no abre ningún navegador. Ocupa la pantalla completa; F11 la pasa a ventana y Alt+F4 la cierra.
 3. F2 abre el panel de prueba: grúa encima, carro fuera del área, báscula sin cero, caja sin etiqueta y reiniciar el registro.
 
 Se ajusta en `appsettings.json`, junto al `.exe`:
@@ -37,9 +37,9 @@ Se ajusta en `appsettings.json`, junto al `.exe`:
 | `Impresora.Modo` | `seco` guarda cada etiqueta como `.zpl` en `CarpetaZpl` y no imprime. `zebra` imprime en `Impresora.Nombre`. |
 | `PantallaCompleta` | `false` la abre en ventana. |
 
-Necesita **Microsoft Edge WebView2 Runtime**, que viene con Windows 11 y con Windows 10 actualizado. Si falta, la app lo dice al abrir y hay que instalar el WebView2 Runtime x64 sin conexión de Microsoft. Los pesos son simulados: todavía no se conecta a la Báscula N9.
+No necesita nada instalado en la VT1200: el runtime de .NET 8, las fuentes, el código QR y el Excel van dentro de la carpeta (Windows 10 u 11 de 64 bits). El registro del día se guarda en `%LOCALAPPDATA%\IngMetrica\TerminalVentanas\` y vuelve si la app se cierra. Los pesos son simulados: todavía no se conecta a la Báscula N9.
 
-Para armar un release nuevo: `python app/construir.py` (necesita el SDK de .NET 8 e internet la primera vez, para bajar las librerías y las fuentes).
+Para armar un release nuevo: `python app/construir.py`. Compila self-contained, revisa que estén `hostfxr.dll`, `hostpolicy.dll` y `coreclr.dll`, arma el zip, lo descomprime en una carpeta limpia y corre `TerminalVentanas.exe --prueba <carpeta>`, que recorre cátodos, grúa encima, láminas, restos sin tara, edición en la báscula, caja sin etiqueta y Excel, y deja capturas de cada paso. Necesita el SDK de .NET 8; internet solo la primera vez, para bajar los paquetes.
 
 ## Flujo propuesto
 

@@ -8,23 +8,27 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>TerminalVentanas</AssemblyName>
     <RootNamespace>TerminalVentanas</RootNamespace>
-    <Version>1.0.0</Version>
+    <Version>2.0.0</Version>
     <Product>Terminal Rotulado Ventanas</Product>
     <Company>Ingmétrica</Company>
-    <Description>Terminal de rotulado y pesaje de la Báscula N9 (Refinería Ventanas) para la VT1200</Description>
+    <Description>Terminal de rotulado y pesaje de la Báscula N9 (Refinería Ventanas) para la VT1200. App nativa WPF.</Description>
     <!-- Siempre self-contained: la VT1200 no tiene .NET instalado -->
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>true</SelfContained>
+    <SatelliteResourceLanguages>es</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4314.35" />
+    <!-- Código QR de la etiqueta en pantalla y Excel del registro -->
+    <PackageReference Include="QRCoder" Version="1.6.0" />
+    <PackageReference Include="ClosedXML" Version="0.104.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- wwwroot lo arma construir.py desde terminal-vt1200.html, con las librerías y fuentes locales -->
-    <None Include="wwwroot\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <!-- Fuentes de la pantalla (licencia OFL), dentro del programa -->
+    <Resource Include="Fuentes\*.ttf" />
     <None Include="appsettings.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="LICENCIAS.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

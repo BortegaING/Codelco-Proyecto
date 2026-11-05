@@ -1,0 +1,11 @@
+Terminal Rotulado Ventanas - Ingmétrica
+
+Componentes de terceros que van dentro del programa:
+
+- Barlow y Barlow Condensed (fuentes). Copyright 2017 The Barlow Project Authors. SIL Open Font License 1.1.
+- JetBrains Mono (fuente). Copyright 2020 The JetBrains Mono Project Authors. SIL Open Font License 1.1.
+- QRCoder (código QR de la etiqueta en pantalla). Licencia MIT.
+- ClosedXML (Excel del registro). Licencia MIT.
+- .NET 8 (runtime incluido). Licencia MIT.
+
+Texto de la SIL Open Font License 1.1: https://openfontlicense.org

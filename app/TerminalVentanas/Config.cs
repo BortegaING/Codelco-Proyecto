@@ -14,9 +14,6 @@ public sealed class Config
 
     public ConfigImpresora Impresora { get; set; } = new();
 
-    /// <summary>Menú contextual, F12 y atajos del navegador. Apagado en planta.</summary>
-    public bool HerramientasDesarrollo { get; set; }
-
     public static Config Leer()
     {
         var ruta = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
