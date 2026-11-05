@@ -315,6 +315,56 @@ pres.addSection({ title: 'Propuesta' });
   s.addNotes('Flujo propuesto. 1 a 3 en la nave con la VT1200; traslado en grúa o tractor; 4 a 6 en la báscula: lectura del QR, controles (grúa, área, cero), peso estable y neto; 7 a 9 el registro, el Excel y los sistemas de Codelco. Las balizas avisan en terreno.');
 }
 
+/* ===================== 7b. Antes o después de pesar ===================== */
+{
+  const s = lamina('Propuesta', '¿ANTES O DESPUÉS DE PESAR?', 'Se etiqueta antes de pesar, donde nace el dato');
+  const razones = [
+    ['El dato nace en la nave', 'Celda, lado y grupo se conocen en la celda donde se cosecha. En la báscula nadie sabe de qué celda viene un paquete si no lo trae escrito: por eso hoy se rotula con plumón antes de llevarlo.'],
+    ['La báscula trabaja sola', 'La cámara lee el QR al llegar y el peso estable se graba contra esa identidad, sin digitar. Además controla el orden, los duplicados y el rango de cada producto.'],
+    ['Rápido y seguro', 'Nadie sale de la caseta a pegar etiquetas sobre la plataforma, con la grúa o el tractor al lado, y ninguna carga espera a que la etiqueten.'],
+  ];
+  razones.forEach(([h, b], i) => {
+    const x = 0.6 + i * 4.15;
+    tarjeta(s, x, 1.6, 3.85, 2.85);
+    numero(s, i + 1, x + 0.3, 1.9, 0.46);
+    texto(s, h, { x: x + 0.95, y: 1.93, w: 2.7, h: 0.45, fontFace: CABEZA, fontSize: 18 });
+    texto(s, b, { x: x + 0.3, y: 2.6, w: 3.3, h: 2.1, fontSize: 14, color: P.mut, lineSpacingMultiple: 1.05 });
+  });
+  tarjeta(s, 0.6, 4.75, 12.15, 1.6, { fill: { color: P.cobreSuave }, line: { color: TEMA.colors.accent2, width: 1 } });
+  texto(s, 'La etiqueta no lleva el peso', { x: 0.95, y: 4.95, w: 4.0, h: 0.45, fontFace: CABEZA, fontSize: 18, color: C.accent1 });
+  texto(s, 'El peso queda en el registro, amarrado al QR: quien lo escanee después ve cuánto pesó. Si Codelco necesita el peso escrito en el paquete (por ejemplo para despacho), se agrega una segunda etiqueta chica que se imprime en la báscula cuando el peso queda estable.',
+    { x: 0.95, y: 5.43, w: 11.5, h: 0.85, fontSize: 14, color: P.mut });
+  s.addNotes('Hoy el peso tampoco viaja en el paquete: va al cuaderno, al Excel y al sistema. En el calibrador de AgroSuper es al revés porque la caja se arma y se pesa en el mismo puesto; aquí la identidad nace en la celda y el peso en la báscula.');
+}
+
+/* ===================== 7c. Un paquete de punta a punta ===================== */
+{
+  const s = lamina('Propuesta', 'UN PAQUETE DE PUNTA A PUNTA', '5T21: de la celda al Excel, sin digitar el peso');
+  const pasos = [
+    ['Etiquetar', 'Nave', 'La VT1200 propone 5T21 (celda 5, lado T, grupo 21). Se imprime y se pega arriba del paquete.'],
+    ['Trasladar', 'Camino', 'La grúa horquilla lo lleva a la báscula, ya etiquetado.'],
+    ['Identificar', 'Báscula N9', 'La cámara lee el QR: es 5T21.'],
+    ['Pesar y controlar', 'Báscula N9', 'Peso estable: 4.860 kg. La grúa salió y está entre 4.200 y 5.000 kg.'],
+    ['Registrar', 'Sistema', 'Queda 5T21 · 4.860 kg · pesado a las 10:12, solo.'],
+    ['Excel', 'Cierre del turno', 'Fila en la hoja Cátodos (grupo 21, cuba 05, lado T) y suma al Resumen en Lado-T.'],
+  ];
+  s.addShape(SH.line, { x: 0.875, y: 1.875, w: 10.1, h: 0, line: { color: P.linea, width: 2 } });
+  pasos.forEach(([h, donde, b], i) => {
+    const x = 0.6 + i * 2.02;
+    numero(s, i + 1, x, 1.6, 0.55);
+    texto(s, h, { x, y: 2.3, w: 1.85, h: 0.4, fontFace: CABEZA, fontSize: 16 });
+    texto(s, donde.toUpperCase(), { x, y: 2.72, w: 1.85, h: 0.28, fontSize: 11, bold: true, color: C.accent1, charSpacing: 1 });
+    texto(s, b, { x, y: 3.05, w: 1.85, h: 1.6, fontSize: 13, color: P.mut });
+  });
+  imagen(s, IMG('etq_cat.png'), 0.6, 4.85, { h: 1.8, alt: 'Etiqueta 5T21 con su código QR' });
+  imagen(s, IMG('bal_5t21.png'), 3.4, 4.85, { h: 1.8, alt: 'Báscula N9 con 5T21 registrado: 4.860 kg dentro de rango' });
+  tarjeta(s, 6.75, 4.85, 6.0, 1.8);
+  texto(s, 'El pesador interviene solo en las excepciones', { x: 7.05, y: 5.02, w: 5.5, h: 0.45, fontFace: CABEZA, fontSize: 16 });
+  texto(s, 'Carga sin etiqueta o que la cámara no leyó, carro sin tara, o báscula bloqueada por grúa encima, carro fuera del área o sin cero. Lo corrige en la pantalla Báscula de la VT1200.',
+    { x: 7.05, y: 5.5, w: 5.5, h: 1.05, fontSize: 13, color: P.mut });
+  s.addNotes('Igual en los tres productos; cambia lo que dice la etiqueta. Láminas: día, mes y número del pallet (21-10 · Nº 263), menos 12 kg de tara. Restos: grupo y carro (G21 · C22), menos la tara de carro + rack. El Excel es una salida del registro, no el lugar donde se anota el peso.');
+}
+
 /* ===================== 8. La pantalla de la VT1200 ===================== */
 {
   const s = lamina('Propuesta', 'LA PANTALLA EN LA NAVE', 'La VT1200: un toque por paquete y la báscula a la vista');
@@ -440,6 +490,7 @@ pres.addSection({ title: 'Cierre' });
       'Láminas rechazo C/O y los rangos de C.O y rechazo S/O.',
       'Si el terminal de pesaje entrega la lectura de cada celda de carga.',
       'Qué es el lado "M" del Sistema de Ánodos.',
+      'Si el peso tiene que ir escrito en el paquete o basta con que quede en el registro.',
       'Otros productos poco frecuentes que pasan por la báscula.']],
   ];
   listas.forEach(([h, items], i) => {

@@ -11,7 +11,7 @@ Propuesta de Ingmétrica para la **Báscula N9 de la Refinería Ventanas** (Code
 | `terminal-vt1200.html` | Maqueta de la pantalla de la VT1200 en la nave (1024 × 768): imprime la etiqueta de cada carga, muestra la Báscula N9 en vivo controlando el peso, deja editar el pesaje con los datos de las planillas (pantalla Báscula), guarda el registro y baja el Excel. |
 | `app/` | La app para instalar en la VT1200: `TerminalVentanas` (WPF + WebView2, .NET 8 self-contained) muestra esa misma pantalla a pantalla completa, sin internet, guarda el Excel en una carpeta del equipo e imprime en la Zebra. `app/construir.py` arma el release. |
 | `diagramas/flujo-bascula-n9.svg` | Diagrama del flujo propuesto (también en `.png`). Se genera con `diagramas/generar_diagrama.py`. |
-| `presentacion/Bascula-N9-Ventanas.pptx` | Presentación de 14 láminas con los datos de la visita, las pantallas y los flujos. |
+| `presentacion/Bascula-N9-Ventanas.pptx` | Presentación de 16 láminas con los datos de la visita, las pantallas y los flujos. |
 | `presentacion/fuente/` | Lo que arma la presentación: `generar.js` (pptxgenjs), `capturas.py` (saca las capturas) e `img/`. Las láminas de las imágenes del sistema están apagadas (`INCLUIR` en `generar.js`). |
 
 ## Cómo verlo

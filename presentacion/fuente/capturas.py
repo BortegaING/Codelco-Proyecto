@@ -32,7 +32,7 @@ with sync_playwright() as p:
     chip('en cero', 10000)
     pg.locator('[data-esc="grua"]').click(); act('imprimir', w=1500)
     chip('bloqueado'); pg.wait_for_timeout(200); bal('4grua')
-    res('registrado'); chip('en cero', 10000)
+    res('registrado'); pg.wait_for_timeout(200); bal('5t21'); chip('en cero', 10000)
     pg.locator('[data-esc="cero"]').click(); pg.wait_for_timeout(500); bal('5sincero')
     res('cero recuperado', 9000)
     act('prod','lam'); pg.locator('#vt .sticker').screenshot(path=f"{out}/etq_lam.png")
