@@ -7,6 +7,10 @@ Uso, desde la raíz del repo:   python app/construir.py
 3. Deja la carpeta y el .zip en Proyectos_Claude/releases/codelco-ventanas/.
 4. Descomprime el zip en una carpeta limpia y corre la prueba de punta a punta (TerminalVentanas.exe --prueba):
    si no termina en "FIN OK", el release no sirve.
+
+No se arma un .exe de un solo archivo (PublishSingleFile): Smart App Control lo bloquea al abrirlo
+("Una directiva de Control de aplicaciones bloqueó este archivo", WinError 4551; probado el 05-11-2026).
+La carpeta con hostfxr/hostpolicy/coreclr sí abre. Por eso el release es el zip con la carpeta.
 """
 import json, os, re, shutil, subprocess, sys, tempfile, zipfile
 from datetime import date

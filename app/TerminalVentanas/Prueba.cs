@@ -25,7 +25,8 @@ internal static class Prueba
         }
         catch (Exception ex) { L("ERROR " + ex); }
         File.WriteAllText(Path.Combine(carpeta, "prueba.txt"), log.ToString(), new UTF8Encoding(false));
-        Application.Current.Shutdown();
+        w.CerrarPrograma(); // termina igual que el botón Cerrar programa: si el proceso no se cierra, construir.py lo nota
+
     }
 }
 
@@ -53,6 +54,8 @@ public partial class MainWindow
     internal async Task Pasos(string c, Action<string> L)
     {
         await Foto(c, "01-ingreso");
+        PedirCerrar(); await Foto(c, "01b-salir"); L($"Salir: pregunta '{S.Md?.Tipo}'");
+        Cerrar(); if (S.Md != null || S.View != "login") throw new Exception("Volver no cerró la pregunta de Salir");
         Entrar();
         await Esperar(() => B.Chip == "inestable", "4T21 estabilizando"); await Task.Delay(400);
         await Foto(c, "02-catodos-pesando"); L($"4T21 estabilizando: {B.Res.T1}");

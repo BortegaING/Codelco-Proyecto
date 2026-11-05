@@ -219,6 +219,10 @@ public partial class MainWindow
         S.View = "main"; S.Msg = null; Render(); Proximo();
     }
     private void Salir() { S.Md = null; S.View = "login"; S.User = ""; S.Rut = "111111111"; Render(); }
+    /// <summary>Salir en la pantalla de ingreso: pregunta antes de cerrar el programa.</summary>
+    internal void PedirCerrar() => Abrir("cerrar");
+    /// <summary>Lo registrado ya quedó guardado en el equipo con cada cambio: al volver a abrir, sigue donde quedó.</summary>
+    internal void CerrarPrograma() { _ticker.Stop(); System.Windows.Application.Current.Shutdown(); }
     internal void Prod(string v) { if (S.Prod == v) return; S.Prod = v; S.Msg = null; S.Muestra = false; Render(); }
     private void CeldaElegida(int n) { S.Sel = n; S.Muestra = false; S.Msg = null; Render(); }
     private void Volver() { S.Sel = Siguiente(GrupoAct()); S.Msg = null; Render(); }

@@ -71,7 +71,11 @@ public partial class MainWindow
         var col = Ui.Columna(marca, Dsp("RUT del operador", S.Rut.Length > 0 ? D.FmtRut(S.Rut) : "—", 46).Margen(0, 16, 0, 0),
             ((FrameworkElement)Teclado(Rut, 70, 30)).Margen(0, 14, 0, 0), BotonGrande("Entrar", null, Entrar, false, 84, 33).Margen(0, 14, 0, 0), nota.Margen(0, 14, 0, 0));
         col.Width = 520; col.HorizontalAlignment = HorizontalAlignment.Center; col.VerticalAlignment = VerticalAlignment.Center;
-        return col;
+        // Salir cierra el programa (con pregunta antes): en la VT1200 a pantalla completa no hay otra forma con el dedo
+        var salir = BotonSec(Ui.T("SALIR", 20, SemiBold, Ui.Tinta, Ui.Cond), PedirCerrar, 56, new Thickness(24, 0, 24, 0));
+        salir.HorizontalAlignment = HorizontalAlignment.Right; salir.VerticalAlignment = VerticalAlignment.Top;
+        var g = new Grid(); g.Children.Add(col); g.Children.Add(salir);
+        return g;
     }
 
     /* ---------- Principal ---------- */

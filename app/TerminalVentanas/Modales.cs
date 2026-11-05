@@ -105,6 +105,12 @@ public partial class MainWindow
                 var opciones = ops.Select(o => Opcion(o.A, o.B, actual == o.V, () => SetBfop(o.V), tres ? 82 : 160, tres ? 24 : 32)).ToList();
                 return Ventana(720, Encabezado("Báscula", tit), Ui.Grilla(2, opciones, 12), Acciones(BotonVentana("Cancelar", Cerrar)));
             }
+            case "cerrar":
+            {
+                var nota = Ui.T("Lo impreso y lo pesado queda guardado en el equipo. Al volver a abrir el programa, sigue donde quedó.", 19, Medium, Ui.Mut, ajustar: true);
+                return Ventana(560, Encabezado("Terminal de rotulado", "¿Cerrar el programa?"), nota,
+                    Acciones(BotonVentana("Cerrar programa", CerrarPrograma, true), BotonVentana("Volver", Cerrar)));
+            }
             default:
                 return VRegistro();
         }

@@ -26,7 +26,7 @@ Lo que va a la VT1200 es la app (`TerminalVentanas.exe`, más abajo). Los dos HT
 Se baja desde **Releases** (`terminal-ventanas-vX.Y.Z-AAAAMMDD.zip`).
 
 1. Descomprimir en la VT1200, por ejemplo en `C:\Users\vt1200\Documents\` (como los releases del calibrador).
-2. Abrir `TerminalVentanas.exe`. Es un programa de Windows normal: no abre ningún navegador. Ocupa la pantalla completa; F11 la pasa a ventana y Alt+F4 la cierra.
+2. Abrir `TerminalVentanas.exe`, que está dentro de la carpeta del zip junto a las DLL de .NET (conviene dejarle un acceso directo en el escritorio). Es un programa de Windows normal: no abre ningún navegador. Ocupa la pantalla completa; F11 la pasa a ventana. Para cerrarla: **Salir** en la pantalla del RUT (pregunta antes) o Alt+F4.
 3. F2 abre el panel de prueba: grúa encima, carro fuera del área, báscula sin cero, caja sin etiqueta y reiniciar el registro.
 
 Se ajusta en `appsettings.json`, junto al `.exe`:
@@ -37,7 +37,7 @@ Se ajusta en `appsettings.json`, junto al `.exe`:
 | `Impresora.Modo` | `seco` guarda cada etiqueta como `.zpl` en `CarpetaZpl` y no imprime. `zebra` imprime en `Impresora.Nombre`. |
 | `PantallaCompleta` | `false` la abre en ventana. |
 
-No necesita nada instalado en la VT1200: el runtime de .NET 8, las fuentes, el código QR y el Excel van dentro de la carpeta (Windows 10 u 11 de 64 bits). El registro del día se guarda en `%LOCALAPPDATA%\IngMetrica\TerminalVentanas\` y vuelve si la app se cierra. Los pesos son simulados: todavía no se conecta a la Báscula N9.
+No va como un `.exe` suelto de un solo archivo porque Smart App Control de Windows lo bloquea ("Una directiva de Control de aplicaciones bloqueó este archivo"); la carpeta completa sí abre. No necesita nada instalado en la VT1200: el runtime de .NET 8, las fuentes, el código QR y el Excel van dentro de la carpeta (Windows 10 u 11 de 64 bits). El registro del día se guarda en `%LOCALAPPDATA%\IngMetrica\TerminalVentanas\` y vuelve si la app se cierra. Los pesos son simulados: todavía no se conecta a la Báscula N9.
 
 Para armar un release nuevo: `python app/construir.py`. Compila self-contained, revisa que estén `hostfxr.dll`, `hostpolicy.dll` y `coreclr.dll`, arma el zip, lo descomprime en una carpeta limpia y corre `TerminalVentanas.exe --prueba <carpeta>`, que recorre cátodos, grúa encima, láminas, restos sin tara, edición en la báscula, caja sin etiqueta y Excel, y deja capturas de cada paso. Necesita el SDK de .NET 8; internet solo la primera vez, para bajar los paquetes.
 
