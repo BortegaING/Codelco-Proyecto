@@ -41,6 +41,11 @@ public partial class MainWindow : Window
             _cfg.Impresora.CarpetaZpl = System.IO.Path.Combine(_carpetaPrueba, "Etiquetas");
         }
         else if (_cfg.PantallaCompleta) PantallaCompleta(true);
+        // Los colores: la prueba parte siempre en claro; el equipo, en lo que eligió el operador (o lo de appsettings)
+        if (_carpetaPrueba != null) Tema.Elegir("claro"); else Tema.Cargar(_cfg.Tema);
+        PintarFondo();
+        Microsoft.Win32.SystemEvents.UserPreferenceChanged += AlCambiarWindows;
+        Closed += (_, _) => Microsoft.Win32.SystemEvents.UserPreferenceChanged -= AlCambiarWindows;
         _ticker.Tick += (_, _) => Leer();
         _toastT.Tick += (_, _) => { Toast.Visibility = Visibility.Collapsed; _toastT.Stop(); };
         PreviewKeyDown += AlTeclear;
@@ -51,6 +56,18 @@ public partial class MainWindow : Window
             if (_carpetaPrueba != null) await Prueba.Correr(this, _carpetaPrueba);
         };
     }
+
+    /// <summary>En "Como Windows": si en Windows se cambia a oscuro, claro o a un tema de contraste, la pantalla lo sigue sin reiniciar.</summary>
+    private void AlCambiarWindows(object? sender, Microsoft.Win32.UserPreferenceChangedEventArgs e)
+    {
+        if (Tema.Elegido != "auto") return;
+        Dispatcher.BeginInvoke(() => { if (Tema.Aplicar()) { PintarFondo(); Render(); } });
+    }
+
+    internal void ElegirTema(string t) { Tema.Elegir(t); PintarFondo(); Render(); }
+
+    /// <summary>Lo que está en el XAML y no se vuelve a dibujar: el fondo, la sombra de las ventanas y la del panel F2.</summary>
+    private void PintarFondo() { Pantalla.Background = Ui.Fondo; Capa.Background = Ui.Capa; PanelPrueba.Background = Ui.PanelFondo; }
 
     private void PantallaCompleta(bool si)
     {
@@ -105,14 +122,10 @@ public partial class MainWindow : Window
 
     internal void Avisar(string txt, string k = "info")
     {
-        var (fondo, borde, color) = k switch
-        {
-            "ok" => ("#E3F2EA", "#1E7B4F", "#1E7B4F"), "warn" => ("#FFF4D6", "#E0B54A", "#8A5300"),
-            "err" => ("#FDECEA", "#B42318", "#B42318"), _ => ("#E1EEF6", "#015D93", "#015D93"),
-        };
-        Toast.Background = Ui.B(fondo); Toast.BorderBrush = Ui.B(borde);
-        var t = Ui.T(txt, 18, FontWeights.SemiBold, Ui.B(color), ajustar: true).Margen(12, 0, 0, 0);
-        Toast.Child = Ui.Fila(Ui.Ico(k switch { "ok" => Iconos.Ok, "warn" => Iconos.Warn, "err" => Iconos.Err, _ => Iconos.Info }, 26, 26, Ui.B(color), 2.4), t);
+        var color = Ui.ColorEstado(k == "ok" || k == "warn" || k == "err" ? k : "info");
+        Toast.Background = Ui.TinteEstado(k); Toast.BorderBrush = color; Toast.BorderThickness = new Thickness(Ui.Contraste ? 2 : 1);
+        var t = Ui.T(txt, 18, FontWeights.SemiBold, color, ajustar: true).Margen(12, 0, 0, 0);
+        Toast.Child = Ui.Fila(Ui.Ico(k switch { "ok" => Iconos.Ok, "warn" => Iconos.Warn, "err" => Iconos.Err, _ => Iconos.Info }, 26, 26, color, 2.4), t);
         Toast.Effect ??= new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 24, ShadowDepth = 6, Direction = 270, Opacity = 0.2 };
         Toast.Visibility = Visibility.Visible;
         _toastT.Stop(); _toastT.Start();
@@ -130,7 +143,7 @@ public partial class MainWindow : Window
             else if (S.View == "bas") CerrarBas();
             e.Handled = true; return;
         }
-        if (S.Md?.Tipo == "cerrar") return;
+        if (S.Md?.Tipo is "cerrar" or "colores") return;
         var digito = e.Key is >= Key.D0 and <= Key.D9 ? (char)('0' + (e.Key - Key.D0)) : e.Key is >= Key.NumPad0 and <= Key.NumPad9 ? (char)('0' + (e.Key - Key.NumPad0)) : (char?)null;
         var kp = S.Md != null && S.Md.Tipo is "grupo" or "rsgrupo" or "bfkp";
         Action<string>? destino = kp ? Kp : S.View == "login" ? Rut : S.Md == null && S.View == "main" && S.Prod == "rs" ? Carro : null;

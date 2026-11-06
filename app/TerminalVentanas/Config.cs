@@ -12,6 +12,9 @@ public sealed class Config
     /// <summary>Dónde se guarda el Excel del registro cuando se toca Excel.</summary>
     public string CarpetaExcel { get; set; } = @"C:\BasculaN9\Excel";
 
+    /// <summary>Colores de la pantalla si el operador no eligió otros: "auto" (igual que Windows), "claro", "oscuro" o "contraste".</summary>
+    public string Tema { get; set; } = "auto";
+
     public ConfigImpresora Impresora { get; set; } = new();
 
     public static Config Leer()

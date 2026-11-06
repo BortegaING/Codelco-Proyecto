@@ -28,6 +28,7 @@ Se baja desde **Releases** (`terminal-ventanas-vX.Y.Z-AAAAMMDD.zip`).
 1. Descomprimir con **Extraer todo** en la VT1200, por ejemplo en `C:\Users\vt1200\Documents\` (como los releases del calibrador).
 2. Abrir `TerminalVentanas.exe`, que queda a la vista apenas se descomprime (se le puede dejar un acceso directo en el escritorio). El programa real está en la subcarpeta `programa`, con las DLL de .NET: no separar los archivos. Es un programa de Windows normal: no abre ningún navegador. Ocupa la pantalla completa; F11 la pasa a ventana. Para cerrarla: **Salir** en la pantalla del RUT (pregunta antes) o Alt+F4.
 3. F2 abre el panel de prueba: grúa encima, carro fuera del área, báscula sin cero, caja sin etiqueta y reiniciar el registro.
+4. **Colores** (arriba, junto a Salir) cambia cómo se ve la pantalla: claro (grises de planta), oscuro, alto contraste (negro, blanco y amarillo) o como Windows, que sigue el modo oscuro y los temas de contraste de Windows sin reiniciar. Queda elegido en el equipo (`tema.txt` junto al registro). La etiqueta impresa no cambia.
 
 Se ajusta en `programa\appsettings.json`:
 
@@ -36,6 +37,7 @@ Se ajusta en `programa\appsettings.json`:
 | `CarpetaExcel` | Dónde queda el Excel al tocar Excel (por defecto `C:\BasculaN9\Excel`). |
 | `Impresora.Modo` | `seco` guarda cada etiqueta como `.zpl` en `CarpetaZpl` y no imprime. `zebra` imprime en `Impresora.Nombre`. |
 | `PantallaCompleta` | `false` la abre en ventana. |
+| `Tema` | Colores si el operador no eligió otros: `auto` (como Windows), `claro`, `oscuro` o `contraste`. |
 
 El `TerminalVentanas.exe` de afuera es un lanzador chico (.NET Framework 4.8, que viene con Windows) que abre el de `programa`. No se usa un `.exe` de un solo archivo porque Smart App Control de Windows lo bloquea ("Una directiva de Control de aplicaciones bloqueó este archivo"); el lanzador y la carpeta sí abren. No necesita nada instalado en la VT1200: el runtime de .NET 8, las fuentes, el código QR y el Excel van dentro de la carpeta (Windows 10 u 11 de 64 bits). El registro del día se guarda en `%LOCALAPPDATA%\IngMetrica\TerminalVentanas\` y vuelve si la app se cierra. Los pesos son simulados: todavía no se conecta a la Báscula N9.
 

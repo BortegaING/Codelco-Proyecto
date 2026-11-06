@@ -17,7 +17,7 @@ public partial class MainWindow
         for (var i = 0; i < partes.Length; i++) { if (partes[i] is FrameworkElement fe && i > 0) fe.Margin = new Thickness(0, 14, 0, 0); col.Children.Add(partes[i]); }
         return new Border
         {
-            Width = ancho, MaxHeight = 736, Background = Ui.Tarjeta0, BorderBrush = Ui.Linea, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(8),
+            Width = ancho, MaxHeight = 736, Background = Ui.Tarjeta0, BorderBrush = Ui.Contraste ? Ui.Texto : Ui.Linea, BorderThickness = new Thickness(Ui.Contraste ? 2 : 1), CornerRadius = new CornerRadius(3),
             Padding = new Thickness(20, 18, 20, 18), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Child = col,
             Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 40, ShadowDepth = 12, Direction = 270, Opacity = 0.22 },
         };
@@ -25,9 +25,9 @@ public partial class MainWindow
 
     private UIElement Opcion(string titulo, string sub, bool on, Action a, double alto = 160, double tam = 32)
     {
-        var col = Ui.Columna(Ui.T(titulo, tam, Bold, Ui.Texto), Ui.T(sub, alto < 100 ? 15 : 18, SemiBold, on ? Ui.Azul : Ui.Texto2, ajustar: true).Margen(0, 6, 0, 0));
+        var col = Ui.Columna(Ui.T(titulo, tam, Bold, Ui.Texto), Ui.T(sub, alto < 100 ? 15 : 18, SemiBold, on ? Ui.Acento : Ui.Texto2, ajustar: true).Margen(0, 6, 0, 0));
         col.HorizontalAlignment = HorizontalAlignment.Left; col.VerticalAlignment = VerticalAlignment.Center;
-        return Ui.Boton(col, A(a), on ? Ui.AzulTinte : Ui.Tarjeta0, on ? Ui.Azul : Ui.LineaControl, 6, new Thickness(20, 12, 20, 12), alto, new Thickness(on ? 2 : 1), false);
+        return Ui.Boton(col, A(a), on ? Ui.AcentoTinte : Ui.Tarjeta0, on ? Ui.Acento : Ui.LineaControl, 3, new Thickness(20, 12, 20, 12), alto, new Thickness(on ? 3 : 1), false);
     }
 
     private UIElement Acciones(params UIElement[] botones)
@@ -41,7 +41,7 @@ public partial class MainWindow
         if (principal) return BotonGrande(txt, icono, a, deshabilitado, 72, 24);
         UIElement c = icono == null ? Ui.T(txt, 20, SemiBold, color ?? Ui.Texto)
             : Ui.Fila(Ui.Ico(icono, 24, 24, color ?? Ui.Texto), Ui.T(txt, 20, SemiBold, color ?? Ui.Texto).Margen(10, 0, 0, 0));
-        return Ui.Boton(c, A(a), color == null ? Ui.Tarjeta0 : Ui.AmbarTinte, color == null ? Ui.LineaControl : Ui.AmbarBorde, 6, new Thickness(18, 0, 18, 0), 72);
+        return Ui.Boton(c, A(a), color == null ? Ui.Tarjeta0 : Ui.WarnTinte, color == null ? Ui.LineaControl : Ui.WarnBorde, 3, new Thickness(18, 0, 18, 0), 72);
     }
 
     private UIElement VModal(Modal md)
@@ -60,14 +60,14 @@ public partial class MainWindow
             case "grupo":
                 return Ventana(560, Encabezado("Cátodos", "¿Qué grupo va a etiquetar?"), Dsp("Grupo", md.Val.Length > 0 ? md.Val : "—", 46), Teclado(Kp, 64, 28),
                     Acciones(BotonVentana("Aceptar", OkGrupo, true, md.Val.Length == 0), BotonVentana("Cancelar", Cerrar)),
-                    Acciones(BotonVentana($"Terminar el grupo {G.G}", () => Abrir("terminar"), icono: Iconos.Warn, color: Ui.Ambar)));
+                    Acciones(BotonVentana($"Terminar el grupo {G.G}", () => Abrir("terminar"), icono: Iconos.Warn, color: Ui.Warn)));
             case "terminar":
             {
                 var a = D.Orden.Take(21).Count(n => G.Celdas.ContainsKey(n)); var b = D.Orden.Skip(21).Count(n => G.Celdas.ContainsKey(n));
                 UIElement Linea(string izq, string der) => new Border
                 {
                     BorderBrush = Ui.Linea, BorderThickness = new Thickness(0, 0, 0, 1), Padding = new Thickness(6, 10, 6, 10),
-                    Child = Ui.Columnas("* auto", 10, Ui.T(izq, 18, Regular, Ui.Texto), Ui.T(der, 18, Bold, Ui.Azul)),
+                    Child = Ui.Columnas("* auto", 10, Ui.T(izq, 18, Regular, Ui.Texto), Ui.T(der, 18, Bold, Ui.Acento)),
                 };
                 return Ventana(720, Encabezado($"Grupo {G.G}", "¿Terminar el grupo?"),
                     Ui.Columna(Linea($"Celdas 1 a 21, lado {LadoTxt(G.LadoA)}", $"{a} paquetes"), Linea($"Celdas 42 a 22, lado {LadoTxt(G.LadoB)}", $"{b} paquetes"), Linea("Muestra", G.MuestraH != null ? "Sí" : "No")),
@@ -104,6 +104,20 @@ public partial class MainWindow
                 }
                 var opciones = ops.Select(o => Opcion(o.A, o.B, actual == o.V, () => SetBfop(o.V), tres ? 82 : 160, tres ? 24 : 32)).ToList();
                 return Ventana(720, Encabezado("Báscula", tit), Ui.Grilla(2, opciones, 12), Acciones(BotonVentana("Cancelar", Cerrar)));
+            }
+            case "colores":
+            {
+                // Se ve al tocar: el tema cambia en el momento y esta ventana se queda abierta para comparar
+                var win = Tema.Nombre(Tema.DeWindows()).ToLowerInvariant();
+                UIElement Op(string t, string sub) => Opcion(Tema.Nombre(t), sub, Tema.Elegido == t, () => ElegirTema(t), 118, 26);
+                var ops = new[]
+                {
+                    Op("auto", $"Igual que Windows (ahora {win})"), Op("claro", "Grises de planta, para el día"),
+                    Op("oscuro", "Fondo oscuro, para la noche o con poca luz"), Op("contraste", "Negro, blanco y amarillo, para leer con reflejo o de lejos"),
+                };
+                return Ventana(720, Encabezado("Pantalla", "¿Con qué colores se ve?"), Ui.Grilla(2, ops, 12),
+                    Ui.T("Queda elegido en este equipo para todos los turnos. Lo impreso no cambia: la etiqueta es siempre blanca.", 16, Regular, Ui.Texto2, ajustar: true),
+                    Acciones(BotonVentana("Listo", Cerrar, true)));
             }
             case "cerrar":
             {
@@ -150,22 +164,27 @@ public partial class MainWindow
             var notas = new List<string>();
             if (l.Nota.Length > 0) notas.Add(l.Nota);
             if (l.Ctrl.Length > 0 && l.Ctrl != "Dentro de rango") notas.Add(l.Ctrl.Replace("Dentro de rango · ", "").ToLowerInvariant());
-            if (notas.Count > 0) det.Inlines.Add(new System.Windows.Documents.Run(". " + string.Join(". ", notas)) { Foreground = Ui.Ambar, FontSize = 14, FontWeight = SemiBold });
+            if (notas.Count > 0) det.Inlines.Add(new System.Windows.Documents.Run(". " + string.Join(". ", notas)) { Foreground = Ui.Warn, FontSize = 14, FontWeight = SemiBold });
             Celda(det, r, 2);
-            var (fc, txt) = l.Estado switch { "pesada" => ("#1E7B4F", "Pesada"), "bascula" => ("#8A5300", "En la báscula"), "sintara" => ("#B42318", "Sin tara"), _ => ("#015D93", "En camino") };
-            var est = new Border { Background = Ui.B(fc), CornerRadius = new CornerRadius(4), Padding = new Thickness(10, 3, 10, 4), HorizontalAlignment = HorizontalAlignment.Left, Child = Ui.T(txt, 13, Bold, Ui.Blanco) };
+            // Los mismos colores que las celdas del mapa: pesada, en la báscula, en camino; sin tara es una alarma
+            var (fb, bb, fc, txt) = l.Estado switch
+            {
+                "pesada" => (Ui.Pesada, Ui.Pesada, Ui.SobrePesada, "Pesada"), "bascula" => (Ui.EnBascula, Ui.EnBascula, Ui.SobreEnBascula, "En la báscula"),
+                "sintara" => (Ui.ErrChip, Ui.ErrChip, Ui.SobreEstado, "Sin tara"), _ => (Ui.Tarjeta0, Ui.Camino, Ui.Camino, "En camino"),
+            };
+            var est = new Border { Background = fb, BorderBrush = bb, BorderThickness = new Thickness(1.5), CornerRadius = new CornerRadius(2), Padding = new Thickness(10, 3, 10, 4), HorizontalAlignment = HorizontalAlignment.Left, Child = Ui.T(txt, 13, Bold, fc) };
             Celda(l.Hp.Length > 0 ? Ui.Columna(est, Ui.T(l.Hp, 14, Regular, Ui.Texto2).Margen(2, 4, 0, 0)) : est, r, 3);
             var neto = Ui.T(l.Estado == "pesada" ? $"{D.Kg(l.Neto)} kg" : "—", 17, SemiBold, Ui.Texto); neto.HorizontalAlignment = HorizontalAlignment.Right;
             Celda(neto, r, 4);
             var bts = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
             var id = l.Id; var esta = l;
             if (l.Prod != "sub" && !l.Manual)
-                bts.Children.Add(Ui.Boton(Ui.T("Reimprimir", 16, SemiBold, Ui.Texto), A(() => Reimprimir(esta)), Ui.Tarjeta0, Ui.LineaControl, 6, new Thickness(14, 0, 14, 0), 50).Margen(0, 0, 8, 0));
-            bts.Children.Add(Ui.Boton(Ui.T("Editar", 16, SemiBold, Ui.Azul), A(() => Editar(id)), Ui.Tarjeta0, Ui.Azul, 6, new Thickness(14, 0, 14, 0), 50));
+                bts.Children.Add(Ui.Boton(Ui.T("Reimprimir", 16, SemiBold, Ui.Texto), A(() => Reimprimir(esta)), Ui.Tarjeta0, Ui.LineaControl, 3, new Thickness(14, 0, 14, 0), 50).Margen(0, 0, 8, 0));
+            bts.Children.Add(Ui.Boton(Ui.T("Editar", 16, SemiBold, Ui.Acento), A(() => Editar(id)), Ui.Tarjeta0, Ui.Acento, 3, new Thickness(14, 0, 14, 0), 50));
             Celda(bts, r, 5);
             r++;
         }
-        var lista = new Border { Background = Ui.Tarjeta0, BorderBrush = Ui.Linea, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(8), ClipToBounds = true, Child = new ScrollViewer { Content = tabla, MaxHeight = 470, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, PanningMode = PanningMode.VerticalOnly } };
+        var lista = new Border { Background = Ui.Tarjeta0, BorderBrush = Ui.Linea, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(2), ClipToBounds = true, Child = new ScrollViewer { Content = tabla, MaxHeight = 470, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, PanningMode = PanningMode.VerticalOnly } };
         var nota = Ui.T("El Excel trae una hoja por planilla y un resumen como el del Sistema de Cátodos. Los pesos aparecen cuando la báscula los captura.", 15, Regular, Ui.Texto2, ajustar: true);
         return Ventana(984, Encabezado($"Registro del {D.FECHA}", $"{S.Labels.Count} etiquetas"), lista, nota,
             Acciones(BotonVentana("Bajar Excel", BajarExcel, true, icono: Iconos.Excel), BotonVentana("Cerrar", Cerrar)));
@@ -182,10 +201,10 @@ public partial class MainWindow
         PanelPrueba.Children.Add(fuera);
         UIElement Esc1(string k, string titulo, string desc, bool lista)
         {
-            var t = Ui.T(titulo + (lista ? ": lista" : ""), 18, Bold, lista ? Ui.Azul : Ui.Texto);
+            var t = Ui.T(titulo + (lista ? ": lista" : ""), 18, Bold, lista ? Ui.Acento : Ui.Texto);
             var col = Ui.Columna(t, Ui.T(desc, 14, Regular, Ui.Texto2, ajustar: true).Margen(0, 3, 0, 0));
             col.HorizontalAlignment = HorizontalAlignment.Left;
-            return Ui.Boton(col, () => Escenario(k), lista ? Ui.AzulTinte : Ui.Tarjeta0, lista ? Ui.Azul : Ui.LineaControl, 6, new Thickness(14, 10, 14, 10), 64, new Thickness(lista ? 2 : 1), false).Margen(0, 0, 0, 10);
+            return Ui.Boton(col, () => Escenario(k), lista ? Ui.AcentoTinte : Ui.Tarjeta0, lista ? Ui.Acento : Ui.LineaControl, 3, new Thickness(14, 10, 14, 10), 64, new Thickness(lista ? 2 : 1), false).Margen(0, 0, 0, 10);
         }
         var col = Ui.Columna(
             Ui.T("Panel de prueba", 22, Bold, Ui.Texto),
@@ -194,9 +213,9 @@ public partial class MainWindow
             Esc1("fuera", "Carro fuera del área", "El próximo carro de restos marca 960 kg de menos y queda bloqueado hasta que se acomoda.", Esc.Fuera),
             Esc1("cero", "Báscula sin cero", "Vacía marca 6 kg (nódulos en la junta) y no registra hasta volver a cero.", Esc.Cero),
             Esc1("caja", "Caja sin etiqueta", "Llega una caja de despuntes: queda en la báscula hasta que se ingresa en la pantalla Báscula.", false),
-            Ui.Boton(Ui.T("Reiniciar el registro", 17, SemiBold, Ui.Rojo), () => { _panelAbierto = false; Persistencia.Olvidar(); Arrancar(false); }, Ui.Tarjeta0, Ui.Rojo, 6, new Thickness(14, 0, 14, 0), 52).Margen(0, 6, 0, 10),
-            Ui.Boton(Ui.T("Cerrar el panel", 17, SemiBold, Ui.Blanco), () => { _panelAbierto = false; RenderPanel(); }, Ui.Azul, Ui.Azul, 6, new Thickness(14, 0, 14, 0), 52));
-        var cajon = new Border { Width = 360, HorizontalAlignment = HorizontalAlignment.Right, Background = Ui.Tarjeta0, BorderBrush = Ui.Azul, BorderThickness = new Thickness(4, 0, 0, 0), Padding = new Thickness(20, 20, 20, 20), Child = new ScrollViewer { Content = col, VerticalScrollBarVisibility = ScrollBarVisibility.Auto } };
+            Ui.Boton(Ui.T("Reiniciar el registro", 17, SemiBold, Ui.Err), () => { _panelAbierto = false; Persistencia.Olvidar(); Arrancar(false); }, Ui.Tarjeta0, Ui.Err, 3, new Thickness(14, 0, 14, 0), 52).Margen(0, 6, 0, 10),
+            Ui.Boton(Ui.T("Cerrar el panel", 17, SemiBold, Ui.SobreAccion), () => { _panelAbierto = false; RenderPanel(); }, Ui.Accion, Ui.Accion, 3, new Thickness(14, 0, 14, 0), 52));
+        var cajon = new Border { Width = 360, HorizontalAlignment = HorizontalAlignment.Right, Background = Ui.Tarjeta0, BorderBrush = Ui.Acento, BorderThickness = new Thickness(4, 0, 0, 0), Padding = new Thickness(20, 20, 20, 20), Child = new ScrollViewer { Content = col, VerticalScrollBarVisibility = ScrollBarVisibility.Auto } };
         PanelPrueba.Children.Add(cajon);
     }
 }

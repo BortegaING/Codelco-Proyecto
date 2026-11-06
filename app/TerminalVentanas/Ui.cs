@@ -10,8 +10,9 @@ namespace TerminalVentanas;
 
 /// <summary>
 /// Piezas de la pantalla: colores, letra, textos, tarjetas, botones táctiles e íconos.
-/// Diseño Grafito Ingmétrica (la familia de ING-MAESTRO) al estándar de 2026: Fluent 2 (Segoe UI, esquinas de 6 y 8 px, tarjetas
-/// planas con borde) y WCAG 2.2 AA (contraste medido: texto 4,5:1 o más, bordes de control 3:1 o más; ningún estado solo por color).
+/// Diseño HMI de planta (norma ISA-101, como una sala de control): todo en grises y el color se guarda para lo que pide atención.
+/// Tres temas (claro, oscuro y alto contraste) con los mismos nombres de color: cada pantalla pide el color por lo que es
+/// (Acento, Pesada, EnBascula, Sigue...) y el tema decide cuál es. Contraste medido WCAG 2.2 AA en los tres; ningún estado solo por color.
 /// </summary>
 public static class Ui
 {
@@ -22,22 +23,88 @@ public static class Ui
         return b;
     }
 
-    public static readonly SolidColorBrush
-        Fondo = B("#F5F6F8"), Tarjeta0 = B("#FFFFFF"), Linea = B("#E1E4E8"), LineaControl = B("#7B8494"),
-        Texto = B("#111827"), Texto2 = B("#5B6472"),
-        Grafito = B("#151B26"), Grafito2 = B("#232B39"), SobreGrafito = B("#A3ACB9"),
-        Azul = B("#015D93"), AzulOsc = B("#014A75"), AzulTinte = B("#E1EEF6"), Amarillo = B("#E1E101"),
-        Verde = B("#1E7B4F"), VerdeTinte = B("#E3F2EA"), Rojo = B("#B42318"), RojoTinte = B("#FDECEA"),
-        Ambar = B("#8A5300"), AmbarTinte = B("#FFF4D6"), AmbarBorde = B("#E0B54A"),
-        VerdeXls = B("#1D6F42"), Blanco = B("#FFFFFF"), Negro = B("#111111");
+    /// <summary>El papel de la etiqueta: blanco y negro en los tres temas (es lo que sale de la Zebra).</summary>
+    public static readonly SolidColorBrush Blanco = B("#FFFFFF"), Negro = B("#111111");
+
+    // Los colores del tema que se ve. Los pone Paleta(); cada Render() los vuelve a leer.
+    public static SolidColorBrush
+        Fondo = null!, Tarjeta0 = null!, Lectura = null!, Linea = null!, LineaControl = null!, Texto = null!, Texto2 = null!,
+        Acento = null!, AcentoTinte = null!, SobreAcento = null!, Accion = null!, SobreAccion = null!, Apagado = null!, SobreApagado = null!,
+        Barra = null!, BarraBorde = null!, TextoBarra = null!, SobreBarra = null!, Indicador = null!, Boca = null!, Ranura = null!,
+        Pesada = null!, SobrePesada = null!, EnBascula = null!, SobreEnBascula = null!, Camino = null!, Sigue = null!, SigueBorde = null!, SobreSigue = null!,
+        Insignia = null!, SobreInsignia = null!,
+        Ok = null!, OkTinte = null!, Warn = null!, WarnTinte = null!, WarnBorde = null!, Err = null!, ErrTinte = null!, Info = null!, InfoTinte = null!,
+        OkChip = null!, WarnChip = null!, ErrChip = null!, InfoChip = null!, NeutroChip = null!, SobreEstado = null!,
+        Capa = null!, PanelFondo = null!;
+
+    /// <summary>Alto contraste: sin tintes de fondo, así que los avisos y botones llevan borde del color del estado.</summary>
+    public static bool Contraste;
+
+    /// <summary>Pone los colores de un tema: "claro", "oscuro" o "contraste".</summary>
+    public static void Paleta(string tema)
+    {
+        Contraste = tema == "contraste";
+        string[] v = tema switch
+        {
+            // Oscuro: los mismos grises de planta, de noche. El acento se aclara para leerse sobre el fondo oscuro
+            "oscuro" => new[]
+            {
+                "#1B1E21", "#25292D", "#111316", "#41474D", "#858C93", "#E9EBED", "#A8AFB6",
+                "#7DB0F0", "#1E3350", "#0E1A2B", "#D7DADD", "#121417", "#33383D", "#9AA1A8",
+                "#121417", "#41474D", "#E9EBED", "#A8AFB6", "#E9EBED", "#3B4146", "#0B0C0E",
+                "#6B7279", "#FFFFFF", "#2F6DB8", "#FFFFFF", "#7DB0F0", "#0B0C0E", "#E9EBED", "#E9EBED",
+                "#D7DADD", "#121417",
+                "#D2D6DA", "#2C3136", "#F5B848", "#3A2D10", "#8A6420", "#FF8F85", "#3E1D1A", "#7DB0F0", "#1E3350",
+                "#5B6166", "#8A5300", "#B42318", "#2F6DB8", "#5B6166", "#FFFFFF",
+                "#B3000000", "#99000000",
+            },
+            // Alto contraste: negro, blanco, amarillo y celeste, como los temas de contraste de Windows
+            "contraste" => new[]
+            {
+                "#000000", "#000000", "#000000", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+                "#FFFF00", "#000000", "#000000", "#FFFF00", "#000000", "#000000", "#3FF23F",
+                "#000000", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFF00", "#FFFFFF", "#000000",
+                "#FFFFFF", "#000000", "#1AEBFF", "#000000", "#1AEBFF", "#FFFF00", "#FFFF00", "#000000",
+                "#FFFF00", "#000000",
+                "#3FF23F", "#000000", "#FFFF00", "#000000", "#FFFF00", "#FF6E6E", "#000000", "#1AEBFF", "#000000",
+                "#3FF23F", "#FFFF00", "#FF6E6E", "#1AEBFF", "#FFFFFF", "#000000",
+                "#E6000000", "#CC000000",
+            },
+            // Claro: grises de sala de control. Lo pesado en gris oscuro, lo que está en la báscula en azul, lo que sigue en blanco con borde negro
+            _ => new[]
+            {
+                "#D9DBDD", "#E9EAEB", "#F7F8F8", "#A3A8AC", "#6E747A", "#16191B", "#43494E",
+                "#1B5FAA", "#D3E0F0", "#FFFFFF", "#2B3034", "#FFFFFF", "#C3C7CB", "#43494E",
+                "#C3C7CB", "#A3A8AC", "#16191B", "#353A3F", "#16191B", "#3B4146", "#16191B",
+                "#5B6166", "#FFFFFF", "#1B5FAA", "#FFFFFF", "#1B5FAA", "#FFFFFF", "#16191B", "#16191B",
+                "#2B3034", "#FFFFFF",
+                "#2B3034", "#F4F5F5", "#7A4A00", "#FFF1CC", "#B8862B", "#A3221A", "#FBE3E0", "#1B5FAA", "#D3E0F0",
+                "#5B6166", "#8A5300", "#B42318", "#1B5FAA", "#43494E", "#FFFFFF",
+                "#8016191B", "#5916191B",
+            },
+        };
+        var i = 0;
+        SolidColorBrush N() => B(v[i++]);
+        Fondo = N(); Tarjeta0 = N(); Lectura = N(); Linea = N(); LineaControl = N(); Texto = N(); Texto2 = N();
+        Acento = N(); AcentoTinte = N(); SobreAcento = N(); Accion = N(); SobreAccion = N(); Apagado = N(); SobreApagado = N();
+        Barra = N(); BarraBorde = N(); TextoBarra = N(); SobreBarra = N(); Indicador = N(); Boca = N(); Ranura = N();
+        Pesada = N(); SobrePesada = N(); EnBascula = N(); SobreEnBascula = N(); Camino = N(); Sigue = N(); SigueBorde = N(); SobreSigue = N();
+        Insignia = N(); SobreInsignia = N();
+        Ok = N(); OkTinte = N(); Warn = N(); WarnTinte = N(); WarnBorde = N(); Err = N(); ErrTinte = N(); Info = N(); InfoTinte = N();
+        OkChip = N(); WarnChip = N(); ErrChip = N(); InfoChip = N(); NeutroChip = N(); SobreEstado = N();
+        Capa = N(); PanelFondo = N();
+        if (i != v.Length) throw new InvalidOperationException($"El tema {tema} tiene {v.Length} colores y se usaron {i}");
+    }
 
     /// <summary>La letra de Windows (Fluent 2): ya viene en el equipo, no se embebe.</summary>
     public static readonly FontFamily Fuente = new("Segoe UI");
     /// <summary>Solo para la etiqueta impresa, que imita el papel que sale de la Zebra.</summary>
     public static readonly FontFamily Cond = new(new Uri("pack://application:,,,/"), "./Fuentes/#Barlow Condensed");
 
-    public static Brush ColorEstado(string k) => k switch { "ok" => Verde, "warn" => Ambar, "err" => Rojo, "info" => Azul, _ => Texto2 };
-    public static Brush TinteEstado(string k) => k switch { "ok" => VerdeTinte, "warn" => AmbarTinte, "err" => RojoTinte, _ => AzulTinte };
+    public static Brush ColorEstado(string k) => k switch { "ok" => Ok, "warn" => Warn, "err" => Err, "info" => Info, _ => Texto2 };
+    public static Brush TinteEstado(string k) => k switch { "ok" => OkTinte, "warn" => WarnTinte, "err" => ErrTinte, _ => InfoTinte };
+    /// <summary>Borde de un aviso: en alto contraste no hay tinte de fondo, así que el aviso se marca con un borde de su color.</summary>
+    public static Thickness GrosorAviso => new(Contraste ? 2 : 0);
 
     public static TextBlock T(string s, double tam, FontWeight peso, Brush color, FontFamily? fuente = null, bool mayus = false, bool ajustar = false)
     {
@@ -57,14 +124,14 @@ public static class Ui
     /// <summary>El nombre de un recuadro o de un dato: en minúscula normal, gris y semibold (sin mayúsculas).</summary>
     public static TextBlock Rotulo(string s, double tam = 15, Brush? color = null) => T(s, tam, FontWeights.SemiBold, color ?? Texto2);
 
-    public static Border Tarjeta(UIElement hijo, Brush? fondo = null, Brush? borde = null, double radio = 8, Thickness? relleno = null, double grosor = 1) => new()
+    public static Border Tarjeta(UIElement hijo, Brush? fondo = null, Brush? borde = null, double radio = 3, Thickness? relleno = null, double grosor = 1) => new()
     {
         Child = hijo, Background = fondo ?? Tarjeta0, BorderBrush = borde ?? Linea, BorderThickness = new Thickness(grosor),
         CornerRadius = new CornerRadius(radio), Padding = relleno ?? new Thickness(16, 12, 16, 14), SnapsToDevicePixels = true,
     };
 
     /// <summary>Un recuadro que se toca. Funciona con el dedo (el toque llega como clic) y da un brillo al apretar.</summary>
-    public static Border Boton(UIElement contenido, Action? alTocar, Brush? fondo = null, Brush? borde = null, double radio = 6,
+    public static Border Boton(UIElement contenido, Action? alTocar, Brush? fondo = null, Brush? borde = null, double radio = 3,
         Thickness? relleno = null, double minAlto = 0, Thickness? grosor = null, bool centrar = true)
     {
         var b = new Border
@@ -115,13 +182,13 @@ public static class Ui
     {
         var (fondo, ico) = clase switch
         {
-            "espera" => (Azul, Iconos.Info), "inestable" => (Ambar, Iconos.Reloj), "estable" => (Verde, Iconos.Ok),
-            "bloqueado" => (Rojo, Iconos.Err), _ => (Texto2, Iconos.Bascula),
+            "espera" => (InfoChip, Iconos.Info), "inestable" => (WarnChip, Iconos.Reloj), "estable" => (OkChip, Iconos.Ok),
+            "bloqueado" => (ErrChip, Iconos.Err), _ => (NeutroChip, Iconos.Bascula),
         };
         return new Border
         {
             Background = fondo, CornerRadius = new CornerRadius(4), Padding = new Thickness(8, 3, 10, 4), HorizontalAlignment = HorizontalAlignment.Left,
-            Child = Fila(Ico(ico, 15, 15, Blanco, 2.6), T(texto, tam, FontWeights.Bold, Blanco).Margen(6, 0, 0, 0)),
+            Child = Fila(Ico(ico, 15, 15, SobreEstado, 2.6), T(texto, tam, FontWeights.Bold, SobreEstado).Margen(6, 0, 0, 0)),
         };
     }
 
@@ -211,4 +278,6 @@ public static class Iconos
     public const string Retroceso = "M9 5h11v14H9l-6-7z M12 9l5 6M17 9l-5 6";
     public const string Flecha = "M6 9l6 6 6-6";
     public static readonly string Reloj = Circulo(12, 12, 9.5) + " M12 7v5l3 2";
+    /// <summary>Un círculo con la mitad rayada: los colores de la pantalla.</summary>
+    public static readonly string Colores = Circulo(12, 12, 9) + " M12 3v18M12 7h7M12 11h8.5M12 15h8M12 19h5.5";
 }
