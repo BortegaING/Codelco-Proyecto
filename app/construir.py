@@ -19,6 +19,8 @@ La carpeta con hostfxr/hostpolicy/coreclr sí abre. Por eso el release es el zip
 import json, os, re, shutil, subprocess, sys, tempfile, time, zipfile
 from datetime import date
 
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # el log trae "−" y tildes: la consola de Windows (cp1252) no los imprime
+
 RAIZ = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 APP = os.path.join(RAIZ, "app", "TerminalVentanas")
 VERSION = re.search(r"<Version>([^<]+)</Version>", open(os.path.join(APP, "TerminalVentanas.csproj"), encoding="utf-8").read()).group(1)
