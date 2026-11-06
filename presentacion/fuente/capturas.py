@@ -1,4 +1,6 @@
-"""Saca las capturas que usa generar.js (maqueta VT1200 y simulación), con Playwright y Brave en modo headless.
+"""Saca las capturas de la maqueta VT1200 y de la simulación, con Playwright y Brave en modo headless.
+Las de la pantalla y la báscula (vt_*, bal_*) que usa generar.js ya salen de la app nativa (capturas_app.py):
+las de la maqueta quedan aparte, en img/maqueta/, para no taparlas. De aquí salen las etiquetas (etq_*) y la simulación.
 Uso: python capturas.py   (otro navegador Chromium: variable NAVEGADOR con la ruta del ejecutable)
 """
 import os
@@ -20,8 +22,9 @@ with sync_playwright() as p:
         pg.locator(f'#vt [data-act="{a}"]'+(f'[data-v="{v}"]' if v else '')).first.click(); pg.wait_for_timeout(w)
     chip=lambda t,ms=25000: pg.wait_for_function(CHIP, arg=t, timeout=ms)
     res=lambda t,ms=25000: pg.wait_for_function(RES, arg=t, timeout=ms)
-    bal=lambda n: pg.locator('#vt .balanza').screenshot(path=f"{out}/bal_{n}.png")
-    dev=lambda n: pg.locator('#marco').screenshot(path=f"{out}/vt_{n}.png")
+    os.makedirs(f"{out}/maqueta", exist_ok=True)
+    bal=lambda n: pg.locator('#vt .balanza').screenshot(path=f"{out}/maqueta/bal_{n}.png")
+    dev=lambda n: pg.locator('#marco').screenshot(path=f"{out}/maqueta/vt_{n}.png")
     dev('login')
     act('entrar', w=100)
     pg.locator('#vt .sticker').screenshot(path=f"{out}/etq_cat.png")

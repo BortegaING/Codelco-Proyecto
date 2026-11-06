@@ -12,7 +12,7 @@ Propuesta de Ingmétrica para la **Báscula N9 de la Refinería Ventanas** (Code
 | `app/` | La app para instalar en la VT1200: `TerminalVentanas.exe`, una app nativa de Windows (WPF, .NET 8 self-contained). No usa navegador ni páginas web: trae las mismas pantallas de la maqueta, funciona sin internet, guarda el Excel en una carpeta del equipo e imprime en la Zebra. `app/Lanzador` es el `.exe` que queda a la vista y abre el programa. `app/construir.py` arma el release y lo prueba. |
 | `diagramas/flujo-bascula-n9.svg` | Diagrama del flujo propuesto (también en `.png`). Se genera con `diagramas/generar_diagrama.py`. |
 | `presentacion/Bascula-N9-Ventanas.pptx` | Presentación de 16 láminas con los datos de la visita, las pantallas y los flujos. |
-| `presentacion/fuente/` | Lo que arma la presentación: `generar.js` (pptxgenjs), `capturas.py` (saca las capturas) e `img/`. Las láminas de las imágenes del sistema están apagadas (`INCLUIR` en `generar.js`). |
+| `presentacion/fuente/` | Lo que arma la presentación: `generar.js` (pptxgenjs), `capturas_app.py` (pantallas y báscula, desde la prueba de la app nativa), `capturas.py` (etiquetas y simulación) e `img/`. Las láminas de las imágenes del sistema están apagadas (`INCLUIR` en `generar.js`). |
 
 ## Cómo verlo
 
@@ -69,7 +69,8 @@ flowchart LR
 ```
 cd presentacion/fuente
 corepack pnpm install        # con pnpm, no con npm
-python capturas.py           # opcional: vuelve a sacar las capturas (Playwright + Brave)
+python capturas_app.py <carpeta de la prueba>   # opcional: pantallas y báscula de la app (las deja TerminalVentanas.exe --prueba)
+python capturas.py           # opcional: etiquetas y simulación (Playwright + Brave)
 node generar.js              # escribe presentacion/Bascula-N9-Ventanas.pptx
 
 python diagramas/generar_diagrama.py   # desde la raíz: vuelve a escribir el SVG del flujo

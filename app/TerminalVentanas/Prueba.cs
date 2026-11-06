@@ -58,6 +58,7 @@ public partial class MainWindow
         Cerrar(); if (S.Md != null || S.View != "login") throw new Exception("Volver no cerró la pregunta de Salir");
         ElegirTema("oscuro"); await Foto(c, "01c-ingreso-oscuro"); ElegirTema("contraste"); await Foto(c, "01d-ingreso-contraste"); ElegirTema("claro");
         Entrar();
+        await Esperar(() => B.Chip == "espera", "4T21 llegando"); await Foto(c, "02a-catodos-llegando");
         await Esperar(() => B.Chip == "inestable", "4T21 estabilizando"); await Task.Delay(400);
         await Foto(c, "02-catodos-pesando"); L($"4T21 estabilizando: {B.Res.T1}");
         await Esperar(() => S.Labels.Any(l => l.Codigo == "4T21" && l.Estado == "pesada"), "4T21 registrado");
@@ -71,6 +72,8 @@ public partial class MainWindow
         await Esperar(() => S.Labels.Any(l => l.Codigo == "5T21" && l.Estado == "pesada"), "5T21 registrado");
         L($"5T21: {S.Labels.First(l => l.Codigo == "5T21").Neto} kg · {S.Labels.First(l => l.Codigo == "5T21").Ctrl}");
         await Esperar(() => B.Chip == "cero", "báscula libre");
+        Escenario("cero"); await Esperar(() => B.Chip == "sincero", "báscula sin cero"); await Foto(c, "06b-sin-cero"); L($"Sin cero: {B.Res.T1}");
+        await Esperar(() => B.Chip == "cero", "cero recuperado", 15000);
 
         Prod("lam"); Imprimir();
         await Esperar(() => B.Carga?.Prod == "lam" && B.Chip == "estable", "lámina estable"); await Task.Delay(300);
@@ -103,6 +106,9 @@ public partial class MainWindow
 
         _panelAbierto = true; RenderPanel(); await Foto(c, "19-panel-f2"); _panelAbierto = false; RenderPanel();
         Prod("cat"); await Foto(c, "20-catodos-final");
+        Prod("rs"); Escenario("fuera"); Carro("2"); Carro("5"); Imprimir();
+        await Esperar(() => B.Chip == "bloqueado", "carro fuera del área"); await Foto(c, "20b-restos-fuera"); L($"Carro fuera: {B.Res.T1} | {B.Res.T2}");
+        await Esperar(() => B.Chip == "cero", "báscula libre", 20000); Prod("cat");
 
         // Los otros colores con la pantalla llena: oscuro, alto contraste, la ventana para elegir y el modo como Windows
         ElegirTema("oscuro"); await Foto(c, "21-oscuro"); Abrir("registro"); await Foto(c, "22-oscuro-registro"); Cerrar();

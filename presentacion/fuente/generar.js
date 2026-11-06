@@ -1,6 +1,7 @@
 // Genera la presentación "Báscula N9 · Refinería Ventanas" con pptxgenjs.
 // Uso, desde esta carpeta:  corepack pnpm install   y luego   node generar.js
-// Las imágenes salen de img/ (capturas.py las vuelve a sacar) y del diagrama en ../../diagramas.
+// Las imágenes salen de img/ y del diagrama en ../../diagramas. Las pantallas y la báscula (vt_*, bal_*, app_impresa) son de la app
+// nativa: capturas_app.py las copia desde la carpeta de la prueba. Las etiquetas y la simulación las saca capturas.py.
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -369,13 +370,13 @@ pres.addSection({ title: 'Propuesta' });
 {
   const s = lamina('Propuesta', 'LA PANTALLA EN LA NAVE', 'La VT1200: un toque por paquete y la báscula a la vista');
   const im = imagen(s, IMG('vt_cat_pesando.png'), 0.6, 1.5, { w: 7.2, alt: 'Pantalla de cátodos de la VT1200 con el mapa del grupo 21 y la báscula estabilizando' });
-  const k = im.w / 2124;
-  [[60, 53], [62, 190], [1255, 175], [62, 647], [56, 1351]].forEach(([px, py], i) => numero(s, i + 1, 0.6 + px * k - 0.18, 1.5 + py * k - 0.18, 0.36));
+  const k = im.w / 2048; // captura de la app nativa: 2048 x 1536
+  [[20, 64], [40, 172], [1278, 128], [40, 682], [40, 1362]].forEach(([px, py], i) => numero(s, i + 1, 0.6 + px * k - 0.18, 1.5 + py * k - 0.18, 0.36));
   const items = [
     ['Producto', 'Tres pestañas grandes: cátodos, láminas y restos de ánodos.'],
     ['Etiqueta que sigue', 'El terminal ya la propone y se ve tal como sale de la Zebra.'],
     ['Báscula N9 en vivo', 'Peso, estado y control de la carga que está encima.'],
-    ['Mapa del grupo', 'Verde pesada, ámbar en la báscula, azul en camino. Se toca para cambiar de celda.'],
+    ['Mapa del grupo', 'Gris pesada, azul en la báscula, borde azul en camino. Se toca para cambiar de celda.'],
     ['Un botón', '"Imprimir 5T21". El registro y el Excel siempre a la vista.'],
   ];
   items.forEach(([h, b], i) => {
@@ -401,8 +402,8 @@ pres.addSection({ title: 'Propuesta' });
     texto(s, rot, { x: 0.6, y, w: 12.1, h: 0.32, fontFace: CABEZA, fontSize: 15, color: C.accent1 });
     imgs.forEach(([f, cap], i) => {
       const x = 0.6 + i * 3.07;
-      const im = imagen(s, IMG(f), x, y + 0.4, { w: 2.9, alt: cap });
-      texto(s, cap, { x, y: y + 0.48 + im.h, w: 2.9, h: 0.3, fontSize: 12, color: P.mut });
+      const im = imagen(s, IMG(f), x, y + 0.4, { w: 2.75, alt: cap });
+      texto(s, cap, { x, y: y + 0.46 + im.h, w: 2.9, h: 0.3, fontSize: 12, color: P.mut });
     });
   });
   s.addNotes('Rangos usados: cátodos 4.200 a 5.000 kg, láminas aprobadas 3.200 a 3.900 kg netos, restos 2.800 a 4.000 kg netos. Salen de los pesajes de la visita.');
