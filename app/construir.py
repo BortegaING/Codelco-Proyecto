@@ -50,10 +50,21 @@ def compilar():
     print("Self-contained OK: hostfxr, hostpolicy y coreclr presentes; sin WebView2 ni páginas web;", len(os.listdir(PROG)), "archivos en programa/")
 
 
+LANZADOR_LISTO = os.path.join(RAIZ, "app", "Lanzador", "TerminalVentanas.exe")
+
+
 def lanzador():
     """El TerminalVentanas.exe de afuera: .NET Framework 4.8 (viene en Windows). Corre programa/TerminalVentanas.dll
-    por hostfxr.dll en su propio proceso (Smart App Control bloquea el .exe sin firma de adentro). x64, como hostfxr."""
-    r = subprocess.run([CSC, "-nologo", "-target:winexe", "-platform:x64", "-optimize","-out:" + os.path.join(SALIDA, "TerminalVentanas.exe"),
+    por hostfxr.dll en su propio proceso (Smart App Control bloquea el .exe sin firma de adentro). x64, como hostfxr.
+    Se copia el ya compilado de app/Lanzador: Smart App Control decide por el hash del archivo y ese ya lo deja abrir;
+    cada compilación nueva da otro hash, que puede quedar bloqueado. Si se cambia Lanzador.cs: python construir.py
+    --compilar-lanzador, y si el nuevo abre, copiarlo a app/Lanzador/TerminalVentanas.exe."""
+    destino = os.path.join(SALIDA, "TerminalVentanas.exe")
+    if "--compilar-lanzador" not in sys.argv and os.path.exists(LANZADOR_LISTO):
+        shutil.copy2(LANZADOR_LISTO, destino)
+        print("Lanzador OK (el ya compilado de app/Lanzador):", sorted(os.listdir(SALIDA)))
+        return
+    r = subprocess.run([CSC, "-nologo", "-target:winexe", "-platform:x64", "-optimize", "-out:" + destino,
                         "-r:System.Windows.Forms.dll", "-r:System.Core.dll", os.path.join(RAIZ, "app", "Lanzador", "Lanzador.cs")],
                        capture_output=True, text=True, encoding="utf-8", errors="replace")
     if r.returncode:
