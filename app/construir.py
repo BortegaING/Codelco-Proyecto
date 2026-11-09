@@ -51,8 +51,9 @@ def compilar():
 
 
 def lanzador():
-    """El TerminalVentanas.exe de afuera: .NET Framework 4.8 (viene en Windows), solo busca programa/ y lo abre."""
-    r = subprocess.run([CSC, "-nologo", "-target:winexe", "-optimize", "-out:" + os.path.join(SALIDA, "TerminalVentanas.exe"),
+    """El TerminalVentanas.exe de afuera: .NET Framework 4.8 (viene en Windows). Corre programa/TerminalVentanas.dll
+    por hostfxr.dll en su propio proceso (Smart App Control bloquea el .exe sin firma de adentro). x64, como hostfxr."""
+    r = subprocess.run([CSC, "-nologo", "-target:winexe", "-platform:x64", "-optimize","-out:" + os.path.join(SALIDA, "TerminalVentanas.exe"),
                         "-r:System.Windows.Forms.dll", "-r:System.Core.dll", os.path.join(RAIZ, "app", "Lanzador", "Lanzador.cs")],
                        capture_output=True, text=True, encoding="utf-8", errors="replace")
     if r.returncode:
@@ -80,7 +81,7 @@ def probar(zip_ruta):
     zipfile.ZipFile(zip_ruta).extractall(destino)
     exe = os.path.join(destino, "TerminalVentanas.exe")  # se prueba por el lanzador, como lo abre el operador
     prueba = os.path.join(limpia, "prueba")
-    subprocess.run([exe, "--prueba", prueba], timeout=60)
+    subprocess.Popen([exe, "--prueba", prueba])  # el lanzador queda abierto mientras corre la app: no se espera
     txt_ruta, fin = os.path.join(prueba, "prueba.txt"), time.time() + 300
     while not os.path.exists(txt_ruta):
         if time.time() > fin:
