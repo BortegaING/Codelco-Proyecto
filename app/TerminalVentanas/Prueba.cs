@@ -56,7 +56,7 @@ public partial class MainWindow
         await Foto(c, "01-ingreso");
         PedirCerrar(); await Foto(c, "01b-salir"); L($"Salir: pregunta '{S.Md?.Tipo}'");
         Cerrar(); if (S.Md != null || S.View != "login") throw new Exception("Volver no cerró la pregunta de Salir");
-        ElegirTema("oscuro"); await Foto(c, "01c-ingreso-oscuro"); ElegirTema("contraste"); await Foto(c, "01d-ingreso-contraste"); ElegirTema("claro");
+        ElegirTema("claro"); await Foto(c, "01c-ingreso-claro"); ElegirTema("contraste"); await Foto(c, "01d-ingreso-contraste"); ElegirTema("oscuro");
         Entrar();
         await Esperar(() => B.Chip == "espera", "4T21 llegando"); await Foto(c, "02a-catodos-llegando");
         await Esperar(() => B.Chip == "inestable", "4T21 estabilizando"); await Task.Delay(400);
@@ -110,15 +110,15 @@ public partial class MainWindow
         await Esperar(() => B.Chip == "bloqueado", "carro fuera del área"); await Foto(c, "20b-restos-fuera"); L($"Carro fuera: {B.Res.T1} | {B.Res.T2}");
         await Esperar(() => B.Chip == "cero", "báscula libre", 20000); Prod("cat");
 
-        // Los otros colores con la pantalla llena: oscuro, alto contraste, la ventana para elegir y el modo como Windows
-        ElegirTema("oscuro"); await Foto(c, "21-oscuro"); Abrir("registro"); await Foto(c, "22-oscuro-registro"); Cerrar();
+        // Los otros colores con la pantalla llena: claro, alto contraste, la ventana para elegir y el modo como Windows
+        ElegirTema("claro"); await Foto(c, "21-claro"); Abrir("registro"); await Foto(c, "22-claro-registro"); Cerrar(); AbrirBas(); await Foto(c, "22b-claro-bascula"); CerrarBas();
         ElegirTema("contraste"); await Foto(c, "23-contraste"); AbrirBas(); await Foto(c, "24-contraste-bascula"); CerrarBas();
         Abrir("colores"); await Foto(c, "25-colores");
         ElegirTema("auto"); if (Tema.Actual != Tema.DeWindows()) throw new Exception("Como Windows no tomó los colores de Windows");
         var guardado = File.ReadAllText(Path.Combine(Persistencia.Carpeta, "tema.txt"));
         if (guardado != "auto") throw new Exception("No quedó guardado el tema elegido: " + guardado);
-        L($"Colores: oscuro, contraste y como Windows (ahora {Tema.Actual}); tema.txt = {guardado}");
-        Cerrar(); ElegirTema("claro");
+        L($"Colores: claro, contraste y como Windows (ahora {Tema.Actual}); tema.txt = {guardado}");
+        Cerrar(); ElegirTema("oscuro");
         var ruta = Excel.Guardar(S, _cfg.CarpetaExcel); L($"Excel: {ruta} ({new FileInfo(ruta).Length} bytes)");
         var zpl = Directory.Exists(_cfg.Impresora.CarpetaZpl) ? Directory.GetFiles(_cfg.Impresora.CarpetaZpl, "*.zpl").Length : 0; L($"ZPL guardados: {zpl}");
         L($"Registro: {S.Labels.Count} · " + string.Join(" | ", S.Labels.OrderBy(l => l.Id).Select(l => $"{l.Codigo} {l.Estado} {l.Neto}")));

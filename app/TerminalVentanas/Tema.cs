@@ -5,7 +5,7 @@ using Microsoft.Win32;
 namespace TerminalVentanas;
 
 /// <summary>
-/// Los colores de la pantalla: claro, oscuro, alto contraste o "auto" (igual que Windows).
+/// Los colores de la pantalla: "oscuro" (el diseño original, por defecto), claro, alto contraste o "auto" (igual que Windows).
 /// Lo que elige el operador queda en tema.txt junto al registro del equipo; si no eligió nada, manda appsettings.json ("Tema").
 /// </summary>
 public static class Tema
@@ -13,28 +13,28 @@ public static class Tema
     public static readonly string[] Todos = { "auto", "claro", "oscuro", "contraste" };
 
     /// <summary>Lo elegido: puede ser "auto".</summary>
-    public static string Elegido { get; private set; } = "auto";
+    public static string Elegido { get; private set; } = "oscuro";
 
     /// <summary>Lo que se ve: "auto" ya resuelto a claro, oscuro o contraste.</summary>
-    public static string Actual { get; private set; } = "claro";
+    public static string Actual { get; private set; } = "oscuro";
 
     private static string Archivo => Path.Combine(Persistencia.Carpeta, "tema.txt");
 
-    public static string Nombre(string t) => t switch { "claro" => "Claro", "oscuro" => "Oscuro", "contraste" => "Alto contraste", _ => "Como Windows" };
+    public static string Nombre(string t) => t switch { "claro" => "Claro", "oscuro" => "Original", "contraste" => "Alto contraste", _ => "Como Windows" };
 
     /// <summary>Lee lo elegido en este equipo (o lo de appsettings) y pone sus colores.</summary>
     public static void Cargar(string porDefecto)
     {
         string? guardado = null;
         try { if (File.Exists(Archivo)) guardado = File.ReadAllText(Archivo).Trim().ToLowerInvariant(); } catch { /* sin disco: vale lo de appsettings */ }
-        Elegido = Valido(guardado) ?? Valido(porDefecto?.Trim().ToLowerInvariant()) ?? "auto";
+        Elegido = Valido(guardado) ?? Valido(porDefecto?.Trim().ToLowerInvariant()) ?? "oscuro";
         Aplicar();
     }
 
     /// <summary>El operador eligió en la pantalla: se guarda y se ve en el momento.</summary>
     public static void Elegir(string t)
     {
-        Elegido = Valido(t) ?? "auto";
+        Elegido = Valido(t) ?? "oscuro";
         try { Directory.CreateDirectory(Persistencia.Carpeta); File.WriteAllText(Archivo, Elegido); } catch { /* sin disco: dura hasta cerrar */ }
         Aplicar();
     }

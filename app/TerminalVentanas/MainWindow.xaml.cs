@@ -41,8 +41,8 @@ public partial class MainWindow : Window
             _cfg.Impresora.CarpetaZpl = System.IO.Path.Combine(_carpetaPrueba, "Etiquetas");
         }
         else if (_cfg.PantallaCompleta) PantallaCompleta(true);
-        // Los colores: la prueba parte siempre en claro; el equipo, en lo que eligió el operador (o lo de appsettings)
-        if (_carpetaPrueba != null) Tema.Elegir("claro"); else Tema.Cargar(_cfg.Tema);
+        // Los colores: la prueba parte siempre en el original (oscuro); el equipo, en lo que eligió el operador (o lo de appsettings)
+        if (_carpetaPrueba != null) Tema.Elegir("oscuro"); else Tema.Cargar(_cfg.Tema);
         PintarFondo();
         Microsoft.Win32.SystemEvents.UserPreferenceChanged += AlCambiarWindows;
         Closed += (_, _) => Microsoft.Win32.SystemEvents.UserPreferenceChanged -= AlCambiarWindows;
@@ -122,11 +122,10 @@ public partial class MainWindow : Window
 
     internal void Avisar(string txt, string k = "info")
     {
-        var color = Ui.ColorEstado(k == "ok" || k == "warn" || k == "err" ? k : "info");
-        Toast.Background = Ui.TinteEstado(k); Toast.BorderBrush = color; Toast.BorderThickness = new Thickness(Ui.Contraste ? 2 : 1);
+        var (fondo, borde, color) = Ui.Aviso(k);
+        Toast.Background = fondo; Toast.BorderBrush = borde; Toast.BorderThickness = new Thickness(Ui.Contraste ? 2 : 1);
         var t = Ui.T(txt, 18, FontWeights.SemiBold, color, ajustar: true).Margen(12, 0, 0, 0);
         Toast.Child = Ui.Fila(Ui.Ico(k switch { "ok" => Iconos.Ok, "warn" => Iconos.Warn, "err" => Iconos.Err, _ => Iconos.Info }, 26, 26, color, 2.4), t);
-        Toast.Effect ??= new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 24, ShadowDepth = 6, Direction = 270, Opacity = 0.2 };
         Toast.Visibility = Visibility.Visible;
         _toastT.Stop(); _toastT.Start();
     }
