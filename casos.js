@@ -164,7 +164,7 @@ function dosPallets(d){
      ope:'Toma solo el pallet de arriba y retrocede con él. El de abajo queda en la báscula.',
      sis:'El peso baja, pero no llega a cero porque sigue un pallet encima. Así sabe que viene la segunda lectura.',
      scr:{titulo:'Sacando el de arriba',banner:{k:'info',txt:'Saque solo el pallet de arriba.'}},
-     luego:{enHorquilla:true,apilado:false,queda:true,vx:V.atras,lift:56,b2:'amarillo-blink',cam:{txt:`Queda un pallet: etiqueta Nº ${d.abajo.n} a la vista`,ok:true},
+     luego:{enHorquilla:true,apilado:false,queda:true,vx:V.armado,lift:56,b2:'amarillo-blink',cam:{txt:`Queda un pallet: etiqueta Nº ${d.abajo.n} a la vista`,ok:true},
        scr:{titulo:'Leyendo etiqueta',peso:W2+6,pst:'inestable',jit:3,campos:camposDos(d,true),banner:{k:'info',txt:'Lectura 2: el pallet de abajo.'}}}},
     {t:'Calcula los dos netos',focus:'balizas',quien:'Pesador',b1:'verde',b2:'verde',
      cam:{txt:`Etiqueta de abajo leída: Nº ${d.abajo.n}`,ok:true},
@@ -173,11 +173,11 @@ function dosPallets(d){
      scr:{titulo:'Lectura 2 guardada',peso:W2,pst:'estable',jit:0,campos:camposDosCalc(d,W1,W2),tara:24,neto:nA+nB,rango:null,
        banner:{k:'ok',txt:`Nº ${d.arriba.n}: ${f0(nA)} kg · Nº ${d.abajo.n}: ${f0(nB)} kg. Los dos dentro de lo esperado.`}}},
     {t:'Graba los dos',focus:'caseta',quien:'Pesador',
-     ope:'Toca Grabar una vez y quedan los dos pallets.',
+     ope:'Toca Grabar una vez y quedan los dos pallets. Después la grúa vuelve a montar el de arriba y se lleva los dos.',
      sis:`Deja dos ingresos en el Sistema de Cátodos, en Otros pesajes con tara 12: Nº ${d.arriba.n} con ${f0(nA)} kg y Nº ${d.abajo.n} con ${f0(nB)} kg. Guarda también las dos lecturas.`,
      scr:{titulo:'Listo para grabar',banner:{k:'ok',txt:`Dos ingresos: ${f0(nA)} + ${f0(nB)} = ${f0(nA+nB)} kg.`},acc:[{l:'Grabar',on:true},{l:'Ver datos'},{l:'Limpiar'}]},
-     luego:{veh:'',carga:'',apilado:false,queda:false,enHorquilla:false,b1:'off',b2:'off',cam:{txt:'Báscula libre y en cero',ok:true},
-       scr:Object.assign({},libre,{banner:{k:'info',txt:`La grúa retiró los dos pallets. Siguiente: Nº ${d.abajo.n+1}.`}})}}
+     luego:{veh:'grua',vx:V.salida,lift:10,carga:'laminas',apilado:true,queda:false,enHorquilla:true,b1:'off',b2:'off',cam:{txt:'Báscula libre y en cero',ok:true},
+       scr:Object.assign({},libre,{acc:[],banner:{k:'info',txt:`La grúa se llevó los dos pallets. Siguiente: Nº ${d.abajo.n+1}.`}})}}
   ];
 }
 
