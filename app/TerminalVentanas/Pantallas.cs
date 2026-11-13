@@ -93,19 +93,14 @@ public partial class MainWindow
     /* ---------- Principal ---------- */
     private UIElement VMain(Modelo m)
     {
-        Border Tab(string v, string txt)
-        {
-            var on = S.Prod == v;
-            var c = Ui.Fila(Ui.IcoProd(v, 36, 27, on ? Ui.CobreMedio : Ui.Mut2), Ui.T(txt, 21, Bold, on ? Ui.Tinta : Ui.Mut, Ui.Cond, true).Margen(10, 0, 0, 0));
-            return Ui.Boton(c, A(() => Prod(v)), on ? Ui.Panel : Brushes.Transparent, on ? Ui.Cobre : Ui.Linea, 12, new Thickness(18, 0, 18, 0), 56, on ? new Thickness(1, 1, 1, 4) : new Thickness(1));
-        }
-        var tabs = Ui.Fila(Tab("cat", "Cátodos"), Tab("lam", "Láminas").Margen(8, 0, 0, 0), Tab("rs", "Restos de ánodos").Margen(8, 0, 0, 0));
+        var tabs = Ui.Fila(Ui.IcoProd("cat", 40, 30, Ui.CobreMedio),
+            Ui.Columna(Ui.T("ROTULADO DE CÁTODOS", 24, Bold, Ui.Tinta, Ui.Cond), Ui.Rotulo("Origen · etiqueta para la Báscula N9", 13)).Margen(12, 0, 0, 0));
         var quien = new TextBlock { FontFamily = Ui.Cond, FontSize = 15, FontWeight = SemiBold, Foreground = Ui.Mut, VerticalAlignment = VerticalAlignment.Center };
         quien.Inlines.Add(new Run(S.User.ToUpperInvariant()) { Foreground = Ui.Tinta }); quien.Inlines.Add(new Run($" · {Hora()}"));
-        var who = Ui.Fila(quien, BotonColores(46, false).Margen(12, 0, 0, 0), BotonSec(Ui.T("SALIR", 17, SemiBold, Ui.Tinta, Ui.Cond), Salir, 46, new Thickness(16, 0, 16, 0)).Margen(8, 0, 0, 0));
+        var who = Ui.Fila(quien, BotonColores(46).Margen(12, 0, 0, 0), BotonSec(Ui.T("SALIR", 17, SemiBold, Ui.Tinta, Ui.Cond), Salir, 46, new Thickness(16, 0, 16, 0)).Margen(8, 0, 0, 0));
         who.HorizontalAlignment = HorizontalAlignment.Right;
         var bar = Ui.Columnas("* auto", 12, tabs, who);
-        var top = Ui.Columnas("* 380", 12, Hero(m), Balanza());
+        var top = Ui.Columnas("* 380", 12, Hero(m), Pendientes());
         var trabajo = m.Trabajo?.Invoke() ?? new Grid();
         var registro = BotonSec(Ui.Fila(Ui.Ico(Iconos.Lista, 26, 26, Ui.Mut), Ui.T("REGISTRO", 21, SemiBold, Ui.Tinta, Ui.Cond).Margen(10, 0, 0, 0), Insignia(S.Labels.Count).Margen(10, 0, 0, 0)), () => Abrir("registro"));
         var excel = BotonSec(Ui.Fila(Ui.Ico(Iconos.Excel, 26, 26, Ui.VerdeXls), Ui.T("EXCEL", 21, SemiBold, Ui.Tinta, Ui.Cond).Margen(10, 0, 0, 0)), BajarExcel);
@@ -145,14 +140,40 @@ public partial class MainWindow
         return Ui.Tarjeta(Ui.Columnas("* 266", 14, htxt, zebra), relleno: new Thickness(22, 12, 14, 12));
     }
 
-    /* ---------- La Báscula N9 en vivo ---------- */
+    /* ---------- Pendientes de pesaje: lo que la Báscula N9 informa de vuelta ---------- */
+    /// <summary>La VT1200 no pesa: muestra qué etiquetas impresas todavía no pasan por la Báscula N9 y la última que pasó.</summary>
+    private Border Pendientes()
+    {
+        var pend = S.Labels.Where(l => l.Prod == "cat" && l.Estado is "camino" or "bascula").OrderBy(l => l.Id).ToList();
+        var ult = S.Labels.Where(l => l.Prod == "cat" && l.Estado == "pesada").OrderByDescending(l => l.Id).FirstOrDefault();
+        var vivo = Ui.Fila(Latido(), Ui.T("EN LÍNEA", 13, SemiBold, Ui.VerdeT, Ui.Cond).Margen(7, 0, 0, 0));
+        var cab = Ui.Columnas("* auto", 10, Ui.Rotulo("Báscula N9 · pesaje", 15), vivo);
+        var num = Ui.T(pend.Count.ToString(), 58, Bold, Ui.Brillo, Ui.Mono);
+        var txt = Ui.Columna(Ui.T("PENDIENTES", 17, Bold, Ui.Brillo, Ui.Cond), Ui.T("de pesaje", 15, SemiBold, Ui.Mut, Ui.Cond));
+        txt.VerticalAlignment = VerticalAlignment.Center;
+        var codigos = new WrapPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Right, MaxWidth = 150 };
+        foreach (var l in pend.Take(4))
+        {
+            var enBas = l.Estado == "bascula";
+            codigos.Children.Add(new Border
+            {
+                Background = enBas ? Ui.AmbarF : Ui.AzulF, BorderBrush = enBas ? Ui.AmbarL : Ui.AzulL, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6),
+                Padding = new Thickness(7, 1, 7, 2), Margin = new Thickness(4, 2, 0, 2), Child = Ui.T(l.Codigo, 15, Bold, enBas ? Ui.AmbarC : Ui.AzulC, Ui.Cond),
+            });
+        }
+        var dsp = Ui.Tarjeta(Ui.Columnas("auto auto *", 12, num, txt, codigos), Ui.Oscuro, Ui.LecturaBorde, 12, new Thickness(16, 8, 12, 8));
+        var res = ult != null
+            ? Ui.Columnas("24 *", 8, Ui.IcoEstado("ok", 24), Ui.Columna(Ui.T($"Último pesado: {ult.Codigo} · {D.Kg(ult.Neto)} kg", 18, SemiBold, Ui.VerdeT), Ui.T($"Registrado {ult.Hp} en la Báscula N9", 14, Medium, Ui.Mut3)))
+            : Ui.Columnas("24 *", 8, Ui.IcoEstado("info", 24), Ui.Columna(Ui.T("Sin pesajes todavía", 18, SemiBold, Ui.AzulT), Ui.T("La báscula avisa cuando pesa una etiqueta", 14, Medium, Ui.Mut3)));
+        return Ui.Tarjeta(Ui.Filas("auto auto auto", 9, cab, dsp, res), relleno: new Thickness(14, 12, 14, 12));
+    }
+
+    /* ---------- La Báscula N9 en vivo (la pantalla de la báscula; en la VT1200 solo para las capturas de la propuesta) ---------- */
     private Border Balanza()
     {
         var titulo = Ui.Rotulo("Báscula N9", 15);
         var vivo = Ui.Fila(Latido(), Ui.T("EN LÍNEA", 13, SemiBold, Ui.VerdeT, Ui.Cond).Margen(7, 0, 0, 0));
-        var abrir = Ui.Boton(Ui.Fila(Ui.T("ABRIR", 14, SemiBold, Ui.CobreClaro, Ui.Cond), Ui.Ico(Iconos.Lapiz, 15, 15, Ui.CobreClaro).Margen(6, 0, 0, 0)),
-            A(AbrirBas), Brushes.Transparent, Ui.Cobre, 8, new Thickness(12, 0, 12, 0), 34);
-        var cab = Ui.Columnas("* auto auto", 10, titulo, vivo, abrir);
+        var cab = Ui.Columnas("* auto", 10, titulo, vivo);
         var lect = Lectura();
         var dsp = Ui.Tarjeta(Ui.Columnas("* 96", 8, lect, _pic!.Raiz), Ui.Oscuro, Ui.LecturaBorde, 12, new Thickness(14, 10, 10, 10));
         _balRes = new ContentControl { Content = VRes(), MinHeight = 44 };
@@ -194,37 +215,55 @@ public partial class MainWindow
 
     private UIElement TrabajoCat(Grupo G, int? sig)
     {
-        var cel = G.Celdas.Values.ToList(); var pes = cel.Count(c => c.E == "pesada"); var cam = cel.Count - pes;
         TextBlock L(string s) => Ui.T(s, 14, Medium, Ui.Mut);
-        var ley = Ui.Fila(Cuadro("pes"), L("Pesada"), Cuadro("bas"), L("En báscula"), Cuadro("cam"), L("En camino"), Cuadro("sig"), L("Sigue"));
-        var cab = Ui.Columnas("auto auto * auto auto auto", 12, Ui.T($"GRUPO {G.G}", 21, Bold, Ui.Tinta, Ui.Cond), Ui.T($"{pes} pesadas · {cam} en camino", 15, Medium, Ui.Mut),
-            new Grid(), ley, BotonMini(S.Muestra ? "Muestra: sí" : "Muestra", AlternarMuestra, S.Muestra), BotonMini("Cambiar grupo", () => Abrir("grupo")));
+        var ley = Ui.Fila(Cuadro("pes"), L("Pesada"), Cuadro("bas"), L("En báscula"), Cuadro("cam"), L("Pendiente"), Cuadro("sig"), L("Sigue"));
+        var cab = Ui.Columnas("auto * auto auto auto", 12, Ui.T("PASO 2 · GRUPO DE PRODUCCIÓN", 19, Bold, Ui.Tinta, Ui.Cond), new Grid(), ley,
+            BotonMini(S.Muestra ? "Muestra: sí" : "Muestra", AlternarMuestra, S.Muestra), BotonMini("Cambiar grupo", () => Abrir("grupo")));
         cab.MinHeight = 44;
-        Border Lado(string k)
-        {
-            var l = k == "a" ? G.LadoA : G.LadoB;
-            return Ui.Boton(Ui.Fila(Ui.T($"LADO {LadoTxt(l).ToUpperInvariant()}", 14, SemiBold, Ui.CobreClaro, Ui.Cond), Ui.Ico(Iconos.Lapiz, 16, 16, Ui.CobreClaro).Margen(6, 0, 0, 0)),
-                A(() => Abrir("lado", k)), Brushes.Transparent, Ui.CobreBorde, 8, new Thickness(10, 0, 10, 0), 34);
-        }
-        var nota = L("Si el paquete es otro, toque su celda"); nota.HorizontalAlignment = HorizontalAlignment.Right;
-        var f1 = Ui.Columnas("auto auto *", 8, Ui.Rotulo("Celdas 1 a 21 ·", 14), Lado("a"), nota);
-        var f2 = Ui.Columnas("auto auto *", 8, Ui.Rotulo("Celdas 42 a 22 ·", 14), Lado("b"), new Grid());
-        UIElement Sq(int n)
-        {
-            G.Celdas.TryGetValue(n, out var c);
-            Brush fondo = Ui.Fondo, borde = Ui.Linea, color = Ui.Mut; var grosor = 1.0;
-            if (c != null) (fondo, borde, color) = c.E == "pesada" ? (Ui.VerdeF, Ui.VerdeL, Ui.VerdeC) : c.E == "bascula" ? (Ui.AmbarF, Ui.AmbarL, Ui.AmbarC) : (Ui.AzulF, Ui.AzulL, Ui.AzulC);
-            else if (n == sig) { borde = Ui.Cobre; color = Ui.CobreClaro; grosor = 3; }
-            if (!S.Muestra && n == S.Sel && n != sig) { fondo = Ui.Cobre; borde = Ui.Cobre; color = Ui.SobreCobre; }
-            var col = Ui.Columna(Centro(Ui.T(n.ToString(), 19, Bold, color)));
-            if (c is { E: "pesada" } && c.P > 0) { var w = Ui.T(D.Kg(c.P), 10.5, SemiBold, Ui.VerdeC, Ui.Mono); w.Opacity = 0.85; col.Children.Add(Centro(w).Margen(0, 2, 0, 0)); }
-            return Ui.Boton(col, A(() => CeldaElegida(n)), fondo, borde, 9, new Thickness(0), 72, new Thickness(grosor));
-        }
-        var m1 = Ui.Grilla(21, D.Orden.Take(21).Select(Sq), 4);
-        var m2 = Ui.Grilla(21, D.Orden.Skip(21).Select(Sq), 4);
-        var caja = Ui.Tarjeta(Ui.Filas("auto auto auto auto auto", 8, cab, f1, m1, f2, m2));
+        var nota = L($"Cada celda es una lingada de {D.CatodosCelda} cátodos. Toque una celda para rotularla; la que sigue tiene borde cobre.");
+        var caja = Ui.Tarjeta(Ui.Filas("auto auto auto auto", 8, cab, FilaGrupo(GrupoDe(S.Par)), FilaGrupo(GrupoDe(S.Par + 1)), nota));
         caja.VerticalAlignment = VerticalAlignment.Top;
         return caja;
+    }
+
+    /// <summary>Un grupo en una sola fila: celdas 1 a 21 (un lado) y 42 a 22 (el otro), en el orden de la cosecha.</summary>
+    private UIElement FilaGrupo(Grupo g)
+    {
+        var activo = g.G == S.Grupo; var sig = Siguiente(g);
+        var pes = g.Celdas.Values.Count(c => c.E == "pesada"); var pend = g.Celdas.Count - pes;
+        Border Lado(string k, string rango)
+        {
+            var l = k == "a" ? g.LadoA : g.LadoB;
+            return Ui.Boton(Ui.Fila(Ui.T($"{rango} · LADO {LadoTxt(l).ToUpperInvariant()}", 13, SemiBold, Ui.CobreClaro, Ui.Cond), Ui.Ico(Iconos.Lapiz, 14, 14, Ui.CobreClaro).Margen(5, 0, 0, 0)),
+                A(() => { S.Grupo = g.G; Abrir("lado", k); }), Brushes.Transparent, Ui.CobreBorde, 8, new Thickness(9, 0, 9, 0), 30);
+        }
+        var titulo = Ui.T($"GRUPO {g.G}", 20, Bold, activo ? Ui.CobreClaro : Ui.Tinta, Ui.Cond);
+        var info = Ui.T(g.Celdas.Count == 0 ? "sin etiquetas" : $"{pes} pesadas · {pend} pendientes", 14, Medium, Ui.Mut);
+        var head = Ui.Columnas("auto auto * auto auto", 10, titulo, info, new Grid(), Lado("a", "1–21"), Lado("b", "42–22"));
+        UIElement Sq(int n)
+        {
+            g.Celdas.TryGetValue(n, out var c);
+            Brush fondo = Ui.Fondo, borde = Ui.Linea, color = Ui.Mut; var grosor = 1.0;
+            if (c != null) (fondo, borde, color) = c.E == "pesada" ? (Ui.VerdeF, Ui.VerdeL, Ui.VerdeC) : c.E == "bascula" ? (Ui.AmbarF, Ui.AmbarL, Ui.AmbarC) : (Ui.AzulF, Ui.AzulL, Ui.AzulC);
+            else if (activo && n == sig) { borde = Ui.Cobre; color = Ui.CobreClaro; grosor = 2.5; }
+            if (activo && !S.Muestra && n == S.Sel && n != sig) { fondo = Ui.Cobre; borde = Ui.Cobre; color = Ui.SobreCobre; }
+            var num = Centro(Ui.T(n.ToString(), 13, Bold, color, Ui.Cond)); num.VerticalAlignment = VerticalAlignment.Center;
+            return Ui.Boton(num, A(() => CeldaElegida(g.G, n)), fondo, borde, 5, new Thickness(0), 52, new Thickness(grosor));
+        }
+        var celdas = new Grid();
+        var orden = D.Orden;
+        for (var i = 0; i < orden.Length; i++)
+        {
+            if (i == 21) celdas.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(8) });
+            celdas.ColumnDefinitions.Add(new ColumnDefinition());
+            var el = (FrameworkElement)Sq(orden[i]); el.Margin = new Thickness(1.2, 0, 1.2, 0);
+            Grid.SetColumn(el, i < 21 ? i : i + 1); celdas.Children.Add(el);
+        }
+        return new Border
+        {
+            BorderBrush = activo ? Ui.Cobre : Ui.Linea, BorderThickness = new Thickness(activo ? 2 : 1), CornerRadius = new CornerRadius(12), Padding = new Thickness(10, 8, 10, 10),
+            Background = activo ? Ui.Panel2 : Brushes.Transparent, Child = Ui.Filas("auto auto", 8, head, celdas),
+        };
     }
 
     private static T Centro<T>(T el) where T : FrameworkElement { el.HorizontalAlignment = HorizontalAlignment.Center; return el; }

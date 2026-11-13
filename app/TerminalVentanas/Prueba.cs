@@ -8,7 +8,8 @@ namespace TerminalVentanas;
 
 /// <summary>
 /// Prueba de punta a punta sin tocar la pantalla: TerminalVentanas.exe --prueba &lt;carpeta&gt;.
-/// Recorre el flujo (cátodos, grúa encima, láminas, restos sin tara, registro, corregir la tara, caja sin etiqueta, panel F2 y Excel),
+/// Recorre el flujo de la VT1200 del origen (paso 1 grupo en el layout, paso 2 celda, imprimir, pendientes de pesaje, registro, panel F2, colores y Excel)
+/// y deja aparte la tarjeta de la báscula en cada estado (disponible, registrando, registrado, horquilla encima, sin cero, carro fuera, sin tara),
 /// guarda una captura de cada paso, el Excel y los .zpl en la carpeta, y escribe prueba.txt con lo que pasó. No usa el registro real.
 /// </summary>
 internal static class Prueba
@@ -51,6 +52,23 @@ public partial class MainWindow
         enc.Save(fs);
     }
 
+    /// <summary>
+    /// La tarjeta de la Báscula N9 sola, para las láminas de la propuesta: en la VT1200 del origen no se muestra
+    /// (la báscula tiene su propio programa), pero el motor de la simulación es el mismo.
+    /// </summary>
+    private async Task FotoBascula(string carpeta, string nombre)
+    {
+        await Task.Delay(200);
+        var host = new System.Windows.Controls.Border { Width = 380, Background = Ui.Fondo, Child = Balanza() };
+        host.Measure(new Size(380, double.PositiveInfinity)); host.Arrange(new Rect(host.DesiredSize)); host.UpdateLayout();
+        var h = Math.Ceiling(host.ActualHeight);
+        var rtb = new RenderTargetBitmap(760, (int)(h * 2), 192, 192, PixelFormats.Pbgra32);
+        rtb.Render(host);
+        var enc = new PngBitmapEncoder(); enc.Frames.Add(BitmapFrame.Create(rtb));
+        using var fs = File.Create(Path.Combine(carpeta, nombre + ".png"));
+        enc.Save(fs);
+    }
+
     internal async Task Pasos(string c, Action<string> L)
     {
         await Foto(c, "01-ingreso");
@@ -58,61 +76,48 @@ public partial class MainWindow
         Cerrar(); if (S.Md != null || S.View != "login") throw new Exception("Volver no cerró la pregunta de Salir");
         ElegirTema("claro"); await Foto(c, "01c-ingreso-claro"); ElegirTema("contraste"); await Foto(c, "01d-ingreso-contraste"); ElegirTema("oscuro");
         Entrar();
-        await Esperar(() => B.Chip == "espera", "4T21 llegando"); await Foto(c, "02a-catodos-llegando");
-        await Esperar(() => B.Chip == "inestable", "4T21 estabilizando"); await Task.Delay(400);
-        await Foto(c, "02-catodos-pesando"); L($"4T21 estabilizando: {B.Res.T1}");
+        if (S.Prod != "cat") throw new Exception("La VT1200 debe quedar en cátodos");
+        await Esperar(() => B.Chip == "espera", "4T21 llega a la báscula"); await Foto(c, "02-principal"); await FotoBascula(c, "bal-2-leyendo");
+        await Esperar(() => B.Chip == "inestable", "4T21 registrando"); await Task.Delay(400); await FotoBascula(c, "bal-3-registrando"); L($"4T21: {B.Res.T1}");
         await Esperar(() => S.Labels.Any(l => l.Codigo == "4T21" && l.Estado == "pesada"), "4T21 registrado");
-        await Foto(c, "03-catodos-registrado"); L($"4T21: {B.Res.T1} | {B.Res.T2}");
-        await Esperar(() => B.Chip == "cero", "báscula libre");
+        await FotoBascula(c, "bal-4-registrado"); await Foto(c, "03-pesada"); L($"4T21: {B.Res.T1} | {B.Res.T2}");
+        await Esperar(() => B.Chip == "cero", "plataforma disponible"); await Task.Delay(300); await FotoBascula(c, "bal-1-disponible");
 
+        // Paso 1: el layout de circuitos para elegir el grupo
+        Abrir("grupo"); await Foto(c, "04-paso1-grupos"); L("Paso 1: layout de circuitos");
+        ElegirGrupo(21); if (S.Grupo != 21 || S.Par != 21) throw new Exception("No quedó el grupo 21");
+
+        // Imprimir 5T21: la horquilla queda encima y la báscula la frena
         Esc.Grua = true; Imprimir(); await Task.Delay(300);
-        await Foto(c, "04-imprimiendo");
-        await Esperar(() => S.Fase == "impresa", "etiqueta impresa", 3000); await Foto(c, "05-impresa");
-        await Esperar(() => B.Chip == "bloqueado", "grúa encima"); await Foto(c, "06-grua-encima"); L($"Grúa: {B.Res.T1} | {B.Res.T2} | lectura {Math.Round(B.Lect)}");
+        await Foto(c, "05-imprimiendo");
+        await Esperar(() => S.Fase == "impresa", "etiqueta impresa", 3000); await Foto(c, "06-impresa");
+        await Esperar(() => B.Chip == "bloqueado", "horquilla encima"); await FotoBascula(c, "bal-5-horquilla"); L($"Horquilla: {B.Res.T1} | {B.Res.T2}");
         await Esperar(() => S.Labels.Any(l => l.Codigo == "5T21" && l.Estado == "pesada"), "5T21 registrado");
-        L($"5T21: {S.Labels.First(l => l.Codigo == "5T21").Neto} kg · {S.Labels.First(l => l.Codigo == "5T21").Ctrl}");
-        await Esperar(() => B.Chip == "cero", "báscula libre");
-        Escenario("cero"); await Esperar(() => B.Chip == "sincero", "báscula sin cero"); await Foto(c, "06b-sin-cero"); L($"Sin cero: {B.Res.T1}");
+        await Esperar(() => B.Chip == "cero", "plataforma disponible");
+        Escenario("cero"); await Esperar(() => B.Chip == "sincero", "sin cero"); await FotoBascula(c, "bal-6-sincero"); L($"Sin cero: {B.Res.T1}");
         await Esperar(() => B.Chip == "cero", "cero recuperado", 15000);
 
-        Prod("lam"); Imprimir();
-        await Esperar(() => B.Carga?.Prod == "lam" && B.Chip == "estable", "lámina estable"); await Task.Delay(300);
-        await Foto(c, "07-laminas"); L($"Lámina: {B.Res.T1} | {B.Res.T2}");
-        await Esperar(() => B.Chip == "cero", "báscula libre", 15000);
+        // Restos de ánodos los rotula otra área: aquí solo se simula su paso por la báscula, para las láminas de la propuesta
+        Esc.Fuera = true; Encolar(EtqRs(21, "22", 1, Hora(), D.RestosNetos[0], D.TaraCarro["22"], "Báscula"), 200);
+        await Esperar(() => B.Chip == "bloqueado", "carro fuera del área"); await FotoBascula(c, "bal-7-carro-fuera"); L($"Carro fuera: {B.Res.T1}");
+        await Esperar(() => B.Chip == "cero", "plataforma disponible", 20000);
+        Encolar(EtqRs(21, "31", 2, Hora(), D.RestosNetos[1], null, "Báscula"), 200);
+        await Esperar(() => B.Res.T2.Contains("Sin tara"), "carro sin tara", 20000); await Task.Delay(300); await FotoBascula(c, "bal-8-sin-tara"); L($"Sin tara: {B.Res.T1}");
+        await Esperar(() => B.Chip == "cero", "plataforma disponible", 20000);
 
-        Prod("rs"); Carro("2"); Carro("2"); await Foto(c, "08-restos-carro22"); Imprimir(); await Task.Delay(1900);
-        Carro("3"); Carro("1"); Imprimir();
-        await Esperar(() => B.Res.T2.Contains("Sin tara"), "C31 sin tara", 40000); await Task.Delay(300);
-        await Foto(c, "09-restos-sin-tara"); L($"C31: {B.Res.T1} | {B.Res.T2}");
-        await Esperar(() => B.Chip == "cero", "báscula libre", 15000);
+        // Paso 2: una celda del grupo 22, en la fila de abajo
+        CeldaElegida(22, 1); await Foto(c, "07-grupo22"); Imprimir();
+        await Esperar(() => S.Labels.Any(l => l.Codigo == "1T22"), "1T22 impresa", 5000); L("1T22 impresa desde la fila del grupo 22");
+        await Esperar(() => S.Fase == null, "vuelve a la pantalla", 5000); await Foto(c, "08-pendientes");
+        await Esperar(() => S.Labels.Any(l => l.Codigo == "1T22" && l.Estado == "pesada"), "1T22 registrado");
 
-        Abrir("registro"); await Foto(c, "10-registro"); Cerrar();
-        var c31 = S.Labels.First(l => l.Ref.Carro == "31");
-        Editar(c31.Id); await Foto(c, "11-bascula-editar-c31");
-        BfCampo("tara"); foreach (var d in "2190") Kp(d.ToString()); await Foto(c, "12-teclado-tara"); OkBfkp();
-        await Foto(c, "13-tara-digitada"); GrabarBF(); await Foto(c, "14-grabado");
-        L($"C31 corregido: estado {c31.Estado}, bruto {c31.Bruto}, tara {c31.Tara}, neto {c31.Neto} · {c31.Ctrl}");
-        CerrarBas();
+        Abrir("registro"); await Foto(c, "09-registro"); Cerrar();
+        _panelAbierto = true; RenderPanel(); await Foto(c, "10-panel-f2"); _panelAbierto = false; RenderPanel();
+        CeldaElegida(21, 6); await Foto(c, "11-final");
 
-        Escenario("caja");
-        await Esperar(() => B.Esperando, "caja sin etiqueta en la báscula");
-        AbrirBas(); await Foto(c, "15-caja-sin-etiqueta");
-        BfCampo("st"); await Foto(c, "16-que-es"); SetBfop("dg");
-        GrabarBF(); await Foto(c, "17-caja-grabada");
-        var dg = S.Labels.First(l => l.Prod == "sub"); L($"Caja: {dg.Codigo} {dg.Neto} kg · {dg.Ctrl} · {dg.Nota}");
-        await Esperar(() => B.Chip == "cero", "báscula libre", 15000);
-        Turno("C"); ControlCero(); await Foto(c, "18-turno-cero"); L($"Turno {S.Turno}, cero {S.Cero?.H} {S.Cero?.Ok}");
-        CerrarBas();
-
-        _panelAbierto = true; RenderPanel(); await Foto(c, "19-panel-f2"); _panelAbierto = false; RenderPanel();
-        Prod("cat"); await Foto(c, "20-catodos-final");
-        Prod("rs"); Escenario("fuera"); Carro("2"); Carro("5"); Imprimir();
-        await Esperar(() => B.Chip == "bloqueado", "carro fuera del área"); await Foto(c, "20b-restos-fuera"); L($"Carro fuera: {B.Res.T1} | {B.Res.T2}");
-        await Esperar(() => B.Chip == "cero", "báscula libre", 20000); Prod("cat");
-
-        // Los otros colores con la pantalla llena: claro, alto contraste, la ventana para elegir y el modo como Windows
-        ElegirTema("claro"); await Foto(c, "21-claro"); Abrir("registro"); await Foto(c, "22-claro-registro"); Cerrar(); AbrirBas(); await Foto(c, "22b-claro-bascula"); CerrarBas();
-        ElegirTema("contraste"); await Foto(c, "23-contraste"); AbrirBas(); await Foto(c, "24-contraste-bascula"); CerrarBas();
+        // Los otros colores: claro, alto contraste, la ventana para elegir y el modo como Windows
+        ElegirTema("claro"); await Foto(c, "21-claro"); Abrir("grupo"); await Foto(c, "22-claro-grupos"); Cerrar(); Abrir("registro"); await Foto(c, "22b-claro-registro"); Cerrar();
+        ElegirTema("contraste"); await Foto(c, "23-contraste"); Abrir("grupo"); await Foto(c, "24-contraste-grupos"); Cerrar();
         Abrir("colores"); await Foto(c, "25-colores");
         ElegirTema("auto"); if (Tema.Actual != Tema.DeWindows()) throw new Exception("Como Windows no tomó los colores de Windows");
         var guardado = File.ReadAllText(Path.Combine(Persistencia.Carpeta, "tema.txt"));

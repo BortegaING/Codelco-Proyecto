@@ -144,7 +144,7 @@ public partial class MainWindow : Window
         }
         if (S.Md?.Tipo is "cerrar" or "colores") return;
         var digito = e.Key is >= Key.D0 and <= Key.D9 ? (char)('0' + (e.Key - Key.D0)) : e.Key is >= Key.NumPad0 and <= Key.NumPad9 ? (char)('0' + (e.Key - Key.NumPad0)) : (char?)null;
-        var kp = S.Md != null && S.Md.Tipo is "grupo" or "rsgrupo" or "bfkp";
+        var kp = S.Md != null && S.Md.Tipo is "rsgrupo" or "bfkp";
         Action<string>? destino = kp ? Kp : S.View == "login" ? Rut : S.Md == null && S.View == "main" && S.Prod == "rs" ? Carro : null;
         if (S.View == "login" && S.Md == null && e.Key == Key.K) { Rut("K"); e.Handled = true; return; }
         if (destino != null && digito != null) { destino(digito.Value.ToString()); e.Handled = true; }

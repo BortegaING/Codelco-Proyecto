@@ -9,7 +9,7 @@ public sealed class Bascula
     public double Lect, Meta, Ruido;
     public Etiqueta? Carga;
     public string ProdPic = "cat", Pic = "vacia", Chip = "cero";
-    public Resultado Res = new("muted", "Báscula libre", "Esperando la próxima carga");
+    public Resultado Res = new("muted", "Plataforma disponible", "Puede ingresar la próxima carga");
     public bool Esperando;
     public TaskCompletionSource<Etiqueta>? Liberar;
 }
@@ -20,8 +20,8 @@ public partial class MainWindow
 {
     private static readonly Dictionary<string, (string Clase, string Txt)> Chips = new()
     {
-        ["cero"] = ("cero", "En cero"), ["espera"] = ("espera", "Llegando"), ["inestable"] = ("inestable", "Estabilizando"),
-        ["estable"] = ("estable", "Estable"), ["bloqueado"] = ("bloqueado", "Bloqueado"), ["sincero"] = ("bloqueado", "Sin cero"),
+        ["cero"] = ("cero", "Disponible"), ["espera"] = ("espera", "Leyendo etiqueta"), ["inestable"] = ("inestable", "Registrando"),
+        ["estable"] = ("estable", "Registrado"), ["bloqueado"] = ("bloqueado", "Bloqueado"), ["sincero"] = ("bloqueado", "Sin cero"), ["sintara"] = ("inestable", "Sin tara"),
     };
 
     // Lo que se actualiza en vivo sin volver a dibujar la pantalla
@@ -135,7 +135,7 @@ public partial class MainWindow
         await Task.Delay(60); if (!Vivo()) return;
         B.Pic = grua ? "grua" : fuera ? "fuera" : "sobre"; PintarBal();
         await Task.Delay(700); if (!Vivo()) return;
-        B.Meta = W * 1.035 + desvio; B.Ruido = 40; Fijar("inestable", "warn", $"{c} · estabilizando", "No toque la carga");
+        B.Meta = W * 1.035 + desvio; B.Ruido = 40; Fijar("inestable", "warn", $"{c} · registrando", "Baliza amarilla: mantenga la carga quieta");
         await Task.Delay(800); if (!Vivo()) return;
         B.Meta = W + desvio; B.Ruido = 12;
         await Task.Delay(800); if (!Vivo()) return;
@@ -158,33 +158,33 @@ public partial class MainWindow
             B.Pic = "sale"; B.Meta = 0; B.Ruido = 30; Fijar("inestable", "muted", $"{rec.Codigo} sale de la báscula", "Quedó registrada");
             await Task.Delay(900); if (!Vivo()) return;
             B.Ruido = 0; B.Lect = 0; B.Meta = 0; B.Carga = null; B.Pic = "vacia";
-            Fijar("cero", "muted", "Báscula libre", "Esperando la próxima carga");
+            Fijar("cero", "muted", "Plataforma disponible", "Puede ingresar la próxima carga");
             return;
         }
         var extra = "";
         if (grua || fuera)
         {
-            if (grua) Fijar("bloqueado", "err", "Grúa sobre la báscula", $"Marca {D.Kg(W + desvio)} kg. Retroceda para pesar.");
+            if (grua) Fijar("bloqueado", "err", "Horquilla sobre la báscula", $"Marca {D.Kg(W + desvio)} kg. Retroceda para pesar.");
             else Fijar("bloqueado", "err", "Carro fuera del área", "Se pasa de la plataforma. Acomódelo.");
             await Task.Delay(2800); if (!Vivo()) return;
             B.Pic = "sobre"; B.Meta = W; B.Ruido = 25;
-            Fijar("inestable", "warn", grua ? "La grúa salió · estabilizando" : "Carro acomodado · estabilizando", "No toque la carga");
+            Fijar("inestable", "warn", grua ? "La horquilla salió · registrando" : "Carro acomodado · registrando", "Baliza amarilla: mantenga la carga quieta");
             await Task.Delay(900); if (!Vivo()) return;
             B.Ruido = 5;
             await Task.Delay(700); if (!Vivo()) return;
             B.Ruido = 0; B.Lect = B.Meta;
-            extra = grua ? "grúa encima: se esperó que saliera" : "carro fuera del área: se acomodó";
+            extra = grua ? "horquilla encima: se esperó que saliera" : "carro fuera del área: se acomodó";
         }
         var r = Evaluar(l, W);
-        Fijar("estable", r);
+        Fijar(r.Estado == "sintara" ? "sintara" : "estable", r);
         await Task.Delay(1000); if (!Vivo()) return;
         Registrar(l, r, extra);
-        Fijar("estable", r.K, r.T1, $"Registrado {l.Hp} · {r.Corto}");
+        Fijar(r.Estado == "sintara" ? "sintara" : "estable", r.K, r.T1, r.Estado == "sintara" ? r.T2 : $"Registrado {l.Hp} · {r.Corto}");
         await Task.Delay(1600); if (!Vivo()) return;
         B.Pic = "sale"; B.Meta = 0; B.Ruido = 30; Fijar("inestable", "muted", $"{c} sale de la báscula", "Quedó registrada");
         await Task.Delay(900); if (!Vivo()) return;
         B.Ruido = 0; B.Lect = 0; B.Meta = 0; B.Carga = null; B.Pic = "vacia";
-        Fijar("cero", "muted", "Báscula libre", "Esperando la próxima carga");
+        Fijar("cero", "muted", "Plataforma disponible", "Puede ingresar la próxima carga");
     }
 
     /// <summary>Nódulos en la junta: vacía no vuelve a cero y no registra hasta que el pesador los saca.</summary>
@@ -196,7 +196,7 @@ public partial class MainWindow
         B.Pic = "vacia"; B.Meta = 0; B.Lect = 0;
         Fijar("cero", "ok", "Cero recuperado", "El pesador retiró los nódulos");
         await Task.Delay(1800); if (yo != _gen) return;
-        Fijar("cero", "muted", "Báscula libre", "Esperando la próxima carga");
+        Fijar("cero", "muted", "Plataforma disponible", "Puede ingresar la próxima carga");
     }
 
     private void Encolar(Etiqueta l, int ms = 3500) { l.Llega = DateTime.Now.AddMilliseconds(ms); _cola.Enqueue(l); Proximo(); }

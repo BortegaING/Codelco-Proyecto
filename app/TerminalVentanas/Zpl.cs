@@ -13,13 +13,15 @@ public static class Zpl
         z.Append("^XA^CI28^PW812^LL568^LH0,0");
         z.Append($"^FO30,28^GB300,56,56^FS^FO44,40^A0N,40,40^FR^FD{T(l.Tag)}^FS");
         z.Append($"^FO340,36^A0N,44,44^FB442,1,0,R^FD{T(l.Codigo)}^FS");
-        z.Append($"^FO26,108^BQN,2,8^FDQA,{T(l.Qr)}^FS");
+        // Arriba las tres cajas (celda, lado, grupo) a todo el ancho; abajo el QR grande y lo que trae la carga
         for (var i = 0; i < l.Cajas.Count; i++)
         {
-            var x = 322 + i * 162;
-            z.Append($"^FO{x},124^GB150,190,5^FS^FO{x},138^A0N,26,26^FB150,1,0,C^FD{T(l.Cajas[i][0])}^FS^FO{x},182^A0N,100,86^FB150,1,0,C^FD{T(l.Cajas[i][1])}^FS");
+            var x = 30 + i * 254;
+            z.Append($"^FO{x},100^GB242,170,5^FS^FO{x},112^A0N,26,26^FB242,1,0,C^FD{T(l.Cajas[i][0])}^FS^FO{x},146^A0N,110,96^FB242,1,0,C^FD{T(l.Cajas[i][1])}^FS");
         }
-        z.Append($"^FO30,512^A0N,28,28^FB760,1,0,L^FD{T(l.Pie)}^FS^XZ");
+        z.Append($"^FO22,282^BQN,2,9^FDQA,{T(l.Qr)}^FS");
+        if (l.Prod == "cat" && !l.Ref.M && l.Ref.Cant > 1) z.Append($"^FO330,320^A0N,70,62^FD{l.Ref.Cant} CATODOS^FS");
+        z.Append($"^FO330,420^A0N,28,28^FB460,4,4,L^FD{T(l.Pie)}^FS^XZ");
         return z.ToString();
     }
 }

@@ -49,8 +49,8 @@ public partial class MainWindow
     private static Etiqueta EtqCat(int gr, int n, string lado, string h, int peso, string oper) => new()
     {
         Hora = h, Prod = "cat", Codigo = $"{n}{lado}{gr}", Detalle = $"Celda {n}, lado {LadoTxt(lado)}, grupo {gr}", Lado = lado, Neto = peso, Bruto = peso, Oper = oper, Tag = "CÁTODO",
-        Qr = $"VEN|CAT|C{D.Pad2(n)}|L{lado}|G{gr}|M-N", Cajas = new() { new[] { "CELDA", n.ToString() }, new[] { "LADO", lado }, new[] { "GRUPO", gr.ToString() } },
-        Pie = $"Cátodo comercial · lado {LadoTxt(lado)} · {D.FECHA} {h}", Ref = new Ref { G = gr, N = n },
+        Qr = $"VEN|CAT|C{D.Pad2(n)}|L{lado}|G{gr}|N{D.CatodosCelda}", Cajas = new() { new[] { "CELDA", n.ToString() }, new[] { "LADO", lado }, new[] { "GRUPO", gr.ToString() } },
+        Pie = $"Cátodo comercial · lado {LadoTxt(lado)} · {D.FECHA} {h}", Ref = new Ref { G = gr, N = n, Cant = D.CatodosCelda },
     };
     private static Etiqueta EtqMuestra(int gr, string h, string oper) => new()
     {
@@ -80,7 +80,8 @@ public partial class MainWindow
     };
 
     /* ---------- Lo que muestra la pantalla según el producto ---------- */
-    private Modelo ModeloActual() => S.Prod switch { "lam" => ModeloLam(), "rs" => ModeloRs(), _ => ModeloCat() };
+    /// <summary>La VT1200 del origen rotula solo cátodos comerciales: láminas y restos de ánodos no pasan por esta pantalla.</summary>
+    private Modelo ModeloActual() => ModeloCat();
 
     private Modelo ModeloCat()
     {
@@ -100,7 +101,7 @@ public partial class MainWindow
             if (G.MuestraH != null) { m.Estado = new("info", $"Ya tiene etiqueta ({G.MuestraH}). Reimprima solo si se dañó."); m.ImpTxt = "Reimprimir muestra"; }
             else m.Estado = new("info", "Se graba como cuba 00, sin lado");
         }
-        else if (n == null) { m.Lbl = "Cátodos"; m.Estado = new("ok", $"Grupo {G.G} completo. Toque Cambiar grupo."); m.ImpTxt = "Imprimir"; m.ImpDis = true; }
+        else if (n == null) { m.Lbl = "Cátodos"; m.Estado = new("ok", $"Grupo {G.G} completo. Toque otro grupo o Cambiar grupo."); m.ImpTxt = "Imprimir"; m.ImpDis = true; }
         else if (c != null) { m.Lbl = "Celda con etiqueta"; m.Estado = new("info", $"Ya tiene etiqueta ({c.H}). Reimprima solo si se dañó."); m.ImpTxt = $"Reimprimir {CodCat(G, n.Value)}"; }
         else if (sig != null && n != sig) { m.Lbl = "Etiqueta elegida"; m.Estado = new("warn", $"Ojo: la que sigue es {CodCat(G, sig.Value)}", CodCat(G, sig.Value)); }
         else m.Estado = S.Msg ?? new("ok", "Es la que sigue");
@@ -223,7 +224,7 @@ public partial class MainWindow
     {
         if (!D.RutValido(S.Rut)) return;
         S.User = S.Rut == "111111111" ? "Operador prueba" : "Operador " + S.Rut[^5..^1];
-        S.View = "main"; S.Msg = null; Render(); Proximo();
+        S.View = "main"; S.Prod = "cat"; S.Msg = null; Render(); Proximo();
     }
     private void Salir() { S.Md = null; S.View = "login"; S.User = ""; S.Rut = "111111111"; Render(); }
     /// <summary>Salir en la pantalla de ingreso: pregunta antes de cerrar el programa.</summary>
@@ -231,7 +232,15 @@ public partial class MainWindow
     /// <summary>Lo registrado ya quedó guardado en el equipo con cada cambio: al volver a abrir, sigue donde quedó.</summary>
     internal void CerrarPrograma() { _ticker.Stop(); System.Windows.Application.Current.Shutdown(); }
     internal void Prod(string v) { if (S.Prod == v) return; S.Prod = v; S.Msg = null; S.Muestra = false; Render(); }
-    private void CeldaElegida(int n) { S.Sel = n; S.Muestra = false; S.Msg = null; Render(); }
+    private void CeldaElegida(int g, int n) { S.Grupo = g; S.Sel = n; S.Muestra = false; S.Msg = null; Render(); }
+    /// <summary>Paso 1: el grupo se elige en el layout de circuitos. El mapa muestra ese grupo y el que sigue.</summary>
+    private void ElegirGrupo(int g)
+    {
+        var nuevo = !S.Grupos.ContainsKey(g); S.Grupo = g; if (g != S.Par && g != S.Par + 1) S.Par = g;
+        var G = GrupoAct(); S.Sel = Siguiente(G); S.Muestra = false;
+        S.Msg = nuevo ? new("info", $"Grupo {g} · si un lado es parcial, toque su lado") : null;
+        Cerrar();
+    }
     private void Volver() { S.Sel = Siguiente(GrupoAct()); S.Msg = null; Render(); }
     private void AlternarMuestra() { S.Muestra = !S.Muestra; S.Msg = null; Render(); }
     private void Abrir(string tipo, string val = "", int max = 2, string campo = "") { S.Md = new Modal { Tipo = tipo, Val = val, Max = max, Campo = campo }; Render(); }
@@ -241,7 +250,7 @@ public partial class MainWindow
     private void LamTipo(string v) { S.Lam.Tipo = v; S.Msg = null; Render(); }
     private void OkKeypad()
     {
-        switch (S.Md?.Tipo) { case "grupo": OkGrupo(); break; case "rsgrupo": OkRsGrupo(); break; case "bfkp": OkBfkp(); break; }
+        switch (S.Md?.Tipo) { case "rsgrupo": OkRsGrupo(); break; case "bfkp": OkBfkp(); break; }
     }
     private void OkGrupo()
     {
@@ -252,7 +261,7 @@ public partial class MainWindow
     }
     private void OkTerminar()
     {
-        var gr = S.Grupo; S.Md = new Modal { Tipo = "grupo", Val = Math.Min(99, gr + 1).ToString() };
+        var gr = S.Grupo; S.Md = new Modal { Tipo = "grupo" };
         Avisar($"Grupo {gr} terminado. Elija el grupo que sigue.", "ok"); Render();
     }
     private void OkRsGrupo()

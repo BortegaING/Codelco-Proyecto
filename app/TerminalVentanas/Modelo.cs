@@ -81,6 +81,8 @@ public sealed class Estado
 {
     public string View = "login", Rut = "111111111", User = "", Prod = "cat", Turno = "A";
     public int Grupo = 21, Min = 10 * 60 + 5, UltPes = 9 * 60 + 58, Uid;
+    /// <summary>Los dos grupos que muestra el mapa: Par arriba y Par + 1 abajo (por ejemplo 21 y 22).</summary>
+    public int Par = 21;
     public int? Sel = 5;
     public bool Muestra;
     public Dictionary<int, Grupo> Grupos = new();

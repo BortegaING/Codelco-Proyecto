@@ -1,7 +1,8 @@
 // Genera la presentación "Báscula N9 · Refinería Ventanas" con pptxgenjs.
 // Uso, desde esta carpeta:  corepack pnpm install   y luego   node generar.js
-// Las imágenes salen de img/ y del diagrama en ../../diagramas. Las pantallas y la báscula (vt_*, bal_*, app_impresa) son de la app
-// nativa: capturas_app.py las copia desde la carpeta de la prueba. Las etiquetas y la simulación las saca capturas.py.
+// Las imágenes salen de img/ y del diagrama en ../../diagramas. Las pantallas, la etiqueta de cátodo, la báscula y el puntero (vt_*, etq_cat_vt,
+// bal_*, app_impresa, cursor) son de la app nativa: capturas_app.py las copia desde la carpeta de la prueba. Las etiquetas de láminas
+// y restos y la simulación las saca capturas.py.
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -68,7 +69,7 @@ function imagen(s, f, x, y, opt) {
 const pres = new pptxgen();
 pres.layout = 'LAYOUT_WIDE'; // 13,333 x 7,5 pulgadas
 pres.theme = { headFontFace: TEMA.headFontFace, bodyFontFace: TEMA.bodyFontFace };
-pres.title = 'Báscula N9 · Identificación y pesaje automático';
+pres.title = 'Báscula N9 · Sistema de trazabilidad y pesaje';
 pres.subject = 'Propuesta para la Báscula N9 de la Refinería Ventanas';
 pres.author = 'Ingmétrica';
 pres.company = 'Ingmétrica';
@@ -125,74 +126,103 @@ function lamina(seccion, kicker, titulo, master) {
   return s;
 }
 
+/* Puntero sobre lo que se toca en una captura de la app (coordenadas de la captura de 2048 x 1536) */
+function puntero(s, x0, y0, k, px, py, marco) {
+  if (marco) {
+    const [a, b, c, d] = marco;
+    s.addShape(SH.roundRect, { x: x0 + a * k - 0.05, y: y0 + b * k - 0.05, w: (c - a) * k + 0.1, h: (d - b) * k + 0.1, rectRadius: 0.06,
+      fill: { type: 'none' }, line: { color: 'F2B33D', width: 3 }, objectName: 'Marca de selección' });
+  }
+  imagen(s, IMG('cursor.png'), x0 + px * k - 0.04, y0 + py * k - 0.04, { w: 0.5, alt: 'Puntero: aquí toca el operador', nombre: 'Puntero' });
+}
+function items(s, lista, x, y, paso, w) {
+  lista.forEach(([h, b], i) => {
+    const yy = y + i * paso;
+    numero(s, i + 1, x, yy, 0.4);
+    texto(s, h, { x: x + 0.6, y: yy - 0.02, w, h: 0.36, fontFace: CABEZA, fontSize: 17 });
+    texto(s, b, { x: x + 0.6, y: yy + 0.36, w, h: paso - 0.4, fontSize: 14, color: P.mut });
+  });
+}
+
 /* ===================== 1. Portada ===================== */
 pres.addSection({ title: 'Inicio' });
 {
-  const s = lamina('Inicio', 'CODELCO DIVISIÓN VENTANAS · REFINERÍA', 'Identificación y pesaje automático en la Báscula N9', 'PORTADA');
-  texto(s, 'Una etiqueta con QR desde la nave, una báscula que controla el peso y un solo registro, listo en Excel.',
-    { x: 0.6, y: 3.95, w: 5.9, h: 1.0, fontSize: 18, color: P.claro });
+  const s = lamina('Inicio', 'CODELCO DIVISIÓN VENTANAS · REFINERÍA', 'Sistema de trazabilidad y pesaje · Báscula N9', 'PORTADA');
+  texto(s, 'Etiquetado estandarizado de cátodos en origen, lectura por visión artificial y captura automática del peso en un registro único y auditable.',
+    { x: 0.6, y: 3.95, w: 5.9, h: 1.3, fontSize: 18, color: P.claro });
   texto(s, 'Propuesta Ingmétrica · noviembre 2026', { x: 0.6, y: 6.35, w: 5.9, h: 0.35, fontSize: 14, color: P.claroMut });
-  imagen(s, IMG('vt_cat_pesando.png'), 6.85, 1.2, { w: 5.9, alt: 'Pantalla de la VT1200: etiqueta 5T21 que sigue y la Báscula N9 estabilizando el paquete 4T21' });
-  texto(s, 'La VT1200 en la nave: la etiqueta que sigue y la Báscula N9 en vivo.', { x: 6.85, y: 5.75, w: 5.9, h: 0.3, fontSize: 11, color: P.claroMut });
-  s.addNotes('Propuesta para identificar y pesar las cargas de la Báscula N9: cátodos comerciales, láminas y restos de ánodos.');
+  imagen(s, IMG('vt_principal.png'), 6.85, 1.2, { w: 5.9, alt: 'Pantalla de la VT1200 en origen: etiqueta 5T21 que sigue, pendientes de pesaje y los grupos 21 y 22' });
+  texto(s, 'VT1200 en origen: etiqueta que sigue, pendientes de pesaje y grupos de producción.', { x: 6.85, y: 5.75, w: 5.9, h: 0.3, fontSize: 11, color: P.claroMut });
+  s.addNotes('Sistema de trazabilidad y pesaje para la Báscula N9. En esta etapa la VT1200 de origen rotula cátodos comerciales; la báscula identifica y pesa con visión artificial.');
 }
 
-/* ===================== 2. Resumen ===================== */
-pres.addSection({ title: 'Situación actual' });
+/* ===================== 2. Paso 1: selección de cuba en el layout ===================== */
+pres.addSection({ title: 'Propuesta' });
 {
-  const s = lamina('Situación actual', 'RESUMEN', 'Hoy cada peso se anota tres veces; con la propuesta, ninguna');
+  const s = lamina('Propuesta', 'PASO 1 · SELECCIÓN DE CUBA', 'El operador selecciona el grupo en el layout de circuitos');
+  const x0 = 0.6, y0 = 1.5, im = imagen(s, IMG('vt_paso1.png'), x0, y0, { w: 7.3, alt: 'VT1200, paso 1: layout de la nave con los circuitos I a VI, sus grupos y EW; el grupo 21 seleccionado' });
+  const k = im.w / 2048;
+  puntero(s, x0, y0, k, 700, 668, [586, 614, 781, 697]);
+  items(s, [
+    ['Layout de la nave', 'Circuitos I a VI con sus grupos, en la misma disposición del plano de la refinería.'],
+    ['Selección con un toque', 'El grupo a cosechar queda marcado (en el ejemplo, grupo 21) y pasa a la pantalla de producción.'],
+    ['Restricciones', 'Grupos 1 y 2 (circuito de láminas) no se rotulan como cátodos. EW queda por confirmar.'],
+    ['Cierre del grupo', '"Terminar grupo" informa a la báscula que no vienen más lingadas de ese grupo.'],
+  ], 8.3, 1.6, 1.25, 4.1);
+  s.addNotes('Es parte del formulario de la VT1200: la primera ventana al cambiar de grupo. Se toca el grupo en el layout; el puntero marca la selección.');
+}
+
+/* ===================== 3. Resumen ===================== */
+{
+  const s = lamina('Propuesta', 'RESUMEN', 'Un registro único por lingada, sin digitación manual del peso');
   const cols = [
-    ['3 veces', 'Hoy', 'El rótulo se escribe con plumón y algunos paquetes llegan sin él. El pesador anota cada peso en el cuaderno, en Excel y en el sistema web. Las taras de carro y los pesajes por diferencia se calculan a mano.'],
-    ['1 toque', 'Con la propuesta', 'En la nave, la VT1200 imprime la etiqueta con QR. En la báscula, la cámara la lee y el sistema espera el peso estable, lo controla y lo registra.'],
-    ['1 registro', 'Resultado', 'Cada carga queda con su peso, la hora real del pesaje y lo que dijo el control. Sale a Excel con las columnas del Sistema de Cátodos.'],
+    ['1 etiqueta', 'En origen', 'La VT1200 emite una etiqueta estandarizada por lingada (celda, lado, grupo, 39 cátodos y QR) y la deja registrada como pendiente de pesaje.'],
+    ['1 registro', 'En la Báscula N9', 'La cámara superior lee el QR, el visor entrega el peso estable y el sistema consolida identificación, peso, hora real y validaciones.'],
   ];
   cols.forEach(([big, h, body], i) => {
-    const x = 0.6 + i * 4.15;
-    tarjeta(s, x, 1.75, 3.85, 4.15, { fill: { color: i === 1 ? P.cobreSuave : P.tarjeta }, line: { color: i === 1 ? TEMA.colors.accent2 : P.tarjeta, width: 1 } });
-    texto(s, big, { x: x + 0.35, y: 2.1, w: 3.2, h: 0.8, fontFace: CABEZA, fontSize: 40, color: C.accent1 });
-    texto(s, h, { x: x + 0.35, y: 3.05, w: 3.2, h: 0.45, fontFace: CABEZA, fontSize: 20 });
-    texto(s, body, { x: x + 0.35, y: 3.6, w: 3.15, h: 2.7, fontSize: 15, color: P.mut, lineSpacingMultiple: 1.1 });
+    const x = 0.6 + i * 6.15;
+    tarjeta(s, x, 1.75, 5.95, 4.15, { fill: { color: i === 0 ? P.cobreSuave : P.tarjeta }, line: { color: i === 0 ? TEMA.colors.accent2 : P.tarjeta, width: 1 } });
+    texto(s, big, { x: x + 0.45, y: 2.1, w: 5.0, h: 0.8, fontFace: CABEZA, fontSize: 40, color: C.accent1 });
+    texto(s, h, { x: x + 0.45, y: 3.05, w: 5.0, h: 0.45, fontFace: CABEZA, fontSize: 20 });
+    texto(s, body, { x: x + 0.45, y: 3.6, w: 5.0, h: 2.1, fontSize: 16, color: P.mut, lineSpacingMultiple: 1.1 });
   });
+  texto(s, 'Hoy cada peso se anota tres veces (cuaderno, Excel y sistema web) y la identificación depende de un rótulo a plumón.',
+    { x: 0.6, y: 6.15, w: 12.1, h: 0.4, fontSize: 14, color: P.mut });
 }
 
-/* ===================== 3. La visita ===================== */
+/* ===================== 4. Paso 2: grupo de producción y celda ===================== */
 {
-  const s = lamina('Situación actual', 'SITUACIÓN ACTUAL', 'Lo que vimos en la Báscula N9');
-  imagen(s, IMG('sim_escena.png'), 0.6, 1.85, { w: 6.3, alt: 'Escena isométrica: nave, grúa con el paquete, báscula a ras de piso, caseta del pesador y balizas' });
-  texto(s, 'Escena de la simulación: (A) nave, (B) cámara cenital, (C) balizas, (D) báscula, (E) caseta del pesador.',
-    { x: 0.6, y: 5.75, w: 6.3, h: 0.5, fontSize: 12, color: P.mut });
-  const hechos = [
-    ['Báscula de piso', 'A ras de suelo, al aire libre, con 4 celdas de carga.'],
-    ['Pesador en la caseta', 'Con el terminal de pesaje, un PC, cuaderno y calculadora.'],
-    ['Tres registros', 'Cada peso se anota en el cuaderno, en Excel y en el sistema web.'],
-    ['Rótulo a plumón', 'Se escribe sobre la carga; algunos paquetes llegan sin rótulo.'],
-    ['Nódulos en la junta', 'Caen trozos de cobre en el borde de la plataforma y la báscula pierde el cero.'],
-  ];
-  hechos.forEach(([h, b], i) => {
-    const y = 1.6 + i * 1.0;
-    numero(s, i + 1, 7.2, y, 0.42);
-    texto(s, h, { x: 7.85, y: y - 0.02, w: 4.85, h: 0.36, fontFace: CABEZA, fontSize: 17 });
-    texto(s, b, { x: 7.85, y: y + 0.36, w: 4.85, h: 0.55, fontSize: 14, color: P.mut });
-  });
+  const s = lamina('Propuesta', 'PASO 2 · SELECCIÓN GRUPO DE PRODUCCIÓN', 'La VT1200 propone la celda que sigue y emite la etiqueta');
+  const x0 = 0.6, y0 = 1.5, im = imagen(s, IMG('vt_paso2.png'), x0, y0, { w: 7.3, alt: 'VT1200, paso 2: grupos 21 y 22 en filas de 42 celdas; celda 1 del grupo 22 seleccionada y etiqueta 1T22 lista para imprimir' });
+  const k = im.w / 2048;
+  puntero(s, x0, y0, k, 120, 1150);
+  items(s, [
+    ['Dos grupos a la vista', 'El grupo seleccionado y el siguiente, cada uno en una fila de 42 celdas (1 a 21 y 42 a 22).'],
+    ['Celda que sigue', 'Marcada en cobre según el orden de cosecha. Un toque cambia de celda o de grupo.'],
+    ['Lado total o parcial', 'Se define una vez por lado (T o P) y entra en el rótulo.'],
+    ['Emisión', '"Imprimir 1T22" envía la etiqueta a la Zebra y la deja pendiente de pesaje.'],
+  ], 8.3, 1.6, 1.25, 4.1);
 }
 
-/* ===================== 4. Tres productos ===================== */
+/* ===================== 5. Tres productos ===================== */
+pres.addSection({ title: 'Situación actual' });
 {
-  const s = lamina('Situación actual', 'TRES PRODUCTOS', 'Cada producto llega distinto a la báscula');
+  const s = lamina('Situación actual', 'PRODUCTOS DE LA BÁSCULA N9', 'Tres productos con identificación y tara distintas');
   const prods = [
-    ['etq_cat.png', 'Cátodos comerciales', ['Un paquete por celda, de 4,3 a 4,9 t.', 'Llega con grúa horquilla y no lleva tara.', 'Rótulo: celda + lado + grupo (12P31).']],
-    ['etq_lam.png', 'Láminas', ['Pallet con número correlativo del mes.', 'Tara fija de 12 kg por pallet.', 'Dos pallets montados se pesan por diferencia.']],
-    ['etq_rs.png', 'Restos de ánodos', ['Carro + rack que arrastra un tractor.', 'Unos 11 carros por grupo, de 3 a 3,9 t netos.', 'Hoy la tara se busca en una lista impresa.']],
+    ['etq_cat_vt.png', 'Cátodos comerciales', ['Lingada de 39 cátodos por celda, de 4,3 a 4,9 t.', 'Ingresa con horquilla; sin tara.', 'Rótulo: celda + lado + grupo (12P31).']],
+    ['etq_lam.png', 'Láminas', ['Pallet con correlativo mensual.', 'Tara de pallet: 12 kg.', 'Dos pallets montados: pesaje por diferencia.']],
+    ['etq_rs.png', 'Restos de ánodos', ['Carro + rack arrastrado por tractor.', 'Neto = bruto − tara de carro − tara de rack.', 'Tara leída por la cámara lateral.']],
   ];
-  prods.forEach(([f, h, items], i) => {
+  prods.forEach(([f, h, it], i) => {
     const x = 0.6 + i * 4.15;
-    tarjeta(s, x, 1.6, 3.85, 5.15);
+    tarjeta(s, x, 1.6, 3.85, 4.75);
     imagen(s, IMG(f), x + 0.42, 1.85, { w: 3.0, alt: `Etiqueta de ${h.toLowerCase()} con rótulo y código QR` });
     texto(s, h, { x: x + 0.35, y: 4.05, w: 3.2, h: 0.45, fontFace: CABEZA, fontSize: 20 });
-    texto(s, items.map((t, k) => ({ text: t, options: { bullet: true, breakLine: k < items.length - 1 } })),
-      { x: x + 0.35, y: 4.6, w: 3.2, h: 2.0, fontSize: 14, color: P.mut, paraSpaceAfter: 6 });
+    texto(s, it.map((t, j) => ({ text: t, options: { bullet: true, breakLine: j < it.length - 1 } })),
+      { x: x + 0.35, y: 4.55, w: 3.2, h: 1.7, fontSize: 14, color: P.mut, paraSpaceAfter: 6 });
   });
-  s.addNotes('Las etiquetas son las mismas que imprime la maqueta de la VT1200: el rótulo de siempre más un QR.');
+  texto(s, 'Alcance de esta etapa: la VT1200 rotula cátodos comerciales. Láminas y restos de ánodos se incorporan en la ampliación.',
+    { x: 0.6, y: 6.5, w: 12.1, h: 0.35, fontSize: 13, bold: true, color: C.accent1 });
 }
 
 /* Láminas que se sacaron del deck el 04-11 a pedido de Benjamin (las 5 a 8): las tres de "Cómo se registra hoy"
@@ -254,7 +284,6 @@ if (INCLUIR.sistema) {
 }
 
 /* ===================== 5. Un día real ===================== */
-pres.addSection({ title: 'Datos' });
 if (INCLUIR.diaReal) {
   const s = lamina('Datos', 'UN DÍA REAL · 22-10-2026', 'Grupo 21: 35 paquetes, todos en un rango estrecho');
   const kpi = [[`${kg(total)} kg`, 'cátodos del grupo 21: lado total, lado parcial y muestra'],
@@ -287,16 +316,16 @@ if (INCLUIR.diaReal) {
   s.addNotes(`Lado total ${kg(totT)} kg, lado parcial ${kg(totP)} kg, muestra ${kg(MUESTRA)} kg. Con un rango tan estrecho, un peso raro salta a la vista y el sistema lo puede avisar solo.`);
 }
 
-/* ===================== 6. Problemas ===================== */
+/* ===================== 6. Brechas del proceso actual ===================== */
 {
-  const s = lamina('Datos', 'DÓNDE SE PIERDE', 'Seis puntos donde hoy se pierde tiempo o precisión');
+  const s = lamina('Situación actual', 'PROCESO ACTUAL', 'Seis brechas de trazabilidad en el pesaje actual');
   const p = [
-    ['Rótulo a mano', 'Plumón sobre la lámina de arriba; algunos paquetes llegan sin rótulo.'],
-    ['Triple digitación', 'Cuaderno, Excel y sistema web: tres veces el mismo peso.'],
-    ['Hora que no es real', 'Las cubas 01 a 10 del 22-10 quedaron con 6 segundos de diferencia: se digitan en tanda.'],
-    ['Tara con calculadora', 'La tara de cada carro + rack se busca en una lista impresa y se resta a mano.'],
-    ['Diferencias a mano', 'Con dos pallets montados, el peso de cada uno se calcula restando.'],
-    ['La báscula se engaña', 'Grúa encima, carro fuera del área o nódulos en la junta cambian el peso.'],
+    ['Identificación manual', 'Rótulo a plumón o tiza: caracteres ambiguos, ocultos o ausentes; reflejos del cobre.'],
+    ['Triple digitación', 'El mismo peso se registra en cuaderno, Excel y sistema web.'],
+    ['Hora no trazable', 'Las cubas 01 a 10 del 22-10 quedaron con 6 s de diferencia: se digitan en lote.'],
+    ['Taras no validadas', 'Marcas de carro y rack ausentes o no auditadas; el descuento se hace con calculadora.'],
+    ['Cálculo por diferencia', 'Con dos pallets montados, el neto de cada uno se calcula a mano.'],
+    ['Lecturas alteradas', 'Horquilla sobre la plataforma, carro fuera del área o nódulos en la junta.'],
   ];
   p.forEach(([h, b], i) => {
     const x = 0.6 + (i % 3) * 4.15, y = 1.65 + Math.floor(i / 3) * 2.55;
@@ -307,96 +336,40 @@ if (INCLUIR.diaReal) {
   });
 }
 
-/* ===================== 7. Flujo propuesto (diagrama) ===================== */
-pres.addSection({ title: 'Propuesta' });
+/* ===================== 7. Flujo del sistema (diagrama) ===================== */
+pres.addSection({ title: 'Solución' });
 {
-  const s = pres.addSlide({ masterName: 'LIENZO', sectionTitle: 'Propuesta' });
+  const s = pres.addSlide({ masterName: 'LIENZO', sectionTitle: 'Solución' });
   const t = tamPng(DIAGRAMA), h = 6.55, w = h * t.w / t.h;
-  s.addImage({ path: DIAGRAMA, x: (13.333 - w) / 2, y: 0.32, w, h, altText: 'Diagrama del flujo propuesto: nave, traslado, báscula N9 con sus controles y registro', objectName: 'Diagrama de flujo' });
-  s.addNotes('Flujo propuesto. 1 a 3 en la nave con la VT1200; traslado en grúa o tractor; 4 a 6 en la báscula: lectura del QR, controles (grúa, área, cero), peso estable y neto; 7 a 9 el registro, el Excel y los sistemas de Codelco. Las balizas avisan en terreno.');
+  s.addImage({ path: DIAGRAMA, x: (13.333 - w) / 2, y: 0.32, w, h, altText: 'Diagrama del flujo: origen, traslado, Báscula N9 con visión artificial y semáforo, y registro', objectName: 'Diagrama de flujo' });
+  s.addNotes('1 a 3 en origen con la VT1200; traslado en horquilla o tractor; 4 a 6 en la báscula: lectura del QR, validación de posición y cero, captura del peso y neto; 7 a 9 registro único, Excel y pendientes de pesaje. Si la etiqueta no se lee, el sistema alerta y el pesador identifica la carga a mano.');
 }
 
-/* ===================== 7b. Antes o después de pesar ===================== */
+/* ===================== 8. La pantalla en origen ===================== */
 {
-  const s = lamina('Propuesta', '¿ANTES O DESPUÉS DE PESAR?', 'Se etiqueta antes de pesar, donde nace el dato');
-  const razones = [
-    ['El dato nace en la nave', 'Celda, lado y grupo se conocen en la celda donde se cosecha. En la báscula nadie sabe de qué celda viene un paquete si no lo trae escrito: por eso hoy se rotula con plumón antes de llevarlo.'],
-    ['La báscula trabaja sola', 'La cámara lee el QR al llegar y el peso estable se graba contra esa identidad, sin digitar. Además controla el orden, los duplicados y el rango de cada producto.'],
-    ['Rápido y seguro', 'Nadie sale de la caseta a pegar etiquetas sobre la plataforma, con la grúa o el tractor al lado, y ninguna carga espera a que la etiqueten.'],
-  ];
-  razones.forEach(([h, b], i) => {
-    const x = 0.6 + i * 4.15;
-    tarjeta(s, x, 1.6, 3.85, 2.85);
-    numero(s, i + 1, x + 0.3, 1.9, 0.46);
-    texto(s, h, { x: x + 0.95, y: 1.93, w: 2.7, h: 0.45, fontFace: CABEZA, fontSize: 18 });
-    texto(s, b, { x: x + 0.3, y: 2.6, w: 3.3, h: 2.1, fontSize: 14, color: P.mut, lineSpacingMultiple: 1.05 });
-  });
-  tarjeta(s, 0.6, 4.75, 12.15, 1.6, { fill: { color: P.cobreSuave }, line: { color: TEMA.colors.accent2, width: 1 } });
-  texto(s, 'La etiqueta no lleva el peso', { x: 0.95, y: 4.95, w: 4.0, h: 0.45, fontFace: CABEZA, fontSize: 18, color: C.accent1 });
-  texto(s, 'El peso queda en el registro, amarrado al QR: quien lo escanee después ve cuánto pesó. Si Codelco necesita el peso escrito en el paquete (por ejemplo para despacho), se agrega una segunda etiqueta chica que se imprime en la báscula cuando el peso queda estable.',
-    { x: 0.95, y: 5.43, w: 11.5, h: 0.85, fontSize: 14, color: P.mut });
-  s.addNotes('Hoy el peso tampoco viaja en el paquete: va al cuaderno, al Excel y al sistema. En el calibrador de AgroSuper es al revés porque la caja se arma y se pesa en el mismo puesto; aquí la identidad nace en la celda y el peso en la báscula.');
+  const s = lamina('Solución', 'LA PANTALLA EN ORIGEN', 'VT1200: etiquetado de cátodos con seguimiento de pendientes');
+  const im = imagen(s, IMG('vt_principal.png'), 0.6, 1.5, { w: 7.2, alt: 'Pantalla principal de la VT1200: etiqueta que sigue, pendientes de pesaje, grupos 21 y 22 y botón Imprimir' });
+  const k = im.w / 2048;
+  [[16, 60], [30, 236], [1262, 200], [30, 690], [30, 1400]].forEach(([px, py], i) => numero(s, i + 1, 0.6 + px * k - 0.18, 1.5 + py * k - 0.18, 0.36));
+  items(s, [
+    ['Origen', 'Rotulado de cátodos comerciales; el operador queda identificado por su RUT.'],
+    ['Etiqueta que sigue', 'Vista previa exacta de lo que imprime la Zebra.'],
+    ['Pendientes de pesaje', 'Etiquetas emitidas que aún no pasan por la Báscula N9 y el último pesaje.'],
+    ['Grupo de producción', 'Dos grupos en filas de 42 celdas: pesada, en báscula, pendiente y la que sigue.'],
+    ['Imprimir', 'Un toque por lingada. Registro y Excel siempre disponibles.'],
+  ], 8.15, 1.55, 1.02, 3.95);
 }
 
-/* ===================== 7c. Un paquete de punta a punta ===================== */
+/* ===================== 9. Control del peso ===================== */
 {
-  const s = lamina('Propuesta', 'UN PAQUETE DE PUNTA A PUNTA', '5T21: de la celda al Excel, sin digitar el peso');
-  const pasos = [
-    ['Etiquetar', 'Nave', 'La VT1200 propone 5T21 (celda 5, lado T, grupo 21). Se imprime y se pega arriba del paquete.'],
-    ['Trasladar', 'Camino', 'La grúa horquilla lo lleva a la báscula, ya etiquetado.'],
-    ['Identificar', 'Báscula N9', 'La cámara lee el QR: es 5T21.'],
-    ['Pesar y controlar', 'Báscula N9', 'Peso estable: 4.860 kg. La grúa salió y está entre 4.200 y 5.000 kg.'],
-    ['Registrar', 'Sistema', 'Queda 5T21 · 4.860 kg · pesado a las 10:12, solo.'],
-    ['Excel', 'Cierre del turno', 'Fila en la hoja Cátodos (grupo 21, cuba 05, lado T) y suma al Resumen en Lado-T.'],
-  ];
-  s.addShape(SH.line, { x: 0.875, y: 1.875, w: 10.1, h: 0, line: { color: P.linea, width: 2 } });
-  pasos.forEach(([h, donde, b], i) => {
-    const x = 0.6 + i * 2.02;
-    numero(s, i + 1, x, 1.6, 0.55);
-    texto(s, h, { x, y: 2.3, w: 1.85, h: 0.4, fontFace: CABEZA, fontSize: 16 });
-    texto(s, donde.toUpperCase(), { x, y: 2.72, w: 1.85, h: 0.28, fontSize: 11, bold: true, color: C.accent1, charSpacing: 1 });
-    texto(s, b, { x, y: 3.05, w: 1.85, h: 1.6, fontSize: 13, color: P.mut });
-  });
-  imagen(s, IMG('etq_cat.png'), 0.6, 4.85, { h: 1.8, alt: 'Etiqueta 5T21 con su código QR' });
-  imagen(s, IMG('bal_5t21.png'), 3.4, 4.85, { h: 1.8, alt: 'Báscula N9 con 5T21 registrado: 4.860 kg dentro de rango' });
-  tarjeta(s, 6.75, 4.85, 6.0, 1.8);
-  texto(s, 'El pesador interviene solo en las excepciones', { x: 7.05, y: 5.02, w: 5.5, h: 0.45, fontFace: CABEZA, fontSize: 16 });
-  texto(s, 'Carga sin etiqueta o que la cámara no leyó, carro sin tara, o báscula bloqueada por grúa encima, carro fuera del área o sin cero. Lo corrige en la pantalla Báscula de la VT1200.',
-    { x: 7.05, y: 5.5, w: 5.5, h: 1.05, fontSize: 13, color: P.mut });
-  s.addNotes('Igual en los tres productos; cambia lo que dice la etiqueta. Láminas: día, mes y número del pallet (21-10 · Nº 263), menos 12 kg de tara. Restos: grupo y carro (G21 · C22), menos la tara de carro + rack. El Excel es una salida del registro, no el lugar donde se anota el peso.');
-}
-
-/* ===================== 8. La pantalla de la VT1200 ===================== */
-{
-  const s = lamina('Propuesta', 'LA PANTALLA EN LA NAVE', 'La VT1200: un toque por paquete y la báscula a la vista');
-  const im = imagen(s, IMG('vt_cat_pesando.png'), 0.6, 1.5, { w: 7.2, alt: 'Pantalla de cátodos de la VT1200 con el mapa del grupo 21 y la báscula estabilizando' });
-  const k = im.w / 2048; // captura de la app nativa: 2048 x 1536
-  [[20, 64], [40, 172], [1278, 128], [40, 682], [40, 1362]].forEach(([px, py], i) => numero(s, i + 1, 0.6 + px * k - 0.18, 1.5 + py * k - 0.18, 0.36));
-  const items = [
-    ['Producto', 'Tres pestañas grandes: cátodos, láminas y restos de ánodos.'],
-    ['Etiqueta que sigue', 'El terminal ya la propone y se ve tal como sale de la Zebra.'],
-    ['Báscula N9 en vivo', 'Peso, estado y control de la carga que está encima.'],
-    ['Mapa del grupo', 'Gris pesada, azul en la báscula, borde azul en camino. Se toca para cambiar de celda.'],
-    ['Un botón', '"Imprimir 5T21". El registro y el Excel siempre a la vista.'],
-  ];
-  items.forEach(([h, b], i) => {
-    const y = 1.55 + i * 1.02;
-    numero(s, i + 1, 8.15, y, 0.4);
-    texto(s, h, { x: 8.75, y: y - 0.02, w: 3.95, h: 0.36, fontFace: CABEZA, fontSize: 17 });
-    texto(s, b, { x: 8.75, y: y + 0.35, w: 3.95, h: 0.6, fontSize: 14, color: P.mut });
-  });
-}
-
-/* ===================== 9. La báscula controla el peso ===================== */
-{
-  const s = lamina('Propuesta', 'CONTROL DEL PESO', 'La báscula registra sola y frena lo que no cuadra');
+  const s = lamina('Solución', 'BÁSCULA N9 · CONTROL DEL PESO', 'Captura automática del peso con validación de cada carga');
   const filas = [
-    ['Lo normal: llega, se estabiliza, se controla y se registra', 1.45, [
-      ['bal_1llegando.png', 'Llega: la cámara lee la etiqueta'], ['bal_2estabilizando.png', 'Estabilizando: nadie toca la carga'],
-      ['bal_3registrado.png', 'Estable: dentro de rango y registrado'], ['bal_6lam.png', 'Láminas: descuenta 12 kg por pallet']]],
-    ['Lo que frena o avisa', 4.1, [
-      ['bal_4grua.png', 'Grúa encima: marca 1.850 kg de más'], ['bal_7fuera.png', 'Carro fuera del área: pierde peso'],
-      ['bal_5sincero.png', 'Sin cero: nódulos en la junta'], ['bal_9sintara.png', 'Sin tara: falta pesar el carro vacío']]],
+    ['Secuencia normal', 1.45, [
+      ['bal_1-disponible.png', 'Disponible: plataforma libre, puede ingresar'], ['bal_2-leyendo.png', 'Leyendo etiqueta: cámara superior'],
+      ['bal_3-registrando.png', 'Registrando: semáforo amarillo, carga quieta'], ['bal_4-registrado.png', 'Registrado: dentro de rango']]],
+    ['Errores y bloqueos', 4.1, [
+      ['bal_5-horquilla.png', 'Horquilla sobre la báscula: +1.850 kg'], ['bal_7-carro-fuera.png', 'Carro fuera del área: −960 kg'],
+      ['bal_6-sincero.png', 'Sin cero: nódulos en la junta'], ['bal_8-sin-tara.png', 'Sin tara: carro sin tara validada']]],
   ];
   filas.forEach(([rot, y, imgs]) => {
     texto(s, rot, { x: 0.6, y, w: 12.1, h: 0.32, fontFace: CABEZA, fontSize: 15, color: C.accent1 });
@@ -406,52 +379,68 @@ pres.addSection({ title: 'Propuesta' });
       texto(s, cap, { x, y: y + 0.46 + im.h, w: 2.9, h: 0.3, fontSize: 12, color: P.mut });
     });
   });
-  s.addNotes('Rangos usados: cátodos 4.200 a 5.000 kg, láminas aprobadas 3.200 a 3.900 kg netos, restos 2.800 a 4.000 kg netos. Salen de los pesajes de la visita.');
+  s.addNotes('Es la pantalla del programa de la báscula (caseta), no la de la VT1200. Rangos: cátodos 4.200 a 5.000 kg; restos 2.800 a 4.000 kg netos. Los valores de error son los de la simulación.');
 }
 
-/* ===================== 10. Láminas y restos ===================== */
+/* ===================== 10. Visión artificial y semáforo ===================== */
 {
-  const s = lamina('Propuesta', 'LÁMINAS Y RESTOS', 'La misma pantalla sirve para láminas y restos de ánodos');
-  const a = imagen(s, IMG('vt_lam.png'), 0.6, 1.5, { w: 5.95, alt: 'Pantalla de láminas: tipo de lámina, número del mes y báscula con el neto' });
-  imagen(s, IMG('vt_rs.png'), 6.75, 1.5, { w: 5.95, alt: 'Pantalla de restos de ánodos: teclado del número de carro, carros del grupo y báscula' });
-  texto(s, 'Láminas: se elige el tipo y el terminal propone el número del mes. La báscula descuenta 12 kg por pallet.',
-    { x: 0.6, y: 1.65 + a.h, w: 5.95, h: 0.6, fontSize: 14, color: P.mut });
-  texto(s, 'Restos: se escribe el número pintado del carro. El sistema pone la tara de carro + rack y, si no la tiene, avisa.',
-    { x: 6.75, y: 1.65 + a.h, w: 5.95, h: 0.6, fontSize: 14, color: P.mut });
+  const s = lamina('Solución', 'BÁSCULA N9 · VISIÓN ARTIFICIAL Y SEMÁFORO', 'Dos cámaras y un semáforo coordinan la maniobra');
+  // Semáforo
+  s.addShape(SH.roundRect, { x: 0.6, y: 1.6, w: 1.2, h: 3.5, rectRadius: 0.2, fill: { color: TEMA.colors.dk2 }, line: { color: TEMA.colors.dk2 }, objectName: 'Semáforo' });
+  const luces = [['2F9E5F', 'Verde', 'Plataforma disponible: autoriza el ingreso. Al cerrar el registro, autoriza el retiro.'],
+    ['D9A21B', 'Amarillo', 'Posicionar la carga o corregir la posición del carro.'],
+    ['C9473B', 'Rojo', 'Mantener la carga detenida mientras el visor captura el peso.']];
+  luces.forEach(([c, h, b], i) => {
+    s.addShape(SH.ellipse, { x: 0.82, y: 1.8 + i * 1.08, w: 0.76, h: 0.76, fill: { color: c }, line: { color: c }, objectName: `Luz ${h.toLowerCase()}` });
+    texto(s, h, { x: 2.1, y: 1.8 + i * 1.08, w: 3.9, h: 0.36, fontFace: CABEZA, fontSize: 17 });
+    texto(s, b, { x: 2.1, y: 2.16 + i * 1.08, w: 3.9, h: 0.7, fontSize: 13, color: P.mut });
+  });
+  texto(s, 'El semáforo queda a la vista del operador de horquilla o tractor.', { x: 0.6, y: 5.3, w: 5.4, h: 0.5, fontSize: 13, bold: true, color: C.accent1 });
+  // Cámaras y visor
+  const cards = [
+    ['Cámara superior', 'Detecta la llegada de cobre, identifica el producto y lee el QR de la etiqueta.'],
+    ['Cámara lateral', 'Verifica la posición de la carga o del carro, distingue si vienen 1 o 2 lingadas y lee las marcas de tara de carro y rack. Alerta si detecta un ánodo en la grilla abierta.'],
+    ['Visor de la báscula', 'Entrega el peso estable al sistema. Con la plataforma vacía y lectura distinta de cero, alerta por nódulos.'],
+  ];
+  cards.forEach(([h, b], i) => {
+    const y = 1.6 + i * 1.72;
+    tarjeta(s, 6.5, y, 6.2, 1.55);
+    texto(s, h, { x: 6.8, y: y + 0.18, w: 5.6, h: 0.4, fontFace: CABEZA, fontSize: 17 });
+    texto(s, b, { x: 6.8, y: y + 0.6, w: 5.6, h: 0.9, fontSize: 13, color: P.mut });
+  });
+  texto(s, 'Ubicación de cámaras, iluminación (día y noche) y secuencia del semáforo se validan en terreno y con los procedimientos de seguridad de Codelco.',
+    { x: 0.6, y: 6.55, w: 12.1, h: 0.35, fontSize: 12, color: P.mut });
 }
 
 /* ===================== 11. La etiqueta ===================== */
 {
-  const s = lamina('Propuesta', 'LA ETIQUETA', 'El rótulo de siempre, impreso y con un código QR');
-  texto(s, '5T21', { x: 0.6, y: 1.55, w: 6.2, h: 1.3, fontFace: CABEZA, fontSize: 80, color: C.text1 });
-  const partes = [['5', 'Celda', 'de 1 a 42'], ['T', 'Lado total', 'P es lado parcial'], ['21', 'Grupo', 'de la cosecha']];
+  const s = lamina('Solución', 'LA ETIQUETA', 'Rótulo estandarizado: legible a distancia y por la cámara');
+  texto(s, '5T21', { x: 0.6, y: 1.5, w: 6.2, h: 1.3, fontFace: CABEZA, fontSize: 80, color: C.text1 });
+  const partes = [['5', 'Celda', 'de 1 a 42'], ['T', 'Lado', 'T total · P parcial'], ['21', 'Grupo', 'de la cosecha'], ['39', 'Cátodos', 'por celda']];
   partes.forEach(([v, h, b], i) => {
-    const x = 0.6 + i * 2.1;
-    tarjeta(s, x, 3.0, 1.95, 1.35);
-    texto(s, v, { x: x + 0.2, y: 3.1, w: 1.6, h: 0.5, fontFace: CABEZA, fontSize: 26, color: C.accent1 });
-    texto(s, h, { x: x + 0.2, y: 3.6, w: 1.6, h: 0.3, fontSize: 14, bold: true });
-    texto(s, b, { x: x + 0.2, y: 3.9, w: 1.6, h: 0.3, fontSize: 12, color: P.mut });
+    const x = 0.6 + i * 1.58;
+    tarjeta(s, x, 2.95, 1.45, 1.35);
+    texto(s, v, { x: x + 0.18, y: 3.05, w: 1.2, h: 0.5, fontFace: CABEZA, fontSize: 26, color: C.accent1 });
+    texto(s, h, { x: x + 0.18, y: 3.55, w: 1.2, h: 0.3, fontSize: 14, bold: true });
+    texto(s, b, { x: x + 0.18, y: 3.85, w: 1.25, h: 0.3, fontSize: 11, color: P.mut });
   });
   texto(s, [
-    { text: 'El QR repite el dato para que la cámara lo lea sin errores.', options: { bullet: true, breakLine: true } },
-    { text: 'Láminas: día, mes y número del mes (21-10 · Nº 263).', options: { bullet: true, breakLine: true } },
-    { text: 'Restos: grupo y número pintado del carro.', options: { bullet: true, breakLine: true } },
-    { text: 'Si la cámara no la lee, el pesador identifica la carga desde la caseta.', options: { bullet: true } },
-  ], { x: 0.6, y: 4.65, w: 6.2, h: 2.1, fontSize: 15, color: P.mut, paraSpaceAfter: 6 });
-  imagen(s, IMG('etq_cat.png'), 7.45, 1.55, { w: 4.6, alt: 'Etiqueta de cátodo 5T21 con QR y cajas de celda, lado y grupo' });
-  imagen(s, IMG('etq_lam.png'), 7.45, 4.85, { w: 2.2, alt: 'Etiqueta de láminas' });
-  imagen(s, IMG('etq_rs.png'), 9.85, 4.85, { w: 2.2, alt: 'Etiqueta de restos de ánodos' });
+    { text: 'Arriba: celda, lado y grupo en caracteres grandes, para lectura a distancia.', options: { bullet: true, breakLine: true } },
+    { text: 'Abajo: QR de mayor tamaño para la cámara superior; no depende de reflejos del cobre.', options: { bullet: true, breakLine: true } },
+    { text: 'Formato Zebra 100 × 70 mm, impresión térmica en origen.', options: { bullet: true, breakLine: true } },
+    { text: 'Si la cámara no lee el QR, el sistema alerta y el pesador identifica la carga.', options: { bullet: true } },
+  ], { x: 0.6, y: 4.6, w: 6.2, h: 2.1, fontSize: 15, color: P.mut, paraSpaceAfter: 6 });
+  imagen(s, IMG('etq_cat_vt.png'), 7.3, 1.55, { w: 5.4, alt: 'Etiqueta de cátodo 5T21: arriba celda, lado y grupo; abajo el QR y 39 cátodos' });
 }
 
 /* ===================== 12. Registro y Excel ===================== */
 {
-  const s = lamina('Propuesta', 'REGISTRO Y EXCEL', 'Todo queda en un registro y sale a Excel por turno');
-  imagen(s, IMG('vt_registro.png'), 0.6, 1.5, { w: 6.3, alt: 'Registro del día en la VT1200: etiquetas, estado en la báscula, hora de pesaje y neto' });
-  texto(s, 'Hojas del Excel', { x: 7.3, y: 1.5, w: 5.4, h: 0.4, fontFace: CABEZA, fontSize: 18 });
-  const hojas = [['Cátodos', 'grupo, cuba, lado, muestra, peso, hora de pesaje y control.'],
-    ['Láminas', 'número, bruto, tara de 12 kg y neto, como la hoja de láminas.'],
-    ['Restos de ánodos', 'carro, bruto, tara de carro + rack, neto y total del grupo.'],
-    ['Resumen', 'las columnas del Resumen del Sistema de Cátodos.']];
+  const s = lamina('Solución', 'REGISTRO Y EXCEL', 'Registro único y trazable, exportable a Excel por turno');
+  imagen(s, IMG('vt_registro.png'), 0.6, 1.5, { w: 6.3, alt: 'Registro del día en la VT1200: etiquetas emitidas, estado de pesaje, hora y neto' });
+  texto(s, 'Contenido del registro', { x: 7.3, y: 1.5, w: 5.4, h: 0.4, fontFace: CABEZA, fontSize: 18 });
+  const hojas = [['Cátodos', 'grupo, cuba, lado, muestra, peso, hora real de pesaje y validación.'],
+    ['Pendientes', 'etiquetas emitidas sin pesaje asociado, para seguimiento y cierre del grupo.'],
+    ['Resumen', 'columnas Lado-P, Lado-T, Muestra, Tot-peso y Tot-coli.']];
   texto(s, hojas.map(([h, b], i) => [{ text: h + ': ', options: { bold: true, color: TEMA.colors.dk1 } }, { text: b, options: { breakLine: i < hojas.length - 1 } }]).flat(),
     { x: 7.3, y: 2.0, w: 5.4, h: 2.2, fontSize: 14, color: P.mut, paraSpaceAfter: 8 });
   texto(s, 'Resumen del grupo 21 del 22-10, en el formato del Excel', { x: 7.3, y: 4.45, w: 5.4, h: 0.3, fontSize: 13, bold: true });
@@ -459,48 +448,47 @@ pres.addSection({ title: 'Propuesta' });
   const fila = [kg(totP), kg(totT), kg(MUESTRA), kg(total), '35'].map(t => ({ text: t, options: { align: 'center' } }));
   s.addTable([cab, fila], { x: 7.3, y: 4.85, w: 5.4, colW: [1.08, 1.08, 1.08, 1.08, 1.08], fontSize: 13, color: TEMA.colors.dk1,
     border: { type: 'solid', pt: 0.75, color: P.linea }, rowH: [0.4, 0.42], valign: 'middle' });
-  texto(s, 'Cada fila trae además la hora real en que la báscula tomó el peso.', { x: 7.3, y: 5.85, w: 5.4, h: 0.5, fontSize: 13, color: P.mut });
+  texto(s, 'Historial auditable: cada fila guarda la hora real en que la báscula capturó el peso.', { x: 7.3, y: 5.85, w: 5.4, h: 0.5, fontSize: 13, color: P.mut });
 }
 
 /* ===================== 13. Demo ===================== */
 {
-  const s = lamina('Propuesta', 'PRUÉBELO', 'La app de la VT1200 y una simulación de la báscula');
-  imagen(s, IMG('app_impresa.jpg'), 0.6, 1.45, { w: 6.9, alt: 'Captura de TerminalVentanas.exe: etiqueta 5T21 impresa, Báscula N9 en cero y mapa del grupo 21' });
+  const s = lamina('Solución', 'PRUÉBELO', 'La app de la VT1200 y una simulación de la báscula');
+  imagen(s, IMG('app_impresa.jpg'), 0.6, 1.45, { w: 6.9, alt: 'Captura de TerminalVentanas.exe: etiqueta 5T21 impresa y grupos 21 y 22' });
   texto(s, 'Captura de TerminalVentanas.exe, la app que se instala en la VT1200.', { x: 0.6, y: 6.7, w: 6.9, h: 0.25, fontSize: 11, color: P.mut });
-  const bloques = [['App para la VT1200', 'TerminalVentanas.exe: un programa de Windows que se instala copiando una carpeta. No usa navegador ni internet y no necesita nada más instalado.'],
-    ['Qué hace', 'Imprime la etiqueta en la Zebra, muestra la báscula en vivo, deja corregir el pesaje en la pantalla Báscula y guarda el registro y el Excel en el equipo.'],
-    ['Simulación de la báscula', 'Para mostrar la propuesta en reunión: tres productos, dos pallets montados y siete situaciones. Los pesos son los de la visita; todavía no se conecta a la Báscula N9.']];
+  const bloques = [['App para la VT1200', 'TerminalVentanas.exe: aplicación Windows autónoma (.NET 8). No usa navegador ni internet; se instala copiando una carpeta.'],
+    ['Funciones', 'Selección de grupo en el layout, emisión de la etiqueta en la Zebra, seguimiento de pendientes de pesaje, registro y Excel.'],
+    ['Simulación de la báscula', 'Maniobra completa con cámaras, semáforo y casos de error, con los pesos reales de la visita.']];
   bloques.forEach(([h, b], i) => {
     const y = 1.55 + i * 1.7;
     texto(s, h, { x: 7.95, y, w: 4.75, h: 0.4, fontFace: CABEZA, fontSize: 18 });
     texto(s, b, { x: 7.95, y: y + 0.45, w: 4.75, h: 1.15, fontSize: 14, color: P.mut });
   });
-  s.addNotes('La app de la VT1200 es un .exe nativo de Windows, self-contained: trae el runtime de .NET 8, no abre navegador y funciona sin internet. Release terminal-ventanas-v2.0.0 en GitHub. La simulación de la báscula es solo para presentar.');
 }
 
 /* ===================== 14. Supuestos ===================== */
 pres.addSection({ title: 'Cierre' });
 {
-  const s = lamina('Cierre', 'SUPUESTOS', 'Lo que asumimos y lo que falta confirmar');
+  const s = lamina('Cierre', 'SUPUESTOS', 'Supuestos y puntos por validar');
   const listas = [
     ['Supuestos de esta propuesta', [
-      'La etiqueta se imprime y se pega en la nave, donde hoy se rotula con plumón; no lleva peso.',
-      'El pesador sigue en la caseta y ve todo en su PC.',
-      'Rangos de peso tomados de la visita: cátodos 4.200 a 5.000 kg, restos 2.800 a 4.000 kg, láminas aprobadas 3.200 a 3.900 kg.',
-      'Taras de carro + rack de ejemplo, hasta tener la lista real.']],
-    ['Por confirmar con Codelco', [
-      'Cátodos EW: hoy llegan a la báscula sin rótulo.',
-      'Láminas rechazo C/O y los rangos de C.O y rechazo S/O.',
-      'Si el terminal de pesaje entrega la lectura de cada celda de carga.',
-      'Qué es el lado "M" del Sistema de Ánodos.',
-      'Si el peso tiene que ir escrito en el paquete o basta con que quede en el registro.',
-      'Otros productos poco frecuentes que pasan por la báscula.']],
+      'Etiqueta emitida en origen por lingada de 39 cátodos; no lleva peso.',
+      'El pesador supervisa desde la caseta, en su PC.',
+      'Rangos de la visita: cátodos 4.200 a 5.000 kg, restos 2.800 a 4.000 kg, láminas aprobadas 3.200 a 3.900 kg.',
+      'Taras de carro y rack de ejemplo, hasta contar con la base validada.']],
+    ['Por validar con Codelco', [
+      'Salida de datos del visor hacia el sistema.',
+      'Ubicación, óptica e iluminación de las dos cámaras (día y noche).',
+      'Lógica del semáforo según los procedimientos de seguridad.',
+      'Ubicación estandarizada de las marcas de tara de carro y rack.',
+      'Cátodos EW: hoy sin rótulo.',
+      'Láminas rechazo C/O y rangos de C.O y rechazo S/O.']],
   ];
-  listas.forEach(([h, items], i) => {
+  listas.forEach(([h, it], i) => {
     const x = 0.6 + i * 6.15;
     tarjeta(s, x, 1.6, 5.95, 5.1, i === 1 ? { fill: { color: P.cobreSuave }, line: { color: TEMA.colors.accent2, width: 1 } } : undefined);
     texto(s, h, { x: x + 0.4, y: 1.9, w: 5.2, h: 0.45, fontFace: CABEZA, fontSize: 20 });
-    texto(s, items.map((t, k) => ({ text: t, options: { bullet: true, breakLine: k < items.length - 1 } })),
+    texto(s, it.map((t, j) => ({ text: t, options: { bullet: true, breakLine: j < it.length - 1 } })),
       { x: x + 0.4, y: 2.5, w: 5.2, h: 4.0, fontSize: 15, color: P.mut, paraSpaceAfter: 10 });
   });
 }
@@ -509,11 +497,11 @@ pres.addSection({ title: 'Cierre' });
 {
   const s = lamina('Cierre', 'PRÓXIMOS PASOS', 'Cómo seguimos', 'CIERRE');
   const pasos = [
-    ['Validar', 'Revisar el flujo y las pantallas con la nave, el pesador y supervisión.'],
-    ['Datos', 'Recibir la lista de taras de carro + rack y confirmar los rangos por producto.'],
-    ['Terreno', 'Confirmar la salida de datos del terminal de pesaje y ubicar cámara y balizas.'],
-    ['Piloto', 'Partir en la Báscula N9 con cátodos comerciales.'],
-    ['Ampliar', 'Sumar láminas y restos, y conectar el registro con los sistemas de Codelco.'],
+    ['Validar', 'Revisar flujo y pantallas con operadores, pesador y supervisión.'],
+    ['Taras', 'Base validada de carros, racks y pallets, con código único por estructura.'],
+    ['Terreno', 'Salida de datos del visor, ubicación de cámaras y semáforo, pruebas día y noche.'],
+    ['PoC', 'Prueba de concepto en la Báscula N9 con cátodos comerciales.'],
+    ['Ampliar', 'Láminas y restos de ánodos, e integración con los sistemas de Codelco.'],
   ];
   s.addShape(SH.line, { x: 1.01, y: 3.11, w: 10.0, h: 0, line: { color: '35505C', width: 2 } });
   pasos.forEach(([h, b], i) => {

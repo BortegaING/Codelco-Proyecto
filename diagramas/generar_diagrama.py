@@ -56,73 +56,73 @@ def baliza(x, y, color, txt):
 
 # ---------- Fondo, título y carriles ----------
 add(f'<rect width="{W}" height="{H}" fill="#FFFFFF"/>')
-texto(40, 52, "Flujo propuesto · Báscula N9 · Refinería Ventanas", 28, 700, C["ink"])
-texto(40, 82, "La etiqueta identifica la carga, la báscula controla el peso y todo queda en un solo registro, con la hora real del pesaje.", 16, 400, C["mut"])
-carriles = [(30, 305, "1 · Nave", "VT1200 + impresora Zebra"),
-            (345, 255, "2 · Traslado", "Grúa horquilla o tractor"),
-            (615, 640, "3 · Báscula N9", "Cámara, 4 celdas de carga y balizas"),
-            (1270, 300, "4 · Registro", "Excel y sistemas de Codelco")]
+texto(40, 52, "Flujo del sistema de trazabilidad y pesaje · Báscula N9", 28, 700, C["ink"])
+texto(40, 82, "Identificación estandarizada en origen, lectura por visión artificial y captura automática del peso en un registro único, con la hora real.", 16, 400, C["mut"])
+carriles = [(30, 305, "1 · Origen", "Cosecha de cátodos en la nave"),
+            (345, 255, "2 · Traslado", "Horquilla o tractor"),
+            (615, 640, "3 · Báscula N9", "Visor, 4 celdas de carga, 2 cámaras y semáforo"),
+            (1270, 300, "4 · Registro", "Registro único y seguimiento")]
 for i, (x, w, t, s) in enumerate(carriles):
     add(f'<rect x="{x}" y="110" width="{w}" height="820" rx="16" fill="{C["carril"] if i % 2 == 0 else C["carril2"]}" stroke="#E3E9EC"/>')
     texto(x + 20, 142, t.upper(), 15, 700, C["cobre"])
     texto(x + 20, 163, s, 13.5, 400, C["mut"])
 
 # ---------- 1 · Nave ----------
-caja(50, 190, 270, 170, "Elige lo que sigue",
-     "La VT1200 ya propone la celda + lado + grupo (cátodos), el tipo y Nº del mes (láminas) o pide el Nº pintado del carro (restos).", "1")
-caja(50, 400, 270, 130, "Imprime la etiqueta", "Un toque. Sale el rótulo de siempre (5T21, Nº 274, C22) con un código QR.", "2")
-caja(50, 570, 270, 130, "La pega en la carga", "Arriba del paquete, en el pallet o junto al número pintado del carro.", "3")
+caja(50, 190, 270, 170, "Selecciona grupo y celda",
+     "Paso 1: grupo en el layout de circuitos. Paso 2: el sistema propone la celda que sigue (celda + lado + grupo).", "1")
+caja(50, 400, 270, 130, "Emite la etiqueta", "Rótulo estandarizado (5T21) con QR y 39 cátodos. Queda pendiente de pesaje.", "2")
+caja(50, 570, 270, 130, "Fija la etiqueta", "Sobre la lingada, visible para la cámara superior.", "3")
 flecha([(185, 360), (185, 398)])
 flecha([(185, 530), (185, 568)])
 
 # ---------- 2 · Traslado ----------
-caja(362, 400, 220, 130, "Grúa horquilla", "Paquetes de cátodos y pallets de láminas.")
-caja(362, 570, 220, 130, "Tractor", "Carros de restos de ánodos con su rack.")
+caja(362, 400, 220, 130, "Horquilla", "Lingadas de cátodos rotuladas, directo a la plataforma.")
+caja(362, 570, 220, 130, "Tractor", "Carro con rack de restos de ánodos.")
 flecha([(320, 635), (360, 635)])
 flecha([(320, 635), (340, 635), (340, 465), (360, 465)])
 
 # ---------- 3 · Báscula N9 ----------
 cx = 845
-caja(705, 190, 280, 112, "Llega la carga", "La báscula marca el peso en vivo y la cámara lee el QR.", "4")
+caja(705, 190, 280, 112, "Ingreso a la plataforma", "Semáforo verde. La cámara superior lee el QR; la lateral, la posición.", "4")
 flecha([(582, 465), (650, 465), (650, 246), (703, 246)])
 flecha([(582, 635), (650, 635), (650, 465)])
 rombo(cx, 372, 250, 92, "¿Etiqueta leída?")
 flecha([(cx, 302), (cx, 324)])
-caja(1030, 336, 205, 98, "Identifica el pesador", "Desde la caseta. B1 ámbar.", bg=C["amb_bg"], borde=C["amb"], color_t="#7A5A00")
+caja(1030, 336, 205, 98, "Alerta: lectura manual", "El pesador identifica la carga a mano.", bg=C["amb_bg"], borde=C["amb"], color_t="#7A5A00")
 flecha([(cx + 125, 372), (1028, 372)], "No", (998, 362))
 flecha([(1132, 434), (1132, 452), (cx + 30, 452), (cx + 30, 470)], guion=True)
-rombo(cx, 520, 300, 104, "¿Grúa fuera, carga en", "el área y báscula en cero?")
+rombo(cx, 520, 300, 104, "¿Carga en el área, sin", "vehículo y visor en cero?")
 flecha([(cx, 418), (cx, 466)], "Sí", (cx - 26, 444))
-caja(1030, 478, 205, 112, "Bloqueado", "No registra hasta corregir. B2 roja.", bg=C["roj_bg"], borde=C["roj"], color_t=C["roj"])
+caja(1030, 478, 205, 112, "Bloqueo", "No captura el peso hasta corregir. Semáforo amarillo.", bg=C["roj_bg"], borde=C["roj"], color_t=C["roj"])
 flecha([(cx + 150, 520), (1028, 520)], "No", (1000, 510))
 flecha([(1080, 590), (1080, 612), (cx + 60, 612), (cx + 60, 560)], guion=True, color=C["roj"])
-caja(705, 640, 280, 96, "Peso estable", "Espera que deje de moverse. B2 ámbar y luego verde.", "5")
+caja(705, 640, 280, 96, "Captura del peso", "Semáforo rojo: mantener la carga. El visor entrega el peso estable.", "5")
 flecha([(cx, 572), (cx, 638)], "Sí", (cx - 26, 600))
-caja(705, 760, 280, 112, "Calcula el neto", "Tara 12 kg por pallet, tara de carro + rack, o dos pallets por diferencia.", "6")
+caja(705, 760, 280, 112, "Peso neto", "Descuenta las taras validadas (carro + rack, leídas por la cámara lateral).", "6")
 flecha([(cx, 736), (cx, 758)])
-rombo(1110, 816, 230, 92, "¿Dentro de lo", "esperado?")
+rombo(1110, 816, 230, 92, "¿Dentro del", "rango esperado?")
 flecha([(985, 816), (993, 816)])
 
 # ---------- 4 · Registro ----------
-caja(1290, 190, 260, 150, "Registro único", "Etiqueta, peso, hora real del pesaje y lo que dijo el control. Sin digitar.", "7")
-caja(1290, 380, 260, 150, "Excel por turno", "Hojas Cátodos, Láminas, Restos de ánodos y un Resumen con las columnas del Sistema de Cátodos.", "8")
-caja(1290, 570, 260, 150, "Sistemas de Codelco", "Sistema de Cátodos y Sistema de Ánodos. Primero con el Excel; la conexión directa se define con TI.", "9")
+caja(1290, 190, 260, 150, "Registro único", "Identificación, peso bruto y neto, hora real y validaciones. Sin digitación. Semáforo verde: retirar.", "7")
+caja(1290, 380, 260, 150, "Excel por turno", "Hoja de cátodos y Resumen con las columnas Lado-P, Lado-T, Muestra y totales.", "8")
+caja(1290, 570, 260, 150, "Pendientes de pesaje", "Etiquetas emitidas sin peso asociado: alerta para seguimiento y cierre del grupo.", "9")
 flecha([(1420, 340), (1420, 378)])
 flecha([(1420, 530), (1420, 568)])
 flecha([(1225, 816), (1250, 816), (1250, 265), (1288, 265)], "Sí", (1250, 300), C["ver"])
-caja(1290, 760, 260, 112, "Se registra con nota", "Peso fuera de lo esperado: B1 roja, el pesador revisa.", bg=C["roj_bg"], borde=C["roj"], color_t=C["roj"])
+caja(1290, 760, 260, 112, "Registro con observación", "Peso fuera de rango: queda marcado para revisión del pesador.", bg=C["roj_bg"], borde=C["roj"], color_t=C["roj"])
 flecha([(1110, 862), (1110, 900), (1420, 900), (1420, 874)], "No", (1180, 900), C["roj"])
 flecha([(1550, 816), (1575, 816), (1575, 265), (1552, 265)], guion=True, color=C["roj"])
 
 # ---------- Balizas ----------
-texto(40, 965, "Balizas:", 13.5, 700, C["ink"])
-baliza(118, 960, "#2F9E5F", "B1 verde: peso coincide con lo etiquetado")
-baliza(430, 960, "#D9A21B", "Ámbar: falta identificar o se estabiliza")
-baliza(735, 960, "#C9473B", "Roja: grúa encima, carro fuera, sin cero o peso fuera de lo esperado")
+texto(40, 965, "Semáforo:", 13.5, 700, C["ink"])
+baliza(128, 960, "#2F9E5F", "Verde: plataforma disponible, ingresar o retirar")
+baliza(500, 960, "#D9A21B", "Amarillo: posicionar la carga o lectura manual")
+baliza(870, 960, "#C9473B", "Rojo: mantener la carga mientras se captura el peso")
 
 svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" '
-       f'aria-label="Flujo propuesto para la Báscula N9: nave, traslado, báscula y registro">'
-       f'<title>Flujo propuesto · Báscula N9</title>'
+       f'aria-label="Flujo del sistema de trazabilidad y pesaje de la Báscula N9: origen, traslado, báscula y registro">'
+       f'<title>Flujo del sistema · Báscula N9</title>'
        f'<defs>'
        + "".join(f'<marker id="{i}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="{c}"/></marker>' for c, i in PUNTA.items()) + '</defs>' + "".join(partes) + "</svg>")
 destino = os.path.join(os.path.dirname(os.path.abspath(__file__)), "flujo-bascula-n9.svg")

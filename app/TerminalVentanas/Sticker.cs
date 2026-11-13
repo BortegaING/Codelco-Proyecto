@@ -46,20 +46,23 @@ public static class Sticker
         id.HorizontalAlignment = HorizontalAlignment.Right;
         var arriba = Ui.Columnas("auto *", 6, tag, id);
 
+        // Arriba los números que se leen de lejos (celda, lado y grupo); abajo el QR, grande, y lo que trae la carga
         var cajas = new UniformGrid3();
         foreach (var c in l.Cajas)
         {
             var caja = new Border
             {
-                BorderBrush = Ui.Negro, BorderThickness = new Thickness(2), Margin = new Thickness(1.5, 0, 1.5, 0), Padding = new Thickness(0, 1, 0, 2),
-                Child = Ui.Columna(Centro(Ui.T(c[0], 8, FontWeights.Bold, Ui.Negro, Ui.Cond, true)), Centro(Ui.T(c[1], 26, FontWeights.Bold, Ui.Negro, Ui.Cond))),
+                BorderBrush = Ui.Negro, BorderThickness = new Thickness(2), Margin = new Thickness(1.5, 0, 1.5, 0), Padding = new Thickness(0, 0, 0, 1),
+                Child = Ui.Columna(Centro(Ui.T(c[0], 7.5, FontWeights.Bold, Ui.Negro, Ui.Cond, true)), Centro(Ui.T(c[1], 27, FontWeights.Bold, Ui.Negro, Ui.Cond))),
             };
             cajas.Panel.Children.Add(caja);
         }
-        var medio = Ui.Columnas("78 *", 7, Qr(l.Qr, 78), cajas.Panel);
-        medio.VerticalAlignment = VerticalAlignment.Center;
-        var pie = Ui.T(l.Pie, 9, FontWeights.Medium, Ui.Negro);
-        var cuerpo = Ui.Filas("auto * auto", 4, arriba, medio, pie);
+        var cant = l.Prod == "cat" && !l.Ref.M && l.Ref.Cant > 1 ? Ui.T($"{l.Ref.Cant} CÁTODOS", 21, FontWeights.Bold, Ui.Negro, Ui.Cond) : null;
+        var pie = Ui.T(l.Pie, 8.5, FontWeights.Medium, Ui.Negro, ajustar: true);
+        var der = cant != null ? Ui.Columna(cant, pie.Margen(0, 3, 0, 0)) : Ui.Columna(pie);
+        der.VerticalAlignment = VerticalAlignment.Center;
+        var abajo = Ui.Columnas("86 *", 8, Qr(l.Qr, 86), der);
+        var cuerpo = Ui.Filas("auto auto *", 5, arriba, cajas.Panel, abajo);
 
         var hoja = new Grid();
         hoja.Children.Add(new Border { Padding = new Thickness(8, 7, 8, 7), Child = cuerpo });

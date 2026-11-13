@@ -58,9 +58,41 @@ public partial class MainWindow
                     Acciones(BotonVentana("Cancelar", Cerrar)));
             }
             case "grupo":
-                return Ventana(560, Encabezado("Cátodos", "¿Qué grupo va a etiquetar?"), Dsp("Grupo", md.Val.Length > 0 ? md.Val : "—", 46), Teclado(Kp, 64, 28),
-                    Acciones(BotonVentana("Aceptar", OkGrupo, true, md.Val.Length == 0), BotonVentana("Cancelar", Cerrar)),
-                    Acciones(BotonVentana($"Terminar el grupo {G.G}", () => Abrir("terminar"), icono: Iconos.Warn, color: Ui.AmbarT)));
+            {
+                // Paso 1: el layout de la nave, como el plano de circuitos. Se toca el grupo que se va a rotular
+                Border BotGrupo(int g)
+                {
+                    var lam = D.EsLaminas(g); var actual = g == S.Grupo;
+                    var hechas = S.Grupos.TryGetValue(g, out var gg) ? gg.Celdas.Count : 0;
+                    var txt = Ui.T($"Grupo {g}", 17, Bold, actual ? Ui.SobreCobre : lam ? Ui.Mut2 : Ui.Tinta, Ui.Cond);
+                    UIElement c = actual ? txt
+                        : hechas > 0 ? Ui.Fila(txt, Ui.T($"· {hechas}", 14, SemiBold, Ui.CobreClaro, Ui.Cond).Margen(5, 0, 0, 0)) : txt;
+                    var b = Ui.Boton(c, lam ? null : A(() => ElegirGrupo(g)), actual ? Ui.Cobre : lam ? Brushes.Transparent : Ui.Panel, actual ? Ui.Cobre : Ui.Linea3, 8, new Thickness(6, 0, 6, 0), 42, new Thickness(actual ? 2 : 1));
+                    if (lam) b.Opacity = 0.55;
+                    return b;
+                }
+                UIElement Bloque(string nombre, (int A, int B)[] pares, string? pie = null)
+                {
+                    var bts = new List<UIElement>();
+                    foreach (var (a, b) in pares) { bts.Add(BotGrupo(a)); bts.Add(BotGrupo(b)); }
+                    var cab = new Border { Background = Ui.Panel2, CornerRadius = new CornerRadius(9, 9, 0, 0), Padding = new Thickness(0, 6, 0, 6), Child = Centro(Ui.T(nombre.ToUpperInvariant(), 16, Bold, Ui.Tinta, Ui.Cond)) };
+                    var col = Ui.Columna(cab, Ui.Grilla(2, bts, 6).Margen(9, 9, 9, pie == null ? 9 : 4));
+                    if (pie != null) col.Children.Add(Centro(Ui.T(pie, 13, SemiBold, Ui.Mut, Ui.Cond, true)).Margen(0, 0, 0, 8));
+                    return new Border { BorderBrush = Ui.Linea2, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10), Child = col };
+                }
+                var cs = D.Circuitos;
+                var fila1 = Ui.Columnas("* * * *", 10, Bloque(cs[0].Nombre, cs[0].Pares), Bloque(cs[1].Nombre, cs[1].Pares), Bloque(cs[2].Nombre, cs[2].Pares), Bloque(cs[3].Nombre, cs[3].Pares));
+                var ew = new Border
+                {
+                    BorderBrush = Ui.Linea2, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10), Padding = new Thickness(14, 12, 14, 12), VerticalAlignment = VerticalAlignment.Top,
+                    Child = Ui.Columna(Ui.T("EW", 26, Bold, Ui.VerdeT, Ui.Cond), Ui.T("Cátodos electro-obtenidos: hoy llegan sin rótulo. Por confirmar con Codelco.", 14, Medium, Ui.Mut, ajustar: true).Margen(0, 4, 0, 0)),
+                };
+                var nota = Ui.T($"Toque el grupo que va a rotular. El mapa de la pantalla muestra ese grupo y el que sigue. Los grupos 1 y 2 son el circuito de láminas.", 15, Medium, Ui.Mut, ajustar: true);
+                nota.VerticalAlignment = VerticalAlignment.Top;
+                var fila2 = Ui.Columnas("* * 2*", 10, Bloque(cs[4].Nombre, cs[4].Pares, "1 y 2: circuito de láminas"), Bloque(cs[5].Nombre, cs[5].Pares), Ui.Filas("auto auto", 12, ew, nota));
+                return Ventana(984, Encabezado("Paso 1 · Layout de la nave", "¿Qué grupo va a rotular?"), fila1, fila2,
+                    Acciones(BotonVentana($"Terminar el grupo {G.G}", () => Abrir("terminar"), icono: Iconos.Warn, color: Ui.AmbarT), BotonVentana("Cancelar", Cerrar)));
+            }
             case "terminar":
             {
                 var a = D.Orden.Take(21).Count(n => G.Celdas.ContainsKey(n)); var b = D.Orden.Skip(21).Count(n => G.Celdas.ContainsKey(n));
@@ -166,7 +198,7 @@ public partial class MainWindow
             if (l.Ctrl.Length > 0 && l.Ctrl != "Dentro de rango") notas.Add(l.Ctrl.Replace("Dentro de rango · ", "").ToLowerInvariant());
             if (notas.Count > 0) det.Inlines.Add(new System.Windows.Documents.Run(" · " + string.Join(" · ", notas)) { Foreground = Ui.AmbarL, FontSize = 14 });
             Celda(det, r, 2);
-            var (fc, txt) = l.Estado switch { "pesada" => (Ui.ChipEstable, "PESADA"), "bascula" => (Ui.ChipInestable, "EN LA BÁSCULA"), "sintara" => (Ui.ChipBloqueado, "SIN TARA"), _ => (Ui.ChipEspera, "EN CAMINO") };
+            var (fc, txt) = l.Estado switch { "pesada" => (Ui.ChipEstable, "PESADA"), "bascula" => (Ui.ChipInestable, "EN LA BÁSCULA"), "sintara" => (Ui.ChipBloqueado, "SIN TARA"), _ => (Ui.ChipEspera, "PENDIENTE") };
             var est = new Border { Background = fc, CornerRadius = new CornerRadius(999), Padding = new Thickness(10, 3, 10, 4), HorizontalAlignment = HorizontalAlignment.Left, Child = Ui.T(txt, 13, Bold, Ui.SobreChip, Ui.Cond) };
             Celda(l.Hp.Length > 0 ? Ui.Columna(est, Ui.T(l.Hp, 14, SemiBold, Ui.Mut, Ui.Mono).Margen(2, 4, 0, 0)) : est, r, 3);
             var neto = Ui.T(l.Estado == "pesada" ? $"{D.Kg(l.Neto)} kg" : "—", 17, Medium, Ui.Tinta, Ui.Mono); neto.HorizontalAlignment = HorizontalAlignment.Right;
@@ -175,7 +207,7 @@ public partial class MainWindow
             var id = l.Id; var esta = l;
             if (l.Prod != "sub" && !l.Manual)
                 bts.Children.Add(Ui.Boton(Ui.T("REIMPRIMIR", 16, SemiBold, Ui.Tinta, Ui.Cond), A(() => Reimprimir(esta)), Brushes.Transparent, Ui.Linea2, 10, new Thickness(14, 0, 14, 0), 50).Margen(0, 0, 8, 0));
-            bts.Children.Add(Ui.Boton(Ui.T("EDITAR", 16, SemiBold, Ui.CobreClaro, Ui.Cond), A(() => Editar(id)), Brushes.Transparent, Ui.Cobre, 10, new Thickness(14, 0, 14, 0), 50));
+
             Celda(bts, r, 5);
             r++;
         }
@@ -203,11 +235,7 @@ public partial class MainWindow
         }
         var col = Ui.Columna(
             Ui.T("PANEL DE PRUEBA", 24, Bold, Ui.Tinta, Ui.Cond),
-            Ui.T("Solo para la demostración: simula lo que pasa en la báscula. Se abre y se cierra con F2.", 14, Medium, Ui.Mut, ajustar: true).Margen(0, 4, 0, 16),
-            Esc1("grua", "Grúa encima", "La próxima carga marca 1.850 kg de más y queda bloqueada hasta que la grúa sale.", Esc.Grua),
-            Esc1("fuera", "Carro fuera del área", "El próximo carro de restos marca 960 kg de menos y queda bloqueado hasta que se acomoda.", Esc.Fuera),
-            Esc1("cero", "Báscula sin cero", "Vacía marca 6 kg (nódulos en la junta) y no registra hasta volver a cero.", Esc.Cero),
-            Esc1("caja", "Caja sin etiqueta", "Llega una caja de despuntes: queda en la báscula hasta que se ingresa en la pantalla Báscula.", false),
+            Ui.T("Solo para la demostración. Se abre y se cierra con F2. La Báscula N9 está simulada: pesa cada etiqueta impresa unos segundos después y la marca como pesada en el mapa.", 14, Medium, Ui.Mut, ajustar: true).Margen(0, 4, 0, 16),
             Ui.Boton(Ui.T("REINICIAR EL REGISTRO", 18, SemiBold, Ui.RojoT, Ui.Cond), () => { _panelAbierto = false; Persistencia.Olvidar(); Arrancar(false); }, Brushes.Transparent, Ui.ErrBorde, 10, new Thickness(14, 0, 14, 0), 52).Margen(0, 6, 0, 10),
             Ui.Boton(Ui.T("CERRAR EL PANEL", 18, SemiBold, Ui.SobreCobre, Ui.Cond), () => { _panelAbierto = false; RenderPanel(); }, Ui.Cobre, Ui.Cobre, 10, new Thickness(14, 0, 14, 0), 52));
         var cajon = new Border { Width = 360, HorizontalAlignment = HorizontalAlignment.Right, Background = Ui.Panel, BorderBrush = Ui.Cobre, BorderThickness = new Thickness(2, 0, 0, 0), Padding = new Thickness(20, 20, 20, 20), Child = new ScrollViewer { Content = col, VerticalScrollBarVisibility = ScrollBarVisibility.Auto } };

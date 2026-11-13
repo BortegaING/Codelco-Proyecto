@@ -51,10 +51,28 @@ public static class D
     /// <summary>Pesos de cajas de despuntes del 21-10 (D.G 329, 400 y 312; D.O 1.192) para la caja sin etiqueta del panel de prueba.</summary>
     public static readonly int[] CajasEj = { 329, 400, 312, 1192 };
 
+    /// <summary>Cátodos que trae cada celda (una lingada): va impreso en la etiqueta.</summary>
+    public const int CatodosCelda = 39;
+
+    /// <summary>
+    /// Layout de la nave (lámina "Layout circuito láminas cátodos"): cada circuito con sus grupos de a dos, como se ven en el plano.
+    /// Los grupos 1 y 2 son el circuito de láminas: no se rotulan como cátodos. EW va aparte.
+    /// </summary>
+    public static readonly (string Nombre, (int A, int B)[] Pares)[] Circuitos =
+    {
+        ("Circuito IV", new[] { (32, 25), (31, 26), (30, 27), (29, 28) }),
+        ("Circuito III", new[] { (24, 17), (23, 18), (22, 19), (21, 20) }),
+        ("Circuito V", new[] { (40, 33), (39, 34), (38, 35), (37, 36) }),
+        ("Circuito VI", new[] { (48, 41), (47, 42), (46, 43), (45, 44) }),
+        ("Circuito I", new[] { (4, 5), (3, 6), (2, 7), (1, 8) }),
+        ("Circuito II", new[] { (12, 13), (11, 14), (10, 15), (9, 16) }),
+    };
+    public static bool EsLaminas(int g) => g is 1 or 2;
+
     /// <summary>Orden de pesaje del 22-10: celdas 1 a 21 subiendo y después desde la 42 bajando.</summary>
     public static readonly int[] Orden = Enumerable.Range(1, 21).Concat(Enumerable.Range(22, 21).Reverse()).ToArray();
     public static readonly Dictionary<string, string> LadoTxt = new() { ["T"] = "total", ["P"] = "parcial" };
-    public static readonly Dictionary<string, string> EstTxt = new() { ["camino"] = "En camino", ["bascula"] = "En la báscula", ["pesada"] = "Pesada", ["sintara"] = "Sin tara" };
+    public static readonly Dictionary<string, string> EstTxt = new() { ["camino"] = "Pendiente de pesaje", ["bascula"] = "En la báscula", ["pesada"] = "Pesada", ["sintara"] = "Sin tara" };
     /// <summary>Lo esperado por producto (las reglas de la simulación). C.O, rechazo S/O y la muestra todavía no tienen rango.</summary>
     public static readonly Dictionary<string, (int Min, int Max)> Rango = new() { ["cat"] = (4200, 5000), ["aprob"] = (3200, 3900), ["rs"] = (2800, 4000) };
 
