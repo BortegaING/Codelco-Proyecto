@@ -51,7 +51,7 @@ public partial class MainWindow
         {
             case "lado":
             {
-                var k = md.Val; var r = k == "a" ? "1 a 21" : "42 a 22"; var actual = k == "a" ? G.LadoA : G.LadoB;
+                var k = md.Val; var r = k == "a" ? "1 a 21" : "22 a 42"; var actual = k == "a" ? G.LadoA : G.LadoB;
                 void Poner(string v) { if (k == "a") G.LadoA = v; else G.LadoB = v; S.Msg = null; Cerrar(); }
                 return Ventana(720, Encabezado($"Grupo {G.G} · celdas {r}", "¿Se sacan las 21 celdas de este lado?"),
                     Ui.Columnas("* *", 12, Opcion("Sí, las 21", "Lado total · T", actual == "T", () => Poner("T")), Opcion("No, solo algunas", "Lado parcial · P", actual == "P", () => Poner("P"))),
@@ -87,7 +87,7 @@ public partial class MainWindow
                     BorderBrush = Ui.Linea2, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10), Padding = new Thickness(14, 12, 14, 12), VerticalAlignment = VerticalAlignment.Top,
                     Child = Ui.Columna(Ui.T("EW", 26, Bold, Ui.VerdeT, Ui.Cond), Ui.T("Cátodos electro-obtenidos: hoy llegan sin rótulo. Por confirmar con Codelco.", 14, Medium, Ui.Mut, ajustar: true).Margen(0, 4, 0, 0)),
                 };
-                var nota = Ui.T($"Toque el grupo que va a rotular. La pantalla lo muestra con sus celdas 1 a 21 arriba y 42 a 22 abajo. Los grupos 1 y 2 son el circuito de láminas.", 15, Medium, Ui.Mut, ajustar: true);
+                var nota = Ui.T($"Toque el grupo que va a rotular. La pantalla lo muestra con sus celdas 1 a 21 arriba y 22 a 42 abajo. Los grupos 1 y 2 son el circuito de láminas.", 15, Medium, Ui.Mut, ajustar: true);
                 nota.VerticalAlignment = VerticalAlignment.Top;
                 var fila2 = Ui.Columnas("* * 2*", 10, Bloque(cs[4].Nombre, cs[4].Pares, "1 y 2: circuito de láminas"), Bloque(cs[5].Nombre, cs[5].Pares), Ui.Filas("auto auto", 12, ew, nota));
                 return Ventana(984, Encabezado("Paso 1 · Layout de la nave", "¿Qué grupo va a rotular?"), fila1, fila2,
@@ -102,7 +102,7 @@ public partial class MainWindow
                     Child = Ui.Columnas("* auto", 10, Ui.T(izq, 18, Medium, Ui.Tinta), Ui.T(der, 18, Bold, Ui.CobreClaro)),
                 };
                 return Ventana(720, Encabezado($"Grupo {G.G}", "¿Terminar el grupo?"),
-                    Ui.Columna(Linea($"Celdas 1 a 21 · lado {LadoTxt(G.LadoA)}", $"{a} paquetes"), Linea($"Celdas 42 a 22 · lado {LadoTxt(G.LadoB)}", $"{b} paquetes"), Linea("Muestra", G.MuestraH != null ? "Sí" : "No")),
+                    Ui.Columna(Linea($"Celdas 1 a 21 · lado {LadoTxt(G.LadoA)}", $"{a} paquetes"), Linea($"Celdas 22 a 42 · lado {LadoTxt(G.LadoB)}", $"{b} paquetes"), Linea("Muestra", G.MuestraH != null ? "Sí" : "No")),
                     Ui.T("La báscula sabrá que no vienen más paquetes de este grupo. Después se elige el grupo que sigue.", 15, Medium, Ui.Mut, ajustar: true),
                     Acciones(BotonVentana($"Terminar grupo {G.G}", OkTerminar, true), BotonVentana("Volver", Cerrar)));
             }

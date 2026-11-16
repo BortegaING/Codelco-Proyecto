@@ -69,8 +69,8 @@ public static class D
     };
     public static bool EsLaminas(int g) => g is 1 or 2;
 
-    /// <summary>Orden de pesaje del 22-10: celdas 1 a 21 subiendo y después desde la 42 bajando.</summary>
-    public static readonly int[] Orden = Enumerable.Range(1, 21).Concat(Enumerable.Range(22, 21).Reverse()).ToArray();
+    /// <summary>Orden de las celdas en la pantalla y de la que sigue: 1 a 21 (un lado) y después 22 a 42 (el otro), siempre subiendo.</summary>
+    public static readonly int[] Orden = Enumerable.Range(1, 42).ToArray();
     public static readonly Dictionary<string, string> LadoTxt = new() { ["T"] = "total", ["P"] = "parcial" };
     public static readonly Dictionary<string, string> EstTxt = new() { ["camino"] = "Pendiente de pesaje", ["bascula"] = "En la báscula", ["pesada"] = "Pesada", ["sintara"] = "Sin tara" };
     /// <summary>Lo esperado por producto (las reglas de la simulación). C.O, rechazo S/O y la muestra todavía no tienen rango.</summary>

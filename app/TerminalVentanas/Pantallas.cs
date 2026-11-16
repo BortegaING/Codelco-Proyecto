@@ -220,13 +220,13 @@ public partial class MainWindow
         var cab = Ui.Columnas("auto * auto auto auto", 12, Ui.T("PASO 2 · GRUPO DE PRODUCCIÓN", 19, Bold, Ui.Tinta, Ui.Cond), new Grid(), ley,
             BotonMini(S.Muestra ? "Muestra: sí" : "Muestra", AlternarMuestra, S.Muestra), BotonMini("Cambiar grupo", () => Abrir("grupo")));
         cab.MinHeight = 44;
-        // Un solo grupo, en grande: arriba la fila de celdas 1 a 21 y abajo la de 42 a 22. Otro grupo se elige con Cambiar grupo
+        // Un solo grupo, en grande: arriba la fila de celdas 1 a 21 y abajo la de 22 a 42. Otro grupo se elige con Cambiar grupo
         var caja = Ui.Tarjeta(Ui.Filas("auto auto", 8, cab, GrupoGrande(G, sig)), relleno: new Thickness(16, 10, 16, 12));
         caja.VerticalAlignment = VerticalAlignment.Top;
         return caja;
     }
 
-    /// <summary>El grupo que se está rotulando: lado 1 a 21 arriba y 42 a 22 abajo, en el orden de la cosecha, con celdas grandes.</summary>
+    /// <summary>El grupo que se está rotulando: lado 1 a 21 arriba y 22 a 42 abajo, con celdas grandes.</summary>
     private UIElement GrupoGrande(Grupo g, int? sig)
     {
         var pes = g.Celdas.Values.Count(c => c.E == "pesada"); var pend = g.Celdas.Count - pes;
@@ -252,7 +252,7 @@ public partial class MainWindow
         }
         var head = Ui.Columnas("auto auto *", 12, titulo, info, new Grid());
         var f1 = Ui.Columnas("auto *", 10, Ui.Rotulo("Celdas 1 a 21", 14), Lado("a"));
-        var f2 = Ui.Columnas("auto *", 10, Ui.Rotulo("Celdas 42 a 22", 14), Lado("b"));
+        var f2 = Ui.Columnas("auto *", 10, Ui.Rotulo("Celdas 22 a 42", 14), Lado("b"));
         ((FrameworkElement)f1.Children[1]).HorizontalAlignment = HorizontalAlignment.Left; ((FrameworkElement)f2.Children[1]).HorizontalAlignment = HorizontalAlignment.Left;
         var m1 = Ui.Grilla(21, D.Orden.Take(21).Select(Sq), 4);
         var m2 = Ui.Grilla(21, D.Orden.Skip(21).Select(Sq), 4);

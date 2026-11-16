@@ -193,11 +193,11 @@ pres.addSection({ title: 'Propuesta' });
 /* ===================== 4. Paso 2: grupo de producción y celda ===================== */
 {
   const s = lamina('Propuesta', 'PASO 2 · SELECCIÓN GRUPO DE PRODUCCIÓN', 'La VT1200 propone la celda que sigue y emite la etiqueta');
-  const x0 = 0.6, y0 = 1.5, im = imagen(s, IMG('vt_paso2.png'), x0, y0, { w: 7.3, alt: 'VT1200, paso 2: grupo 22 con las celdas 1 a 21 arriba y 42 a 22 abajo; celda 1 seleccionada y etiqueta 1T22 lista para imprimir' });
+  const x0 = 0.6, y0 = 1.5, im = imagen(s, IMG('vt_paso2.png'), x0, y0, { w: 7.3, alt: 'VT1200, paso 2: grupo 22 con las celdas 1 a 21 arriba y 22 a 42 abajo; celda 1 seleccionada y etiqueta 1T22 lista para imprimir' });
   const k = im.w / 2048;
   puntero(s, x0, y0, k, 128, 968);
   items(s, [
-    ['Un grupo a la vista', 'El grupo seleccionado en grande: arriba la fila de celdas 1 a 21 y abajo la de 42 a 22.'],
+    ['Un grupo a la vista', 'El grupo seleccionado en grande: arriba la fila de celdas 1 a 21 y abajo la de 22 a 42.'],
     ['Celda que sigue', 'Marcada en cobre según el orden de cosecha. Un toque cambia de celda; otro grupo, con Cambiar grupo.'],
     ['Lado total o parcial', 'Se define una vez por lado (T o P) y entra en el rótulo.'],
     ['Emisión', '"Imprimir 1T22" envía la etiqueta a la Zebra y la deja pendiente de pesaje.'],
@@ -355,7 +355,7 @@ pres.addSection({ title: 'Solución' });
     ['Origen', 'Rotulado de cátodos comerciales; el operador queda identificado por su RUT.'],
     ['Etiqueta que sigue', 'Vista previa exacta de lo que imprime la Zebra.'],
     ['Pendientes de pesaje', 'Etiquetas emitidas que aún no pasan por la Báscula N9 y el último pesaje.'],
-    ['Grupo de producción', 'Celdas 1 a 21 arriba y 42 a 22 abajo: pesada, en báscula, pendiente y la que sigue.'],
+    ['Grupo de producción', 'Celdas 1 a 21 arriba y 22 a 42 abajo: pesada, en báscula, pendiente y la que sigue.'],
     ['Imprimir', 'Un toque por lingada. Registro y Excel siempre disponibles.'],
   ], 8.15, 1.55, 1.02, 3.95);
 }
