@@ -18,6 +18,10 @@ public sealed class Config
     /// <summary>Qué programa es: "origen" (la VT1200 que rotula los cátodos) o "caseta" (la pantalla de la Báscula N9 que identifica y pesa).</summary>
     public string Programa { get; set; } = "origen";
 
+    /// <summary>true: muestra el botón Lado total / Lado parcial arriba de cada fila de celdas. Apagado por defecto: al imprimir siempre se pregunta.
+    /// Se prende o se apaga también desde el panel F2 (queda en lado-filas.txt del equipo).</summary>
+    public bool LadoEnFilas { get; set; } = false;
+
     public ConfigImpresora Impresora { get; set; } = new();
 
     public static Config Leer()

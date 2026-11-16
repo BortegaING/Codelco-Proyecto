@@ -199,7 +199,7 @@ pres.addSection({ title: 'Propuesta' });
   const s = lamina('Propuesta', 'PASO 2 · SELECCIÓN GRUPO DE PRODUCCIÓN', 'El programa propone la celda que sigue y emite la etiqueta');
   const x0 = 0.6, y0 = 1.5, im = imagen(s, IMG('vt_paso2.png'), x0, y0, { w: 7.3, alt: 'Paso 2: grupo 22 con las celdas 1 a 21 arriba y 22 a 42 abajo; celda 1 seleccionada y botón Imprimir celda 1' });
   const k = im.w / 2048;
-  puntero(s, x0, y0, k, 128, 968);
+  puntero(s, x0, y0, k, 128, 930);
   items(s, [
     ['Un grupo a la vista', 'El grupo seleccionado en grande: arriba la fila de celdas 1 a 21 y abajo la de 22 a 42.'],
     ['Celda que sigue', 'Marcada en cobre según el orden de cosecha. Un toque cambia de celda; otro grupo, con Cambiar grupo.'],

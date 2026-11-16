@@ -247,6 +247,25 @@ public partial class MainWindow
         S.Msg = nuevo ? new("info", $"Grupo {g} · al imprimir se elige total o parcial") : null;
         Cerrar();
     }
+    /// <summary>Botón Lado total / parcial sobre las filas de celdas: prendido o apagado. Lo elegido en el equipo (lado-filas.txt) manda sobre appsettings.</summary>
+    private bool? _ladoFilas;
+    private static string ArchivoLadoFilas => System.IO.Path.Combine(Persistencia.Carpeta, "lado-filas.txt");
+    internal bool LadoEnFilas
+    {
+        get
+        {
+            if (_ladoFilas == null)
+                try { _ladoFilas = System.IO.File.ReadAllText(ArchivoLadoFilas).Trim() == "prendido"; }
+                catch { _ladoFilas = _cfg.LadoEnFilas; }  // sin elección en el equipo: lo de appsettings
+            return _ladoFilas.Value;
+        }
+    }
+    internal void AlternarLadoFilas()
+    {
+        _ladoFilas = !LadoEnFilas;
+        try { System.IO.Directory.CreateDirectory(Persistencia.Carpeta); System.IO.File.WriteAllText(ArchivoLadoFilas, _ladoFilas.Value ? "prendido" : "apagado"); } catch { /* sin disco: dura hasta cerrar */ }
+        Render(); RenderPanel();
+    }
     private void Volver() { S.Sel = Siguiente(GrupoAct()); S.Msg = null; Render(); }
     private void AlternarMuestra() { S.Muestra = !S.Muestra; S.Msg = null; Render(); }
     private void Abrir(string tipo, string val = "", int max = 2, string campo = "") { S.Md = new Modal { Tipo = tipo, Val = val, Max = max, Campo = campo }; Render(); }

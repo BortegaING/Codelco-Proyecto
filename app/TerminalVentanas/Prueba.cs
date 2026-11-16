@@ -130,6 +130,9 @@ public partial class MainWindow
         if (_cola.Count > 0 || _ocupada) throw new Exception("La VT1200 no debe pesar");
 
         // Paso 2: otro grupo (el 22) y su celda 1
+        if (LadoEnFilas) throw new Exception("El lado sobre las celdas debe partir apagado");
+        AlternarLadoFilas(); CeldaElegida(22, 1); await Foto(c, "07b-lado-prendido"); AlternarLadoFilas();
+        if (LadoEnFilas) throw new Exception("No se apagó el lado sobre las celdas"); L("Lado sobre las celdas: se prende y se apaga");
         CeldaElegida(22, 1); await Foto(c, "07-grupo22"); Imprimir(); Imprimir("P");
         await Esperar(() => S.Labels.Any(l => l.Codigo == "1P22"), "1P22 impresa", 5000); L("1P22 impresa en el grupo 22 (parcial)");
         await Esperar(() => S.Fase == null, "vuelve a la pantalla", 5000); await Foto(c, "08-impresas");

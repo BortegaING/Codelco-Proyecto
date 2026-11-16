@@ -276,6 +276,9 @@ public partial class MainWindow
         var col = Ui.Columna(
             Ui.T("PANEL DE PRUEBA", 24, Bold, Ui.Tinta, Ui.Cond),
             Ui.T("Solo para la demostración. Se abre y se cierra con F2.", 14, Medium, Ui.Mut, ajustar: true).Margen(0, 4, 0, 16),
+            Ui.Boton(Ui.Columna(Ui.T("LADO SOBRE LAS CELDAS", 18, SemiBold, Ui.Tinta, Ui.Cond), Ui.T(LadoEnFilas ? "PRENDIDO" : "APAGADO", 20, Bold, LadoEnFilas ? Ui.CobreClaro : Ui.Mut, Ui.Cond).Margen(0, 2, 0, 0),
+                    Ui.T("Botón Lado total / parcial arriba de cada fila. Toque para " + (LadoEnFilas ? "apagarlo" : "prenderlo") + ". Al imprimir siempre se pregunta.", 13, Medium, Ui.Mut, ajustar: true).Margen(0, 3, 0, 0)),
+                AlternarLadoFilas, LadoEnFilas ? Ui.Panel2 : Ui.Fondo, LadoEnFilas ? Ui.Cobre : Ui.Linea2, 10, new Thickness(14, 10, 14, 10), 64, null, false).Margen(0, 0, 0, 10),
             Ui.Boton(Ui.T("REINICIAR EL REGISTRO", 18, SemiBold, Ui.RojoT, Ui.Cond), () => { _panelAbierto = false; Persistencia.Olvidar(); Arrancar(false); }, Brushes.Transparent, Ui.ErrBorde, 10, new Thickness(14, 0, 14, 0), 52).Margen(0, 6, 0, 10),
             Ui.Boton(Ui.T("CERRAR EL PANEL", 18, SemiBold, Ui.SobreCobre, Ui.Cond), () => { _panelAbierto = false; RenderPanel(); }, Ui.Cobre, Ui.Cobre, 10, new Thickness(14, 0, 14, 0), 52));
         var cajon = new Border { Width = 360, HorizontalAlignment = HorizontalAlignment.Right, Background = Ui.Panel, BorderBrush = Ui.Cobre, BorderThickness = new Thickness(2, 0, 0, 0), Padding = new Thickness(20, 20, 20, 20), Child = new ScrollViewer { Content = col, VerticalScrollBarVisibility = ScrollBarVisibility.Auto } };

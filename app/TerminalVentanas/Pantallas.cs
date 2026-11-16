@@ -224,9 +224,16 @@ public partial class MainWindow
             return Ui.Boton(col, A(() => CeldaElegida(g.G, n)), fondo, borde, 9, new Thickness(0), 62, new Thickness(grosor));
         }
         var head = Ui.Columnas("auto auto *", 12, titulo, info, new Grid());
-        var f1 = Ui.Columnas("auto *", 10, Ui.Rotulo("Celdas 1 a 21", 14), Lado("a"));
-        var f2 = Ui.Columnas("auto *", 10, Ui.Rotulo("Celdas 22 a 42", 14), Lado("b"));
-        ((FrameworkElement)f1.Children[1]).HorizontalAlignment = HorizontalAlignment.Left; ((FrameworkElement)f2.Children[1]).HorizontalAlignment = HorizontalAlignment.Left;
+        // El botón de lado sobre cada fila es opcional (LadoEnFilas): al imprimir siempre se pregunta Total o Parcial
+        UIElement FilaRotulo(string txt, string k)
+        {
+            if (!LadoEnFilas) return Ui.Rotulo(txt, 14);
+            var f = Ui.Columnas("auto *", 10, Ui.Rotulo(txt, 14), Lado(k));
+            ((FrameworkElement)f.Children[1]).HorizontalAlignment = HorizontalAlignment.Left;
+            return f;
+        }
+        var f1 = FilaRotulo("Celdas 1 a 21", "a");
+        var f2 = FilaRotulo("Celdas 22 a 42", "b");
         var m1 = Ui.Grilla(21, D.Orden.Take(21).Select(Sq), 4);
         var m2 = Ui.Grilla(21, D.Orden.Skip(21).Select(Sq), 4);
         return Ui.Filas("auto auto auto auto auto", 6, head, f1, m1, f2, m2);
