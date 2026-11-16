@@ -250,6 +250,7 @@ public static class Iconos
     public const string Bascula = "M3 15.5h18v3H3z M7 15.5V12h10v3.5";
     public const string Grabar = "M4 4h13l3 3v13H4z M8 4v5h8V4M8 20v-6h8v6";
     public const string Retroceso = "M9 5h11v14H9l-6-7z M12 9l5 6M17 9l-5 6";
+    public static readonly string Camara = "M3 8h4l2-3h6l2 3h4v11H3z " + Circulo(12, 13, 3.6);
     /// <summary>Un círculo con la mitad rayada: los colores de la pantalla.</summary>
     public static readonly string Colores = Circulo(12, 12, 9) + " M12 3v18M12 7h7M12 11h8.5M12 15h8M12 19h5.5";
 }

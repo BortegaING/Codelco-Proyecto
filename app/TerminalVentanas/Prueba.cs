@@ -69,47 +69,67 @@ public partial class MainWindow
         enc.Save(fs);
     }
 
+    /// <summary>La prueba del programa de la caseta: llegan las cargas anunciadas, una sin etiqueta se identifica a mano, horquilla, carro y colores.</summary>
+    private async Task PasosCaseta(string c, Action<string> L)
+    {
+        await Foto(c, "c01-ingreso");
+        Entrar();
+        await Task.Delay(500); await FotoBascula(c, "bal-1-disponible");
+        await Esperar(() => B.Chip == "espera", "4T21 llega"); await Foto(c, "c02-llega"); await FotoBascula(c, "bal-2-leyendo");
+        await Esperar(() => B.Chip == "inestable", "4T21 capturando"); await Task.Delay(400); await Foto(c, "c03-capturando"); await FotoBascula(c, "bal-3-registrando"); L($"Caseta 4T21: {B.Res.T1}");
+        await Esperar(() => S.Labels.Any(l => l.Codigo == "4T21" && l.Estado == "pesada"), "4T21 registrado"); await Foto(c, "c04-registrado"); await FotoBascula(c, "bal-4-registrado");
+        await Esperar(() => S.Labels.Any(l => l.Codigo == "6T21" && l.Estado == "pesada"), "6T21 registrado", 60000);
+        Esc.Grua = true;
+        await Esperar(() => B.Chip == "bloqueado", "horquilla encima", 30000); await Foto(c, "c05-horquilla"); await FotoBascula(c, "bal-5-horquilla"); L($"Caseta horquilla: {B.Res.T1}");
+        await Esperar(() => S.Labels.Count(l => l.Prod == "cat" && l.Estado == "camino") == 0 && B.Chip == "cero", "anunciadas pesadas", 60000);
+        EscenarioCaseta("sinetq");
+        await Esperar(() => B.Esperando, "etiqueta ilegible"); await Task.Delay(300); await Foto(c, "c06-sin-etiqueta");
+        _manual = "9T21"; AsociarManual();
+        if (!S.Labels.Any(l => l.Codigo == "9T21" && l.Manual && l.Estado == "pesada")) throw new Exception("No quedó registrada la identificación manual");
+        await Task.Delay(300); await Foto(c, "c07-manual"); L("Caseta: 9T21 identificada a mano");
+        await Esperar(() => B.Chip == "cero", "plataforma disponible", 20000);
+        EscenarioCaseta("cero"); await Esperar(() => B.Chip == "sincero", "sin cero"); await FotoBascula(c, "bal-6-sincero");
+        await Esperar(() => B.Chip == "cero" && B.Res.T1 == "Plataforma disponible", "cero recuperado", 20000);
+        EscenarioCaseta("fuera");
+        await Esperar(() => B.Chip == "bloqueado", "carro fuera"); await Foto(c, "c08-carro-fuera"); await FotoBascula(c, "bal-7-carro-fuera");
+        await Esperar(() => S.Labels.Any(l => l.Prod == "rs" && l.Estado == "pesada"), "carro registrado", 20000); await Task.Delay(300); await Foto(c, "c09-carro");
+        await Esperar(() => B.Chip == "cero", "plataforma disponible", 20000); await Task.Delay(300); await Foto(c, "c10-disponible");
+        var sinTara = EtqRs(S.Rs.Grupo, "31", S.Rs.Lista.Count + 1, Hora(), D.RestosNetos[1], null, "Báscula"); Agregar(sinTara); Encolar(sinTara, 300);
+        await Esperar(() => B.Chip == "sintara", "carro sin tara", 20000); await Task.Delay(300); await FotoBascula(c, "bal-8-sin-tara"); L($"Caseta sin tara: {B.Res.T1}");
+        await Esperar(() => B.Chip == "cero", "plataforma disponible", 20000);
+        _panelAbierto = true; RenderPanel(); await Foto(c, "c11-panel-f2"); _panelAbierto = false; RenderPanel();
+        ElegirTema("claro"); await Foto(c, "c21-claro"); ElegirTema("contraste"); await Foto(c, "c22-contraste"); ElegirTema("oscuro");
+        var ruta = Excel.Guardar(S, _cfg.CarpetaExcel); L($"Excel: {ruta} ({new FileInfo(ruta).Length} bytes)");
+        L($"Registro caseta: {S.Labels.Count} · " + string.Join(" | ", S.Labels.OrderBy(l => l.Id).Select(l => $"{l.Codigo} {l.Estado} {l.Neto}")));
+    }
+
     internal async Task Pasos(string c, Action<string> L)
     {
+        if (Caseta) { await PasosCaseta(c, L); return; }
         await Foto(c, "01-ingreso");
         PedirCerrar(); await Foto(c, "01b-salir"); L($"Salir: pregunta '{S.Md?.Tipo}'");
         Cerrar(); if (S.Md != null || S.View != "login") throw new Exception("Volver no cerró la pregunta de Salir");
         ElegirTema("claro"); await Foto(c, "01c-ingreso-claro"); ElegirTema("contraste"); await Foto(c, "01d-ingreso-contraste"); ElegirTema("oscuro");
         Entrar();
         if (S.Prod != "cat") throw new Exception("La VT1200 debe quedar en cátodos");
-        await Esperar(() => B.Chip == "espera", "4T21 llega a la báscula"); await Foto(c, "02-principal"); await FotoBascula(c, "bal-2-leyendo");
-        await Esperar(() => B.Chip == "inestable", "4T21 registrando"); await Task.Delay(400); await FotoBascula(c, "bal-3-registrando"); L($"4T21: {B.Res.T1}");
-        await Esperar(() => S.Labels.Any(l => l.Codigo == "4T21" && l.Estado == "pesada"), "4T21 registrado");
-        await FotoBascula(c, "bal-4-registrado"); await Foto(c, "03-pesada"); L($"4T21: {B.Res.T1} | {B.Res.T2}");
-        await Esperar(() => B.Chip == "cero", "plataforma disponible"); await Task.Delay(300); await FotoBascula(c, "bal-1-disponible");
+        await Foto(c, "02-principal");
 
         // Paso 1: el layout de circuitos para elegir el grupo
         Abrir("grupo"); await Foto(c, "04-paso1-grupos"); L("Paso 1: layout de circuitos");
-        ElegirGrupo(21); if (S.Grupo != 21 || S.Par != 21) throw new Exception("No quedó el grupo 21");
+        ElegirGrupo(21); if (S.Grupo != 21) throw new Exception("No quedó el grupo 21");
 
-        // Imprimir 5T21: la horquilla queda encima y la báscula la frena
-        Esc.Grua = true; Imprimir(); await Task.Delay(300);
+        // Imprimir 5T21 (la que sigue)
+        Imprimir(); await Task.Delay(300);
         await Foto(c, "05-imprimiendo");
         await Esperar(() => S.Fase == "impresa", "etiqueta impresa", 3000); await Foto(c, "06-impresa");
-        await Esperar(() => B.Chip == "bloqueado", "horquilla encima"); await FotoBascula(c, "bal-5-horquilla"); L($"Horquilla: {B.Res.T1} | {B.Res.T2}");
-        await Esperar(() => S.Labels.Any(l => l.Codigo == "5T21" && l.Estado == "pesada"), "5T21 registrado");
-        await Esperar(() => B.Chip == "cero", "plataforma disponible");
-        Escenario("cero"); await Esperar(() => B.Chip == "sincero", "sin cero"); await FotoBascula(c, "bal-6-sincero"); L($"Sin cero: {B.Res.T1}");
-        await Esperar(() => B.Chip == "cero", "cero recuperado", 15000);
-
-        // Restos de ánodos los rotula otra área: aquí solo se simula su paso por la báscula, para las láminas de la propuesta
-        Esc.Fuera = true; Encolar(EtqRs(21, "22", 1, Hora(), D.RestosNetos[0], D.TaraCarro["22"], "Báscula"), 200);
-        await Esperar(() => B.Chip == "bloqueado", "carro fuera del área"); await FotoBascula(c, "bal-7-carro-fuera"); L($"Carro fuera: {B.Res.T1}");
-        await Esperar(() => B.Chip == "cero", "plataforma disponible", 20000);
-        Encolar(EtqRs(21, "31", 2, Hora(), D.RestosNetos[1], null, "Báscula"), 200);
-        await Esperar(() => B.Res.T2.Contains("Sin tara"), "carro sin tara", 20000); await Task.Delay(300); await FotoBascula(c, "bal-8-sin-tara"); L($"Sin tara: {B.Res.T1}");
-        await Esperar(() => B.Chip == "cero", "plataforma disponible", 20000);
+        await Esperar(() => S.Fase == null, "vuelve a la pantalla", 5000);
+        if (!S.Labels.Any(l => l.Codigo == "5T21")) throw new Exception("No quedó 5T21 en el registro");
+        if (_cola.Count > 0 || _ocupada) throw new Exception("La VT1200 no debe pesar");
 
         // Paso 2: otro grupo (el 22) y su celda 1
         CeldaElegida(22, 1); await Foto(c, "07-grupo22"); Imprimir();
-        await Esperar(() => S.Labels.Any(l => l.Codigo == "1T22"), "1T22 impresa", 5000); L("1T22 impresa desde la fila del grupo 22");
-        await Esperar(() => S.Fase == null, "vuelve a la pantalla", 5000); await Foto(c, "08-pendientes");
-        await Esperar(() => S.Labels.Any(l => l.Codigo == "1T22" && l.Estado == "pesada"), "1T22 registrado");
+        await Esperar(() => S.Labels.Any(l => l.Codigo == "1T22"), "1T22 impresa", 5000); L("1T22 impresa en el grupo 22");
+        await Esperar(() => S.Fase == null, "vuelve a la pantalla", 5000); await Foto(c, "08-impresas");
 
         Abrir("registro"); await Foto(c, "09-registro"); Cerrar();
         _panelAbierto = true; RenderPanel(); await Foto(c, "10-panel-f2"); _panelAbierto = false; RenderPanel();
@@ -126,6 +146,6 @@ public partial class MainWindow
         Cerrar(); ElegirTema("oscuro");
         var ruta = Excel.Guardar(S, _cfg.CarpetaExcel); L($"Excel: {ruta} ({new FileInfo(ruta).Length} bytes)");
         var zpl = Directory.Exists(_cfg.Impresora.CarpetaZpl) ? Directory.GetFiles(_cfg.Impresora.CarpetaZpl, "*.zpl").Length : 0; L($"ZPL guardados: {zpl}");
-        L($"Registro: {S.Labels.Count} · " + string.Join(" | ", S.Labels.OrderBy(l => l.Id).Select(l => $"{l.Codigo} {l.Estado} {l.Neto}")));
+        L($"Registro: {S.Labels.Count} · " + string.Join(" | ", S.Labels.OrderBy(l => l.Id).Select(l => l.Codigo)));
     }
 }

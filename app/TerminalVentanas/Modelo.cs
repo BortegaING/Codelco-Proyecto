@@ -102,7 +102,9 @@ public sealed class Estado
 public static class Persistencia
 {
     public static string Carpeta = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "IngMetrica", "TerminalVentanas");
-    private static string Ruta => Path.Combine(Carpeta, "registro.json");
+    /// <summary>Cada programa lleva su registro: registro.json (origen) o registro-caseta.json (caseta).</summary>
+    public static string Archivo = "registro.json";
+    private static string Ruta => Path.Combine(Carpeta, Archivo);
     private static readonly JsonSerializerOptions Op = new() { IncludeFields = true, WriteIndented = false };
 
     public static void Guardar(Estado s)

@@ -144,6 +144,10 @@ function items(s, lista, x, y, paso, w) {
   });
 }
 
+/* Números sobre las capturas (coordenadas de la captura de 2048 x 1536) */
+const MARCAS_ORIGEN = [[16, 60], [30, 236], [30, 690], [2010, 690], [30, 1400]];
+const MARCAS_CASETA = [[30, 230], [840, 230], [1190, 230], [30, 720], [1630, 720], [30, 1400]];
+
 /* ===================== 1. Portada ===================== */
 pres.addSection({ title: 'Inicio' });
 {
@@ -151,8 +155,8 @@ pres.addSection({ title: 'Inicio' });
   texto(s, 'Etiquetado estandarizado de cátodos en origen, lectura por visión artificial y captura automática del peso en un registro único y auditable.',
     { x: 0.6, y: 3.95, w: 5.9, h: 1.3, fontSize: 18, color: P.claro });
   texto(s, 'Propuesta Ingmétrica · noviembre 2026', { x: 0.6, y: 6.35, w: 5.9, h: 0.35, fontSize: 14, color: P.claroMut });
-  imagen(s, IMG('vt_principal.png'), 6.85, 1.2, { w: 5.9, alt: 'Pantalla de la VT1200 en origen: etiqueta 5T21 que sigue, pendientes de pesaje y los grupos 21 y 22' });
-  texto(s, 'VT1200 en origen: etiqueta que sigue, pendientes de pesaje y grupos de producción.', { x: 6.85, y: 5.75, w: 5.9, h: 0.3, fontSize: 11, color: P.claroMut });
+  imagen(s, IMG('vt_principal.png'), 6.85, 1.2, { w: 5.9, alt: 'Pantalla de la VT1200 en origen: etiqueta 5T21 que sigue y el grupo 21 con sus celdas' });
+  texto(s, 'VT1200 en origen: etiqueta que sigue y grupo de producción.', { x: 6.85, y: 5.75, w: 5.9, h: 0.3, fontSize: 11, color: P.claroMut });
   s.addNotes('Sistema de trazabilidad y pesaje para la Báscula N9. En esta etapa la VT1200 de origen rotula cátodos comerciales; la báscula identifica y pesa con visión artificial.');
 }
 
@@ -341,23 +345,40 @@ pres.addSection({ title: 'Solución' });
 {
   const s = pres.addSlide({ masterName: 'LIENZO', sectionTitle: 'Solución' });
   const t = tamPng(DIAGRAMA), h = 6.55, w = h * t.w / t.h;
-  s.addImage({ path: DIAGRAMA, x: (13.333 - w) / 2, y: 0.32, w, h, altText: 'Diagrama del flujo: origen, traslado, Báscula N9 con visión artificial y semáforo, y registro', objectName: 'Diagrama de flujo' });
+  s.addImage({ path: DIAGRAMA, x: (13.333 - w) / 2, y: 0.32, w, h, altText: 'Diagrama del flujo: origen, traslado, Báscula N9 con visión artificial y baliza, y registro', objectName: 'Diagrama de flujo' });
   s.addNotes('1 a 3 en origen con la VT1200; traslado en horquilla o carro de arrastre; 4 a 6 en la báscula: lectura del QR, validación de posición y cero, captura del peso y neto; 7 a 9 registro único, Excel y pendientes de pesaje. Si la etiqueta no se lee, el sistema alerta y el pesador identifica la carga a mano.');
 }
 
 /* ===================== 8. La pantalla en origen ===================== */
 {
-  const s = lamina('Solución', 'LA PANTALLA EN ORIGEN', 'VT1200: etiquetado de cátodos con seguimiento de pendientes');
-  const im = imagen(s, IMG('vt_principal.png'), 0.6, 1.5, { w: 7.2, alt: 'Pantalla principal de la VT1200: etiqueta que sigue, pendientes de pesaje, grupos 21 y 22 y botón Imprimir' });
+  const s = lamina('Solución', 'PROGRAMA 1 · VT1200 EN ORIGEN', 'Rotulado de cátodos: solo emite la etiqueta');
+  const im = imagen(s, IMG('vt_principal.png'), 0.6, 1.5, { w: 7.2, alt: 'Pantalla principal de la VT1200: etiqueta que sigue, grupo 21 con las celdas 1 a 21 y 22 a 42, y botón Imprimir' });
   const k = im.w / 2048;
-  [[16, 60], [30, 236], [1262, 200], [30, 690], [30, 1400]].forEach(([px, py], i) => numero(s, i + 1, 0.6 + px * k - 0.18, 1.5 + py * k - 0.18, 0.36));
+  MARCAS_ORIGEN.forEach(([px, py], i) => numero(s, i + 1, 0.6 + px * k - 0.18, 1.5 + py * k - 0.18, 0.36));
   items(s, [
     ['Origen', 'Rotulado de cátodos comerciales; el operador queda identificado por su RUT.'],
     ['Etiqueta que sigue', 'Vista previa exacta de lo que imprime la Zebra.'],
-    ['Pendientes de pesaje', 'Etiquetas emitidas que aún no pasan por la Báscula N9 y el último pesaje.'],
-    ['Grupo de producción', 'Celdas 1 a 21 arriba y 22 a 42 abajo: pesada, en báscula, pendiente y la que sigue.'],
+    ['Grupo de producción', 'Celdas 1 a 21 arriba y 22 a 42 abajo; la que sigue va marcada en cobre.'],
+    ['Cambiar grupo', 'Abre el layout de circuitos (paso 1) para pasar a otro grupo.'],
     ['Imprimir', 'Un toque por lingada. Registro y Excel siempre disponibles.'],
   ], 8.15, 1.55, 1.02, 3.95);
+}
+
+/* ===================== 8b. Programa 2: la caseta ===================== */
+{
+  const s = lamina('Solución', 'PROGRAMA 2 · CASETA DE LA BÁSCULA N9', 'Identificación por cámaras, captura del peso y registro');
+  const im = imagen(s, IMG('cs_principal.png'), 0.6, 1.5, { w: 7.2, alt: 'Pantalla de la caseta: lectura de la Báscula N9, baliza, cámaras superior y lateral, registro de lo identificado, cargas anunciadas e identificación manual' });
+  const k = im.w / 2048;
+  MARCAS_CASETA.forEach(([px, py], i) => numero(s, i + 1, 0.6 + px * k - 0.18, 1.5 + py * k - 0.18, 0.36));
+  items(s, [
+    ['Báscula N9', 'Peso del visor y estado: disponible, registrando, registrado o bloqueado.'],
+    ['Baliza', 'La misma luz que ve el operador de la horquilla o del carro.'],
+    ['Cámaras', 'Superior: producto y etiqueta. Lateral: posición, lingadas y tara del carro.'],
+    ['Registro', 'Grilla con lo identificado: lectura por cámara o manual, bruto, tara, neto y validación.'],
+    ['Anunciadas', 'Etiquetas emitidas en origen que todavía no se pesan.'],
+    ['Identificación manual', 'Si la cámara no lee la etiqueta, el pesador escribe el rótulo y asocia el peso.'],
+  ], 8.15, 1.45, 0.88, 3.95);
+  s.addNotes('Es un programa aparte del de la VT1200: se instala en el PC de la caseta. En esta etapa las cámaras y el visor están simulados.');
 }
 
 /* ===================== 9. Control del peso ===================== */
@@ -366,8 +387,8 @@ pres.addSection({ title: 'Solución' });
   const filas = [
     ['Secuencia normal', 1.45, [
       ['bal_1-disponible.png', 'Disponible: plataforma libre, puede ingresar'], ['bal_2-leyendo.png', 'Leyendo etiqueta: cámara superior'],
-      ['bal_3-registrando.png', 'Registrando: semáforo amarillo, carga quieta'], ['bal_4-registrado.png', 'Registrado: dentro de rango']]],
-    ['Errores y bloqueos', 4.1, [
+      ['bal_3-registrando.png', 'Registrando: baliza roja, carga quieta'], ['bal_4-registrado.png', 'Registrado: dentro de rango']]],
+    ['Desviaciones y alertas', 4.1, [
       ['bal_5-horquilla.png', 'Horquilla sobre la báscula: +1.850 kg'], ['bal_7-carro-fuera.png', 'Carro fuera del área: −960 kg'],
       ['bal_6-sincero.png', 'Sin cero: nódulos en la junta'], ['bal_8-sin-tara.png', 'Sin tara: carro sin tara validada']]],
   ];
@@ -379,23 +400,28 @@ pres.addSection({ title: 'Solución' });
       texto(s, cap, { x, y: y + 0.46 + im.h, w: 2.9, h: 0.3, fontSize: 12, color: P.mut });
     });
   });
-  s.addNotes('Es la pantalla del programa de la báscula (caseta), no la de la VT1200. Rangos: cátodos 4.200 a 5.000 kg; restos 2.800 a 4.000 kg netos. Los valores de error son los de la simulación.');
+  s.addNotes('Es la lectura del programa de la caseta, no la de la VT1200. Rangos: cátodos 4.200 a 5.000 kg; restos 2.800 a 4.000 kg netos. Los valores de error son los de la simulación.');
 }
 
-/* ===================== 10. Visión artificial y semáforo ===================== */
+/* ===================== 10. Visión artificial y baliza ===================== */
 {
-  const s = lamina('Solución', 'BÁSCULA N9 · VISIÓN ARTIFICIAL Y SEMÁFORO', 'Dos cámaras y un semáforo coordinan la maniobra');
-  // Semáforo
-  s.addShape(SH.roundRect, { x: 0.6, y: 1.6, w: 1.2, h: 3.5, rectRadius: 0.2, fill: { color: TEMA.colors.dk2 }, line: { color: TEMA.colors.dk2 }, objectName: 'Semáforo' });
-  const luces = [['2F9E5F', 'Verde', 'Plataforma disponible: autoriza el ingreso. Al cerrar el registro, autoriza el retiro.'],
+  const s = lamina('Solución', 'BÁSCULA N9 · VISIÓN ARTIFICIAL Y BALIZA', 'Dos cámaras y una baliza coordinan la maniobra');
+  // Baliza de torre: tapa, tres módulos de luz (rojo, amarillo, verde), poste y base
+  const bx = 0.95, bw = 0.62;
+  s.addShape(SH.roundRect, { x: bx + 0.06, y: 1.55, w: bw - 0.12, h: 0.16, rectRadius: 0.06, fill: { color: '35505C' }, line: { color: '35505C' }, objectName: 'Baliza: tapa' });
+  const luces = [['C9473B', 'Rojo', 'Mantener la carga detenida mientras se captura el peso.'],
     ['D9A21B', 'Amarillo', 'Posicionar la carga o corregir la posición del carro.'],
-    ['C9473B', 'Rojo', 'Mantener la carga detenida mientras el visor captura el peso.']];
+    ['2F9E5F', 'Verde', 'Plataforma disponible: autoriza el ingreso. Al cerrar el registro, autoriza el retiro.']];
   luces.forEach(([c, h, b], i) => {
-    s.addShape(SH.ellipse, { x: 0.82, y: 1.8 + i * 1.08, w: 0.76, h: 0.76, fill: { color: c }, line: { color: c }, objectName: `Luz ${h.toLowerCase()}` });
-    texto(s, h, { x: 2.1, y: 1.8 + i * 1.08, w: 3.9, h: 0.36, fontFace: CABEZA, fontSize: 17 });
-    texto(s, b, { x: 2.1, y: 2.16 + i * 1.08, w: 3.9, h: 0.7, fontSize: 13, color: P.mut });
+    const y = 1.73 + i * 0.86;
+    s.addShape(SH.rect, { x: bx, y, w: bw, h: 0.82, fill: { color: c }, line: { color: c }, objectName: `Baliza: luz ${h.toLowerCase()}` });
+    s.addShape(SH.rect, { x: bx, y: y + 0.8, w: bw, h: 0.04, fill: { color: '35505C' }, line: { color: '35505C' }, objectName: 'Baliza: separación' });
+    texto(s, h, { x: 2.1, y: y + 0.02, w: 3.9, h: 0.34, fontFace: CABEZA, fontSize: 17 });
+    texto(s, b, { x: 2.1, y: y + 0.36, w: 3.9, h: 0.5, fontSize: 13, color: P.mut });
   });
-  texto(s, 'El semáforo queda a la vista del operador de la horquilla o del carro.', { x: 0.6, y: 5.3, w: 5.4, h: 0.5, fontSize: 13, bold: true, color: C.accent1 });
+  s.addShape(SH.rect, { x: bx + bw / 2 - 0.07, y: 4.31, w: 0.14, h: 0.5, fill: { color: '35505C' }, line: { color: '35505C' }, objectName: 'Baliza: poste' });
+  s.addShape(SH.roundRect, { x: bx - 0.08, y: 4.8, w: bw + 0.16, h: 0.12, rectRadius: 0.04, fill: { color: '35505C' }, line: { color: '35505C' }, objectName: 'Baliza: base' });
+  texto(s, 'La baliza queda a la vista del operador de la horquilla o del carro.', { x: 0.6, y: 5.3, w: 5.4, h: 0.5, fontSize: 13, bold: true, color: C.accent1 });
   // Cámaras y visor
   const cards = [
     ['Cámara superior', 'Detecta la llegada de cobre, identifica el producto y lee el QR de la etiqueta.'],
@@ -408,7 +434,7 @@ pres.addSection({ title: 'Solución' });
     texto(s, h, { x: 6.8, y: y + 0.18, w: 5.6, h: 0.4, fontFace: CABEZA, fontSize: 17 });
     texto(s, b, { x: 6.8, y: y + 0.6, w: 5.6, h: 0.9, fontSize: 13, color: P.mut });
   });
-  texto(s, 'Ubicación de cámaras, iluminación (día y noche) y secuencia del semáforo se validan en terreno y con los procedimientos de seguridad de Codelco.',
+  texto(s, 'Ubicación de cámaras, iluminación (día y noche) y secuencia de la baliza se validan en terreno y con los procedimientos de seguridad de Codelco.',
     { x: 0.6, y: 6.55, w: 12.1, h: 0.35, fontSize: 12, color: P.mut });
 }
 
@@ -453,12 +479,12 @@ pres.addSection({ title: 'Solución' });
 
 /* ===================== 13. Demo ===================== */
 {
-  const s = lamina('Solución', 'PRUÉBELO', 'La app de la VT1200 y una simulación de la báscula');
-  imagen(s, IMG('app_impresa.jpg'), 0.6, 1.45, { w: 6.9, alt: 'Captura de TerminalVentanas.exe: etiqueta 5T21 impresa y grupos 21 y 22' });
+  const s = lamina('Solución', 'PRUÉBELO', 'Dos programas: origen y caseta');
+  imagen(s, IMG('app_impresa.jpg'), 0.6, 1.45, { w: 6.9, alt: 'Captura de TerminalVentanas.exe: etiqueta 5T21 impresa y el grupo 21' });
   texto(s, 'Captura de TerminalVentanas.exe, la app que se instala en la VT1200.', { x: 0.6, y: 6.7, w: 6.9, h: 0.25, fontSize: 11, color: P.mut });
-  const bloques = [['App para la VT1200', 'TerminalVentanas.exe: aplicación Windows autónoma (.NET 8). No usa navegador ni internet; se instala copiando una carpeta.'],
-    ['Funciones', 'Selección de grupo en el layout, emisión de la etiqueta en la Zebra, seguimiento de pendientes de pesaje, registro y Excel.'],
-    ['Simulación de la báscula', 'Maniobra completa con cámaras, semáforo y casos de error, con los pesos reales de la visita.']];
+  const bloques = [['Programa 1 · VT1200 en origen', 'TerminalVentanas.exe: selección de grupo en el layout, emisión de la etiqueta en la Zebra, registro y Excel.'],
+    ['Programa 2 · Caseta', 'BasculaCaseta.exe: cámaras, baliza, captura del peso, registro de lo identificado e identificación manual.'],
+    ['Instalación', 'Aplicaciones Windows autónomas (.NET 8): sin navegador ni internet; se instalan copiando una carpeta. Cámaras y visor simulados en esta etapa.']];
   bloques.forEach(([h, b], i) => {
     const y = 1.55 + i * 1.7;
     texto(s, h, { x: 7.95, y, w: 4.75, h: 0.4, fontFace: CABEZA, fontSize: 18 });
@@ -479,7 +505,7 @@ pres.addSection({ title: 'Cierre' });
     ['Por validar con Codelco', [
       'Salida de datos del visor hacia el sistema.',
       'Ubicación, óptica e iluminación de las dos cámaras (día y noche).',
-      'Lógica del semáforo según los procedimientos de seguridad.',
+      'Lógica de la baliza según los procedimientos de seguridad.',
       'Ubicación estandarizada de las marcas de tara de carro y rack.',
       'Cátodos EW: hoy sin rótulo.',
       'Láminas rechazo C/O y rangos de C.O y rechazo S/O.']],
@@ -499,7 +525,7 @@ pres.addSection({ title: 'Cierre' });
   const pasos = [
     ['Validar', 'Revisar flujo y pantallas con operadores, pesador y supervisión.'],
     ['Taras', 'Base validada de carros, racks y pallets, con código único por estructura.'],
-    ['Terreno', 'Salida de datos del visor, ubicación de cámaras y semáforo, pruebas día y noche.'],
+    ['Terreno', 'Salida de datos del visor, ubicación de cámaras y baliza, pruebas día y noche.'],
     ['PoC', 'Prueba de concepto en la Báscula N9 con cátodos comerciales.'],
     ['Ampliar', 'Láminas y restos de ánodos, e integración con los sistemas de Codelco.'],
   ];

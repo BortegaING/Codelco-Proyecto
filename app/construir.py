@@ -27,6 +27,10 @@ VERSION = re.search(r"<Version>([^<]+)</Version>", open(os.path.join(APP, "Termi
 NOMBRE = f"terminal-ventanas-v{VERSION}-{date.today():%Y%m%d}"
 SALIDA = os.path.abspath(os.path.join(RAIZ, "..", "releases", "codelco-ventanas", NOMBRE))
 PROG = os.path.join(SALIDA, "programa")
+# El segundo programa: la pantalla de la caseta de la Báscula N9. Mismo código, "Programa": "caseta" en su appsettings.json
+NOMBRE_C = f"bascula-caseta-v{VERSION}-{date.today():%Y%m%d}"
+SALIDA_C = os.path.abspath(os.path.join(RAIZ, "..", "releases", "codelco-ventanas", NOMBRE_C))
+EXE_C = "BasculaCaseta.exe"
 CSC = os.path.join(os.environ.get("WINDIR", r"C:\Windows"), "Microsoft.NET", "Framework64", "v4.0.30319", "csc.exe")
 
 
@@ -73,24 +77,37 @@ def lanzador():
     print("Lanzador OK:", sorted(os.listdir(SALIDA)))
 
 
-def comprimir():
-    zip_ruta = SALIDA + ".zip"
+def caseta():
+    """Arma el release de la caseta desde el de origen: el mismo programa con "Programa": "caseta" y el lanzador con otro nombre
+    (es el mismo archivo, así que Smart App Control lo trata igual)."""
+    shutil.rmtree(SALIDA_C, ignore_errors=True)
+    shutil.copytree(SALIDA, SALIDA_C)
+    os.rename(os.path.join(SALIDA_C, "TerminalVentanas.exe"), os.path.join(SALIDA_C, EXE_C))
+    ap = os.path.join(SALIDA_C, "programa", "appsettings.json")
+    cfg = json.load(open(ap, encoding="utf-8")); cfg["Programa"] = "caseta"
+    json.dump(cfg, open(ap, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+    print("Caseta OK:", sorted(os.listdir(SALIDA_C)))
+
+
+def comprimir(salida=None):
+    salida = salida or SALIDA
+    zip_ruta = salida + ".zip"
     if os.path.exists(zip_ruta):
         os.remove(zip_ruta)
     with zipfile.ZipFile(zip_ruta, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
-        for base, _, archivos in os.walk(SALIDA):
+        for base, _, archivos in os.walk(salida):
             for f in archivos:
                 p = os.path.join(base, f)
-                z.write(p, os.path.relpath(p, SALIDA))  # sin carpeta arriba: "Extraer todo" deja el .exe a la vista
+                z.write(p, os.path.relpath(p, salida))  # sin carpeta arriba: "Extraer todo" deja el .exe a la vista
     print("Zip:", zip_ruta, round(os.path.getsize(zip_ruta) / 1048576, 1), "MB")
     return zip_ruta
 
 
-def probar(zip_ruta):
+def probar(zip_ruta, nombre=None, lanzador_exe="TerminalVentanas.exe"):
     limpia = tempfile.mkdtemp(prefix="terminal-ventanas-")
-    destino = os.path.join(limpia, NOMBRE)  # como "Extraer todo" de Windows
+    destino = os.path.join(limpia, nombre or NOMBRE)  # como "Extraer todo" de Windows
     zipfile.ZipFile(zip_ruta).extractall(destino)
-    exe = os.path.join(destino, "TerminalVentanas.exe")  # se prueba por el lanzador, como lo abre el operador
+    exe = os.path.join(destino, lanzador_exe)  # se prueba por el lanzador, como lo abre el operador
     prueba = os.path.join(limpia, "prueba")
     subprocess.Popen([exe, "--prueba", prueba])  # el lanzador queda abierto mientras corre la app: no se espera
     txt_ruta, fin = os.path.join(prueba, "prueba.txt"), time.time() + 300
@@ -112,3 +129,7 @@ if __name__ == "__main__":
     z = comprimir()
     probar(z)
     print("Release:", SALIDA)
+    caseta()
+    zc = comprimir(SALIDA_C)
+    probar(zc, NOMBRE_C, EXE_C)
+    print("Release de la caseta:", SALIDA_C)

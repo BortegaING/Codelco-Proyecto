@@ -73,7 +73,8 @@ public partial class MainWindow
     private UIElement VLogin()
     {
         var marca = Ui.Fila(Ui.Ico(Iconos.Etiqueta, 52, 52, Ui.CobreMedio),
-            Ui.Columna(Ui.T("ROTULADO DE CARGAS", 30, Bold, Ui.Tinta, Ui.Cond), Ui.Rotulo("Nave · Báscula N9 · VT1200", 15)).Margen(14, 0, 0, 0));
+            Ui.Columna(Ui.T(Caseta ? "BÁSCULA N9 · CASETA" : "ROTULADO DE CÁTODOS", 30, Bold, Ui.Tinta, Ui.Cond),
+                Ui.Rotulo(Caseta ? "Identificación por cámaras y pesaje" : "Origen · etiqueta para la Báscula N9", 15)).Margen(14, 0, 0, 0));
         var rut = S.Rut; var valido = D.RutValido(rut); var error = rut.Length >= 8 && !valido;
         var nota = Ui.T(error ? $"El dígito verificador no corresponde: para este RUT es {D.DvRut(rut[..^1])}. Revise el último número."
             : valido ? "RUT válido: toque Entrar." : "Escriba los números y la K si la tiene. El RUT de prueba ya está escrito.",
@@ -100,7 +101,8 @@ public partial class MainWindow
         var who = Ui.Fila(quien, BotonColores(46).Margen(12, 0, 0, 0), BotonSec(Ui.T("SALIR", 17, SemiBold, Ui.Tinta, Ui.Cond), Salir, 46, new Thickness(16, 0, 16, 0)).Margen(8, 0, 0, 0));
         who.HorizontalAlignment = HorizontalAlignment.Right;
         var bar = Ui.Columnas("* auto", 12, tabs, who);
-        var top = Ui.Columnas("* 380", 12, Hero(m), Pendientes());
+        // Sin datos de la báscula: el pesaje es del programa de la caseta
+        var top = Hero(m);
         var trabajo = m.Trabajo?.Invoke() ?? new Grid();
         var registro = BotonSec(Ui.Fila(Ui.Ico(Iconos.Lista, 26, 26, Ui.Mut), Ui.T("REGISTRO", 21, SemiBold, Ui.Tinta, Ui.Cond).Margen(10, 0, 0, 0), Insignia(S.Labels.Count).Margen(10, 0, 0, 0)), () => Abrir("registro"));
         var excel = BotonSec(Ui.Fila(Ui.Ico(Iconos.Excel, 26, 26, Ui.VerdeXls), Ui.T("EXCEL", 21, SemiBold, Ui.Tinta, Ui.Cond).Margen(10, 0, 0, 0)), BajarExcel);
@@ -138,34 +140,6 @@ public partial class MainWindow
         var zebra = new Grid { Width = 266 };
         zebra.Children.Add(Ui.Columna(boca, salida));
         return Ui.Tarjeta(Ui.Columnas("* 266", 14, htxt, zebra), relleno: new Thickness(22, 12, 14, 12));
-    }
-
-    /* ---------- Pendientes de pesaje: lo que la Báscula N9 informa de vuelta ---------- */
-    /// <summary>La VT1200 no pesa: muestra qué etiquetas impresas todavía no pasan por la Báscula N9 y la última que pasó.</summary>
-    private Border Pendientes()
-    {
-        var pend = S.Labels.Where(l => l.Prod == "cat" && l.Estado is "camino" or "bascula").OrderBy(l => l.Id).ToList();
-        var ult = S.Labels.Where(l => l.Prod == "cat" && l.Estado == "pesada").OrderByDescending(l => l.Id).FirstOrDefault();
-        var vivo = Ui.Fila(Latido(), Ui.T("EN LÍNEA", 13, SemiBold, Ui.VerdeT, Ui.Cond).Margen(7, 0, 0, 0));
-        var cab = Ui.Columnas("* auto", 10, Ui.Rotulo("Báscula N9 · pesaje", 15), vivo);
-        var num = Ui.T(pend.Count.ToString(), 58, Bold, Ui.Brillo, Ui.Mono);
-        var txt = Ui.Columna(Ui.T("PENDIENTES", 17, Bold, Ui.Brillo, Ui.Cond), Ui.T("de pesaje", 15, SemiBold, Ui.Mut, Ui.Cond));
-        txt.VerticalAlignment = VerticalAlignment.Center;
-        var codigos = new WrapPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Right, MaxWidth = 150 };
-        foreach (var l in pend.Take(4))
-        {
-            var enBas = l.Estado == "bascula";
-            codigos.Children.Add(new Border
-            {
-                Background = enBas ? Ui.AmbarF : Ui.AzulF, BorderBrush = enBas ? Ui.AmbarL : Ui.AzulL, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6),
-                Padding = new Thickness(7, 1, 7, 2), Margin = new Thickness(4, 2, 0, 2), Child = Ui.T(l.Codigo, 15, Bold, enBas ? Ui.AmbarC : Ui.AzulC, Ui.Cond),
-            });
-        }
-        var dsp = Ui.Tarjeta(Ui.Columnas("auto auto *", 12, num, txt, codigos), Ui.Oscuro, Ui.LecturaBorde, 12, new Thickness(16, 8, 12, 8));
-        var res = ult != null
-            ? Ui.Columnas("24 *", 8, Ui.IcoEstado("ok", 24), Ui.Columna(Ui.T($"Último pesado: {ult.Codigo} · {D.Kg(ult.Neto)} kg", 18, SemiBold, Ui.VerdeT), Ui.T($"Registrado {ult.Hp} en la Báscula N9", 14, Medium, Ui.Mut3)))
-            : Ui.Columnas("24 *", 8, Ui.IcoEstado("info", 24), Ui.Columna(Ui.T("Sin pesajes todavía", 18, SemiBold, Ui.AzulT), Ui.T("La báscula avisa cuando pesa una etiqueta", 14, Medium, Ui.Mut3)));
-        return Ui.Tarjeta(Ui.Filas("auto auto auto", 9, cab, dsp, res), relleno: new Thickness(14, 12, 14, 12));
     }
 
     /* ---------- La Báscula N9 en vivo (la pantalla de la báscula; en la VT1200 solo para las capturas de la propuesta) ---------- */
@@ -216,7 +190,7 @@ public partial class MainWindow
     private UIElement TrabajoCat(Grupo G, int? sig)
     {
         TextBlock L(string s) => Ui.T(s, 14, Medium, Ui.Mut);
-        var ley = Ui.Fila(Cuadro("pes"), L("Pesada"), Cuadro("bas"), L("En báscula"), Cuadro("cam"), L("Pendiente"), Cuadro("sig"), L("Sigue"));
+        var ley = Ui.Fila(Cuadro("cam"), L("Etiqueta impresa"), Cuadro("sig"), L("Sigue"));
         var cab = Ui.Columnas("auto * auto auto auto", 12, Ui.T("PASO 2 · GRUPO DE PRODUCCIÓN", 19, Bold, Ui.Tinta, Ui.Cond), new Grid(), ley,
             BotonMini(S.Muestra ? "Muestra: sí" : "Muestra", AlternarMuestra, S.Muestra), BotonMini("Cambiar grupo", () => Abrir("grupo")));
         cab.MinHeight = 44;
@@ -229,7 +203,6 @@ public partial class MainWindow
     /// <summary>El grupo que se está rotulando: lado 1 a 21 arriba y 22 a 42 abajo, con celdas grandes.</summary>
     private UIElement GrupoGrande(Grupo g, int? sig)
     {
-        var pes = g.Celdas.Values.Count(c => c.E == "pesada"); var pend = g.Celdas.Count - pes;
         Border Lado(string k)
         {
             var l = k == "a" ? g.LadoA : g.LadoB;
@@ -237,16 +210,16 @@ public partial class MainWindow
                 A(() => Abrir("lado", k)), Brushes.Transparent, Ui.CobreBorde, 8, new Thickness(10, 0, 10, 0), 32);
         }
         var titulo = Ui.T($"GRUPO {g.G}", 22, Bold, Ui.CobreClaro, Ui.Cond);
-        var info = Ui.T(g.Celdas.Count == 0 ? $"sin etiquetas · {D.CatodosCelda} cátodos por celda" : $"{pes} pesadas · {pend} pendientes · {D.CatodosCelda} cátodos por celda", 14, Medium, Ui.Mut);
+        var info = Ui.T(g.Celdas.Count == 0 ? $"sin etiquetas · {D.CatodosCelda} cátodos por celda" : $"{g.Celdas.Count} etiquetas impresas · {D.CatodosCelda} cátodos por celda", 14, Medium, Ui.Mut);
         UIElement Sq(int n)
         {
             g.Celdas.TryGetValue(n, out var c);
             Brush fondo = Ui.Fondo, borde = Ui.Linea, color = Ui.Mut; var grosor = 1.0;
-            if (c != null) (fondo, borde, color) = c.E == "pesada" ? (Ui.VerdeF, Ui.VerdeL, Ui.VerdeC) : c.E == "bascula" ? (Ui.AmbarF, Ui.AmbarL, Ui.AmbarC) : (Ui.AzulF, Ui.AzulL, Ui.AzulC);
+            // La VT1200 no sabe de pesos: una celda tiene etiqueta impresa o no
+            if (c != null) (fondo, borde, color) = (Ui.AzulF, Ui.AzulL, Ui.AzulC);
             else if (n == sig) { borde = Ui.Cobre; color = Ui.CobreClaro; grosor = 3; }
             if (!S.Muestra && n == S.Sel && n != sig) { fondo = Ui.Cobre; borde = Ui.Cobre; color = Ui.SobreCobre; }
             var col = Ui.Columna(Centro(Ui.T(n.ToString(), 21, Bold, color)));
-            if (c is { E: "pesada" } && c.P > 0) { var w = Ui.T(D.Kg(c.P), 10.5, SemiBold, Ui.VerdeC, Ui.Mono); w.Opacity = 0.85; col.Children.Add(Centro(w).Margen(0, 1, 0, 0)); }
             col.VerticalAlignment = VerticalAlignment.Center;
             return Ui.Boton(col, A(() => CeldaElegida(g.G, n)), fondo, borde, 9, new Thickness(0), 62, new Thickness(grosor));
         }

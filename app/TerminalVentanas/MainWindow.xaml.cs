@@ -27,6 +27,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        if (Caseta) { Title = "Báscula N9 · Caseta"; Persistencia.Archivo = "registro-caseta.json"; }
         var args = Environment.GetCommandLineArgs();
         var i = Array.IndexOf(args, "--prueba");
         if (i >= 0 && i + 1 < args.Length) _carpetaPrueba = args[i + 1];
@@ -81,13 +82,14 @@ public partial class MainWindow : Window
     {
         _gen++; _cola.Clear(); _ocupada = false; Toast.Visibility = Visibility.Collapsed;
         B = new Bascula(); Esc.Grua = Esc.Fuera = Esc.Cero = false;
-        S = EstadoInicial();
+        S = Caseta ? EstadoCaseta() : EstadoInicial();
         var o = conGuardado ? Persistencia.Recuperar() : null;
         if (o != null && o.Labels.Count > 0) { S = o; S.View = "login"; S.Rut = "111111111"; }
         var pend = S.Labels.Where(l => l.Estado is "camino" or "bascula").Reverse().ToList();
         foreach (var l in pend) Marcar(l, "camino");
         Render();
-        foreach (var l in pend) Encolar(l, 2500);
+        var k = 0;
+        foreach (var l in pend) Encolar(l, 2500 + (Caseta ? 1200 * k++ : 0));
     }
 
     internal void Render()
@@ -95,7 +97,7 @@ public partial class MainWindow : Window
         var lista = Capa.Children.Count > 0 ? Buscar<ScrollViewer>(Capa) : null;
         var arriba = lista?.VerticalOffset ?? 0;
         Raiz.Children.Clear();
-        Raiz.Children.Add(S.View == "login" ? VLogin() : S.View == "bas" ? VBas() : VMain(S.Snap ?? ModeloActual()));
+        Raiz.Children.Add(S.View == "login" ? VLogin() : Caseta ? VCaseta() : S.View == "bas" ? VBas() : VMain(S.Snap ?? ModeloActual()));
         Capa.Children.Clear();
         if (S.Md != null)
         {
@@ -154,6 +156,7 @@ public partial class MainWindow : Window
             if (S.View == "login") Entrar();
             else if (kp) OkKeypad();
             else if (S.Md == null && S.View == "bas") GrabarBF();
+            else if (S.Md == null && Caseta) AsociarManual();
             else if (S.Md == null) Imprimir();
             e.Handled = true;
         }

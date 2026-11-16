@@ -175,7 +175,8 @@ public partial class MainWindow
     private UIElement VRegistro()
     {
         var tabla = new Grid();
-        foreach (var w in new[] { 84.0, 136, double.NaN, 150, 110, 230 })
+        // En la VT1200 de origen el registro son las etiquetas emitidas: sin estado de báscula ni peso
+        foreach (var w in Caseta ? new[] { 84.0, 136, double.NaN, 150, 110, 230 } : new[] { 84.0, 136, double.NaN, 0, 0, 200 })
             tabla.ColumnDefinitions.Add(new ColumnDefinition { Width = double.IsNaN(w) ? new GridLength(1, GridUnitType.Star) : new GridLength(w) });
         void Celda(UIElement el, int fila, int col, bool linea = true)
         {
@@ -183,7 +184,7 @@ public partial class MainWindow
             Grid.SetRow(b, fila); Grid.SetColumn(b, col); tabla.Children.Add(b);
         }
         tabla.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        var cab = new[] { "Hora", "Etiqueta", "Detalle", "Báscula", "Neto", "" };
+        var cab = Caseta ? new[] { "Hora", "Etiqueta", "Detalle", "Báscula", "Neto", "" } : new[] { "Hora", "Etiqueta", "Detalle", "", "", "" };
         for (var c = 0; c < cab.Length; c++) { var t = Ui.Rotulo(cab[c], 13); if (c == 4) t.HorizontalAlignment = HorizontalAlignment.Right; Celda(t, 0, c); }
         var r = 1;
         foreach (var l in S.Labels)
@@ -195,14 +196,17 @@ public partial class MainWindow
             det.Inlines.Add(l.Detalle);
             var notas = new List<string>();
             if (l.Nota.Length > 0) notas.Add(l.Nota);
-            if (l.Ctrl.Length > 0 && l.Ctrl != "Dentro de rango") notas.Add(l.Ctrl.Replace("Dentro de rango · ", "").ToLowerInvariant());
+            if (Caseta && l.Ctrl.Length > 0 && l.Ctrl != "Dentro de rango") notas.Add(l.Ctrl.Replace("Dentro de rango · ", "").ToLowerInvariant());
             if (notas.Count > 0) det.Inlines.Add(new System.Windows.Documents.Run(" · " + string.Join(" · ", notas)) { Foreground = Ui.AmbarL, FontSize = 14 });
             Celda(det, r, 2);
             var (fc, txt) = l.Estado switch { "pesada" => (Ui.ChipEstable, "PESADA"), "bascula" => (Ui.ChipInestable, "EN LA BÁSCULA"), "sintara" => (Ui.ChipBloqueado, "SIN TARA"), _ => (Ui.ChipEspera, "PENDIENTE") };
             var est = new Border { Background = fc, CornerRadius = new CornerRadius(999), Padding = new Thickness(10, 3, 10, 4), HorizontalAlignment = HorizontalAlignment.Left, Child = Ui.T(txt, 13, Bold, Ui.SobreChip, Ui.Cond) };
-            Celda(l.Hp.Length > 0 ? Ui.Columna(est, Ui.T(l.Hp, 14, SemiBold, Ui.Mut, Ui.Mono).Margen(2, 4, 0, 0)) : est, r, 3);
-            var neto = Ui.T(l.Estado == "pesada" ? $"{D.Kg(l.Neto)} kg" : "—", 17, Medium, Ui.Tinta, Ui.Mono); neto.HorizontalAlignment = HorizontalAlignment.Right;
-            Celda(neto, r, 4);
+            if (Caseta)
+            {
+                Celda(l.Hp.Length > 0 ? Ui.Columna(est, Ui.T(l.Hp, 14, SemiBold, Ui.Mut, Ui.Mono).Margen(2, 4, 0, 0)) : est, r, 3);
+                var neto = Ui.T(l.Estado == "pesada" ? $"{D.Kg(l.Neto)} kg" : "—", 17, Medium, Ui.Tinta, Ui.Mono); neto.HorizontalAlignment = HorizontalAlignment.Right;
+                Celda(neto, r, 4);
+            }
             var bts = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
             var id = l.Id; var esta = l;
             if (l.Prod != "sub" && !l.Manual)
@@ -212,7 +216,8 @@ public partial class MainWindow
             r++;
         }
         var lista = new Border { Background = Ui.Panel, CornerRadius = new CornerRadius(12), Child = new ScrollViewer { Content = tabla, MaxHeight = 470, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, PanningMode = PanningMode.VerticalOnly } };
-        var nota = Ui.T("El Excel trae una hoja por planilla y un resumen como el del Sistema de Cátodos. Los pesos aparecen cuando la báscula los captura.", 15, Medium, Ui.Mut, ajustar: true);
+        var nota = Ui.T(Caseta ? "El Excel trae una hoja por planilla y un resumen como el del Sistema de Cátodos."
+            : "Etiquetas emitidas en este equipo. El peso lo captura y registra el programa de la caseta de la Báscula N9.", 15, Medium, Ui.Mut, ajustar: true);
         return Ventana(984, Encabezado($"Registro del {D.FECHA}", $"{S.Labels.Count} etiquetas"), lista, nota,
             Acciones(BotonVentana("Bajar Excel", BajarExcel, true, icono: Iconos.Excel), BotonVentana("Cerrar", Cerrar)));
     }
@@ -233,9 +238,32 @@ public partial class MainWindow
             col.HorizontalAlignment = HorizontalAlignment.Left;
             return Ui.Boton(col, () => Escenario(k), lista ? Ui.Panel2 : Ui.Fondo, lista ? Ui.Cobre : Ui.Linea2, 10, new Thickness(14, 10, 14, 10), 64, null, false).Margen(0, 0, 0, 10);
         }
+        if (Caseta)
+        {
+            UIElement EscC(string k, string titulo, string desc, bool lista)
+            {
+                var tc = Ui.T(titulo + (lista ? " · lista" : ""), 18, Bold, lista ? Ui.CobreClaro : Ui.Tinta);
+                var cc = Ui.Columna(tc, Ui.T(desc, 13, Medium, Ui.Mut, ajustar: true).Margen(0, 3, 0, 0));
+                cc.HorizontalAlignment = HorizontalAlignment.Left;
+                return Ui.Boton(cc, () => EscenarioCaseta(k), lista ? Ui.Panel2 : Ui.Fondo, lista ? Ui.Cobre : Ui.Linea2, 10, new Thickness(14, 8, 14, 8), 58, null, false).Margen(0, 0, 0, 8);
+            }
+            var colC = Ui.Columna(
+                Ui.T("PANEL DE PRUEBA", 24, Bold, Ui.Tinta, Ui.Cond),
+                Ui.T("Solo para la demostración. Se abre y se cierra con F2. Las cámaras y el visor están simulados.", 14, Medium, Ui.Mut, ajustar: true).Margen(0, 4, 0, 14),
+                EscC("anuncio", "Nueva carga anunciada", "El origen imprime la etiqueta que sigue; llega a la báscula.", false),
+                EscC("sinetq", "Etiqueta ilegible", "Llega un paquete que la cámara no puede leer: se identifica a mano.", false),
+                EscC("grua", "Horquilla encima", "La próxima carga queda con la horquilla sobre la plataforma.", Esc.Grua),
+                EscC("carro", "Carro de restos", "Llega un carro de arrastre con rack; la tara sale de la lista validada.", false),
+                EscC("fuera", "Carro fuera del área", "Llega un carro pasado de la plataforma.", false),
+                EscC("cero", "Sin cero", "Vacía marca 6 kg por nódulos en la junta.", Esc.Cero),
+                Ui.Boton(Ui.T("REINICIAR EL REGISTRO", 18, SemiBold, Ui.RojoT, Ui.Cond), () => { _panelAbierto = false; Persistencia.Olvidar(); Arrancar(false); }, Brushes.Transparent, Ui.ErrBorde, 10, new Thickness(14, 0, 14, 0), 50).Margen(0, 6, 0, 8),
+                Ui.Boton(Ui.T("CERRAR EL PANEL", 18, SemiBold, Ui.SobreCobre, Ui.Cond), () => { _panelAbierto = false; RenderPanel(); }, Ui.Cobre, Ui.Cobre, 10, new Thickness(14, 0, 14, 0), 50));
+            PanelPrueba.Children.Add(new Border { Width = 380, HorizontalAlignment = HorizontalAlignment.Right, Background = Ui.Panel, BorderBrush = Ui.Cobre, BorderThickness = new Thickness(2, 0, 0, 0), Padding = new Thickness(20, 18, 20, 18), Child = new ScrollViewer { Content = colC, VerticalScrollBarVisibility = ScrollBarVisibility.Auto } });
+            return;
+        }
         var col = Ui.Columna(
             Ui.T("PANEL DE PRUEBA", 24, Bold, Ui.Tinta, Ui.Cond),
-            Ui.T("Solo para la demostración. Se abre y se cierra con F2. La Báscula N9 está simulada: pesa cada etiqueta impresa unos segundos después y la marca como pesada en el mapa.", 14, Medium, Ui.Mut, ajustar: true).Margen(0, 4, 0, 16),
+            Ui.T("Solo para la demostración. Se abre y se cierra con F2.", 14, Medium, Ui.Mut, ajustar: true).Margen(0, 4, 0, 16),
             Ui.Boton(Ui.T("REINICIAR EL REGISTRO", 18, SemiBold, Ui.RojoT, Ui.Cond), () => { _panelAbierto = false; Persistencia.Olvidar(); Arrancar(false); }, Brushes.Transparent, Ui.ErrBorde, 10, new Thickness(14, 0, 14, 0), 52).Margen(0, 6, 0, 10),
             Ui.Boton(Ui.T("CERRAR EL PANEL", 18, SemiBold, Ui.SobreCobre, Ui.Cond), () => { _panelAbierto = false; RenderPanel(); }, Ui.Cobre, Ui.Cobre, 10, new Thickness(14, 0, 14, 0), 52));
         var cajon = new Border { Width = 360, HorizontalAlignment = HorizontalAlignment.Right, Background = Ui.Panel, BorderBrush = Ui.Cobre, BorderThickness = new Thickness(2, 0, 0, 0), Padding = new Thickness(20, 20, 20, 20), Child = new ScrollViewer { Content = col, VerticalScrollBarVisibility = ScrollBarVisibility.Auto } };

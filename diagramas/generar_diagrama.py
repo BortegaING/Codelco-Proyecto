@@ -60,7 +60,7 @@ texto(40, 52, "Flujo del sistema de trazabilidad y pesaje · Báscula N9", 28, 7
 texto(40, 82, "Identificación estandarizada en origen, lectura por visión artificial y captura automática del peso en un registro único, con la hora real.", 16, 400, C["mut"])
 carriles = [(30, 305, "1 · Origen", "Cosecha de cátodos en la nave"),
             (345, 255, "2 · Traslado", "Horquilla o carro de arrastre"),
-            (615, 640, "3 · Báscula N9", "Visor, 4 celdas de carga, 2 cámaras y semáforo"),
+            (615, 640, "3 · Báscula N9", "Visor, 4 celdas de carga, 2 cámaras y baliza"),
             (1270, 300, "4 · Registro", "Registro único y seguimiento")]
 for i, (x, w, t, s) in enumerate(carriles):
     add(f'<rect x="{x}" y="110" width="{w}" height="820" rx="16" fill="{C["carril"] if i % 2 == 0 else C["carril2"]}" stroke="#E3E9EC"/>')
@@ -83,7 +83,7 @@ flecha([(320, 635), (340, 635), (340, 465), (360, 465)])
 
 # ---------- 3 · Báscula N9 ----------
 cx = 845
-caja(705, 190, 280, 112, "Ingreso a la plataforma", "Semáforo verde. La cámara superior lee el QR; la lateral, la posición.", "4")
+caja(705, 190, 280, 112, "Ingreso a la plataforma", "Baliza verde. La cámara superior lee el QR; la lateral, la posición.", "4")
 flecha([(582, 465), (650, 465), (650, 246), (703, 246)])
 flecha([(582, 635), (650, 635), (650, 465)])
 rombo(cx, 372, 250, 92, "¿Etiqueta leída?")
@@ -93,10 +93,10 @@ flecha([(cx + 125, 372), (1028, 372)], "No", (998, 362))
 flecha([(1132, 434), (1132, 452), (cx + 30, 452), (cx + 30, 470)], guion=True)
 rombo(cx, 520, 300, 104, "¿Carga en el área, sin", "vehículo y visor en cero?")
 flecha([(cx, 418), (cx, 466)], "Sí", (cx - 26, 444))
-caja(1030, 478, 205, 112, "Bloqueo", "No captura el peso hasta corregir. Semáforo amarillo.", bg=C["roj_bg"], borde=C["roj"], color_t=C["roj"])
+caja(1030, 478, 205, 112, "Bloqueo", "No captura el peso hasta corregir. Baliza amarilla.", bg=C["roj_bg"], borde=C["roj"], color_t=C["roj"])
 flecha([(cx + 150, 520), (1028, 520)], "No", (1000, 510))
 flecha([(1080, 590), (1080, 612), (cx + 60, 612), (cx + 60, 560)], guion=True, color=C["roj"])
-caja(705, 640, 280, 96, "Captura del peso", "Semáforo rojo: mantener la carga. El visor entrega el peso estable.", "5")
+caja(705, 640, 280, 96, "Captura del peso", "Baliza roja: mantener la carga. El visor entrega el peso estable.", "5")
 flecha([(cx, 572), (cx, 638)], "Sí", (cx - 26, 600))
 caja(705, 760, 280, 112, "Peso neto", "Descuenta las taras validadas (carro + rack, leídas por la cámara lateral).", "6")
 flecha([(cx, 736), (cx, 758)])
@@ -104,7 +104,7 @@ rombo(1110, 816, 230, 92, "¿Dentro del", "rango esperado?")
 flecha([(985, 816), (993, 816)])
 
 # ---------- 4 · Registro ----------
-caja(1290, 190, 260, 150, "Registro único", "Identificación, peso bruto y neto, hora real y validaciones. Sin digitación. Semáforo verde: retirar.", "7")
+caja(1290, 190, 260, 150, "Registro único", "Identificación, peso bruto y neto, hora real y validaciones. Sin digitación. Baliza verde: retirar.", "7")
 caja(1290, 380, 260, 150, "Excel por turno", "Hoja de cátodos y Resumen con las columnas Lado-P, Lado-T, Muestra y totales.", "8")
 caja(1290, 570, 260, 150, "Pendientes de pesaje", "Etiquetas emitidas sin peso asociado: alerta para seguimiento y cierre del grupo.", "9")
 flecha([(1420, 340), (1420, 378)])
@@ -115,8 +115,8 @@ flecha([(1110, 862), (1110, 900), (1420, 900), (1420, 874)], "No", (1180, 900), 
 flecha([(1550, 816), (1575, 816), (1575, 265), (1552, 265)], guion=True, color=C["roj"])
 
 # ---------- Balizas ----------
-texto(40, 965, "Semáforo:", 13.5, 700, C["ink"])
-baliza(128, 960, "#2F9E5F", "Verde: plataforma disponible, ingresar o retirar")
+texto(40, 965, "Baliza:", 13.5, 700, C["ink"])
+baliza(100, 960, "#2F9E5F", "Verde: plataforma disponible, ingresar o retirar")
 baliza(500, 960, "#D9A21B", "Amarillo: posicionar la carga o lectura manual")
 baliza(870, 960, "#C9473B", "Rojo: mantener la carga mientras se captura el peso")
 

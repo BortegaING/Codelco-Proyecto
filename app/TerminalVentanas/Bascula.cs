@@ -68,6 +68,8 @@ public partial class MainWindow
         if (_balRes != null) _balRes.Content = VRes();
         _pic?.Poner(B.Pic, B.ProdPic, true);
         PintarNum();
+        // En la caseta cambian también la baliza, las cámaras y la grilla
+        if (Caseta && S.View == "main" && S.Fase == null) Render();
     }
 
     /// <summary>El control: con el peso estable, calcula el neto y lo compara con lo esperado para ese producto.</summary>
@@ -135,7 +137,7 @@ public partial class MainWindow
         await Task.Delay(60); if (!Vivo()) return;
         B.Pic = grua ? "grua" : fuera ? "fuera" : "sobre"; PintarBal();
         await Task.Delay(700); if (!Vivo()) return;
-        B.Meta = W * 1.035 + desvio; B.Ruido = 40; Fijar("inestable", "warn", $"{c} · registrando", "Baliza amarilla: mantenga la carga quieta");
+        B.Meta = W * 1.035 + desvio; B.Ruido = 40; Fijar("inestable", "warn", $"{c} · registrando", "Baliza roja: no mueva la carga");
         await Task.Delay(800); if (!Vivo()) return;
         B.Meta = W + desvio; B.Ruido = 12;
         await Task.Delay(800); if (!Vivo()) return;
@@ -145,7 +147,7 @@ public partial class MainWindow
         if (sinEtq)
         {
             // Sin etiqueta no se registra sola: el pesador la ingresa en la pantalla Báscula y graba
-            B.Esperando = true; Fijar("estable", "warn", $"Sin etiqueta · {D.Kg(W)} kg", "Ingrésela a mano: toque Abrir");
+            B.Esperando = true; Fijar("estable", "warn", $"Sin etiqueta · {D.Kg(W)} kg", Caseta ? "Identifíquela a mano abajo y toque Asociar" : "Ingrésela a mano: toque Abrir");
             if (S.View == "bas" && S.Bf is { Dirty: false })
             {
                 S.Bf = FormNuevo("sub"); S.Bf.Bruto = W; S.Bf.Tomado = true; S.Bf.Msg = new("warn", "Carga sin etiqueta: elija qué es, revise los datos y toque Grabar"); Render();
@@ -168,7 +170,7 @@ public partial class MainWindow
             else Fijar("bloqueado", "err", "Carro fuera del área", "Se pasa de la plataforma. Acomódelo.");
             await Task.Delay(2800); if (!Vivo()) return;
             B.Pic = "sobre"; B.Meta = W; B.Ruido = 25;
-            Fijar("inestable", "warn", grua ? "La horquilla salió · registrando" : "Carro acomodado · registrando", "Baliza amarilla: mantenga la carga quieta");
+            Fijar("inestable", "warn", grua ? "La horquilla salió · registrando" : "Carro acomodado · registrando", "Baliza roja: no mueva la carga");
             await Task.Delay(900); if (!Vivo()) return;
             B.Ruido = 5;
             await Task.Delay(700); if (!Vivo()) return;
@@ -199,7 +201,8 @@ public partial class MainWindow
         Fijar("cero", "muted", "Plataforma disponible", "Puede ingresar la próxima carga");
     }
 
-    private void Encolar(Etiqueta l, int ms = 3500) { l.Llega = DateTime.Now.AddMilliseconds(ms); _cola.Enqueue(l); Proximo(); }
+    /// <summary>Una carga va a la báscula. Solo en el programa de la caseta: la VT1200 de origen no pesa.</summary>
+    private void Encolar(Etiqueta l, int ms = 3500) { if (!Caseta) return; l.Llega = DateTime.Now.AddMilliseconds(ms); _cola.Enqueue(l); Proximo(); }
 
     private async void Proximo()
     {
@@ -211,7 +214,7 @@ public partial class MainWindow
         await Pesar(l, yo); if (yo != _gen) return;
         if (Esc.Cero) { Esc.Cero = false; RenderPanel(); await SinCero(yo); if (yo != _gen) return; }
         _ocupada = false;
-        await Task.Delay(400); if (yo != _gen) return;
+        await Task.Delay(Caseta ? 2200 : 400); if (yo != _gen) return;
         Proximo();
     }
 

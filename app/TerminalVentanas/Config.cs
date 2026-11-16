@@ -15,6 +15,9 @@ public sealed class Config
     /// <summary>Colores de la pantalla si el operador no eligió otros: "oscuro" (el original), "claro", "contraste" o "auto" (igual que Windows).</summary>
     public string Tema { get; set; } = "oscuro";
 
+    /// <summary>Qué programa es: "origen" (la VT1200 que rotula los cátodos) o "caseta" (la pantalla de la Báscula N9 que identifica y pesa).</summary>
+    public string Programa { get; set; } = "origen";
+
     public ConfigImpresora Impresora { get; set; } = new();
 
     public static Config Leer()
