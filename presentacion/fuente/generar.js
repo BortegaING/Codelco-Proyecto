@@ -193,12 +193,12 @@ pres.addSection({ title: 'Propuesta' });
 /* ===================== 4. Paso 2: grupo de producción y celda ===================== */
 {
   const s = lamina('Propuesta', 'PASO 2 · SELECCIÓN GRUPO DE PRODUCCIÓN', 'La VT1200 propone la celda que sigue y emite la etiqueta');
-  const x0 = 0.6, y0 = 1.5, im = imagen(s, IMG('vt_paso2.png'), x0, y0, { w: 7.3, alt: 'VT1200, paso 2: grupos 21 y 22 en filas de 42 celdas; celda 1 del grupo 22 seleccionada y etiqueta 1T22 lista para imprimir' });
+  const x0 = 0.6, y0 = 1.5, im = imagen(s, IMG('vt_paso2.png'), x0, y0, { w: 7.3, alt: 'VT1200, paso 2: grupo 22 con las celdas 1 a 21 arriba y 42 a 22 abajo; celda 1 seleccionada y etiqueta 1T22 lista para imprimir' });
   const k = im.w / 2048;
-  puntero(s, x0, y0, k, 120, 1150);
+  puntero(s, x0, y0, k, 128, 968);
   items(s, [
     ['Un grupo a la vista', 'El grupo seleccionado en grande: arriba la fila de celdas 1 a 21 y abajo la de 42 a 22.'],
-    ['Celda que sigue', 'Marcada en cobre según el orden de cosecha. Un toque cambia de celda o de grupo.'],
+    ['Celda que sigue', 'Marcada en cobre según el orden de cosecha. Un toque cambia de celda; otro grupo, con Cambiar grupo.'],
     ['Lado total o parcial', 'Se define una vez por lado (T o P) y entra en el rótulo.'],
     ['Emisión', '"Imprimir 1T22" envía la etiqueta a la Zebra y la deja pendiente de pesaje.'],
   ], 8.3, 1.6, 1.25, 4.1);
