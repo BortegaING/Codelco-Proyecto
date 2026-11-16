@@ -49,6 +49,15 @@ public partial class MainWindow
         var G = GrupoAct();
         switch (md.Tipo)
         {
+            case "tp":
+            {
+                // Al tocar Imprimir: ¿la celda sale de un lado total o parcial? La letra (T o P) va en el rótulo
+                var n = int.Parse(md.Val); var actual = LadoDe(G, n); var r = n <= 21 ? "celdas 1 a 21" : "celdas 22 a 42";
+                return Ventana(720, Encabezado($"Celda {n} · grupo {G.G} · {r}", "¿Total o parcial?"),
+                    Ui.Columnas("* *", 12, Opcion("Total", $"Etiqueta {n}T{G.G} · se sacan las 21 celdas", actual == "T", () => Imprimir("T")),
+                        Opcion("Parcial", $"Etiqueta {n}P{G.G} · solo algunas celdas", actual == "P", () => Imprimir("P"))),
+                    Acciones(BotonVentana("Cancelar", Cerrar)));
+            }
             case "lado":
             {
                 var k = md.Val; var r = k == "a" ? "1 a 21" : "22 a 42"; var actual = k == "a" ? G.LadoA : G.LadoB;

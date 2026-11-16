@@ -93,7 +93,7 @@ public partial class MainWindow
         {
             Lbl = "Etiqueta que sigue", Codigo = mu ? "MUESTRA" : n != null ? CodCat(G, n.Value) : "—",
             Sticker = mu ? EtqMuestra(G.G, Hora(), "") : n != null ? EtqCat(G.G, n.Value, LadoDe(G, n.Value), Hora(), 0, "") : EtqVacia("CÁTODO"),
-            Trabajo = () => TrabajoCat(G, sig), ImpTxt = $"Imprimir {(mu ? "muestra" : n != null ? CodCat(G, n.Value) : "")}",
+            Trabajo = () => TrabajoCat(G, sig), ImpTxt = $"Imprimir {(mu ? "muestra" : n != null ? $"celda {n}" : "")}",
         };
         if (mu)
         {
@@ -159,7 +159,8 @@ public partial class MainWindow
         catch (Exception ex) { Avisar($"La Zebra no imprimió: {ex.Message}", "err"); }
     }
 
-    internal void Imprimir()
+    /// <summary>Imprimir: en una celda nueva primero pregunta si es Total o Parcial (ventana "tp"); con la respuesta, imprime.</summary>
+    internal void Imprimir(string? lado = null)
     {
         if (S.Fase != null || S.View != "main") return;
         var m = ModeloActual(); if (m.ImpDis) return;
@@ -180,6 +181,8 @@ public partial class MainWindow
             }
             var n = S.Sel!.Value; var sig = Siguiente(G);
             if (G.Celdas.ContainsKey(n)) { var lc = S.Labels.FirstOrDefault(x => x.Prod == "cat" && !x.Ref.M && x.Ref.G == G.G && x.Ref.N == n); if (lc != null) Reimprimir(lc); return; }
+            if (lado == null) { S.Md = new Modal { Tipo = "tp", Val = n.ToString() }; Render(); return; }
+            if (n <= 21) G.LadoA = lado; else G.LadoB = lado;  // la respuesta queda para ese lado del grupo
             var l2 = EtqCat(G.G, n, LadoDe(G, n), Tick(), D.PesoCelda.TryGetValue(n, out var p) ? p : PesoEjemplo(n), S.User);
             l2.M = S.Min; if (sig != null && n != sig) l2.Nota = "fuera de orden";
             ImprimirEtiqueta(l2, m, () =>
@@ -241,7 +244,7 @@ public partial class MainWindow
     {
         var nuevo = !S.Grupos.ContainsKey(g); S.Grupo = g; if (g != S.Par && g != S.Par + 1) S.Par = g;
         var G = GrupoAct(); S.Sel = Siguiente(G); S.Muestra = false;
-        S.Msg = nuevo ? new("info", $"Grupo {g} · si un lado es parcial, toque su lado") : null;
+        S.Msg = nuevo ? new("info", $"Grupo {g} · al imprimir se elige total o parcial") : null;
         Cerrar();
     }
     private void Volver() { S.Sel = Siguiente(GrupoAct()); S.Msg = null; Render(); }
@@ -259,7 +262,7 @@ public partial class MainWindow
     {
         if (!int.TryParse(S.Md!.Val, out var gr) || gr <= 0) return;
         var nuevo = !S.Grupos.ContainsKey(gr); S.Grupo = gr; var G = GrupoAct(); S.Sel = Siguiente(G); S.Muestra = false;
-        S.Msg = nuevo ? new("info", $"Grupo {gr} nuevo · si un lado es parcial, toque su lado") : null;
+        S.Msg = nuevo ? new("info", $"Grupo {gr} nuevo · al imprimir se elige total o parcial") : null;
         Cerrar();
     }
     private void OkTerminar()

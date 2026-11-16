@@ -119,8 +119,10 @@ public partial class MainWindow
         ElegirGrupo(21); if (S.Grupo != 21 || S.Md != null) throw new Exception("No quedó el grupo 21 en la pantalla principal");
         await Foto(c, "02-principal");
 
-        // Imprimir 5T21 (la que sigue)
-        Imprimir(); await Task.Delay(300);
+        // Imprimir 5T21 (la que sigue): al tocar Imprimir pregunta Total o Parcial
+        Imprimir(); if (S.Md?.Tipo != "tp") throw new Exception("Imprimir no preguntó total o parcial");
+        await Foto(c, "05a-total-parcial"); L("Imprimir: pregunta Total o Parcial");
+        Imprimir("T"); await Task.Delay(300);
         await Foto(c, "05-imprimiendo");
         await Esperar(() => S.Fase == "impresa", "etiqueta impresa", 3000); await Foto(c, "06-impresa");
         await Esperar(() => S.Fase == null, "vuelve a la pantalla", 5000);
@@ -128,8 +130,8 @@ public partial class MainWindow
         if (_cola.Count > 0 || _ocupada) throw new Exception("La VT1200 no debe pesar");
 
         // Paso 2: otro grupo (el 22) y su celda 1
-        CeldaElegida(22, 1); await Foto(c, "07-grupo22"); Imprimir();
-        await Esperar(() => S.Labels.Any(l => l.Codigo == "1T22"), "1T22 impresa", 5000); L("1T22 impresa en el grupo 22");
+        CeldaElegida(22, 1); await Foto(c, "07-grupo22"); Imprimir(); Imprimir("P");
+        await Esperar(() => S.Labels.Any(l => l.Codigo == "1P22"), "1P22 impresa", 5000); L("1P22 impresa en el grupo 22 (parcial)");
         await Esperar(() => S.Fase == null, "vuelve a la pantalla", 5000); await Foto(c, "08-impresas");
 
         Abrir("registro"); await Foto(c, "09-registro"); Cerrar();

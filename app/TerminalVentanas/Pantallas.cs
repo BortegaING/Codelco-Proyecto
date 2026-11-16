@@ -106,7 +106,7 @@ public partial class MainWindow
         var trabajo = m.Trabajo?.Invoke() ?? new Grid();
         var registro = BotonSec(Ui.Fila(Ui.Ico(Iconos.Lista, 26, 26, Ui.Mut), Ui.T("REGISTRO", 21, SemiBold, Ui.Tinta, Ui.Cond).Margen(10, 0, 0, 0), Insignia(S.Labels.Count).Margen(10, 0, 0, 0)), () => Abrir("registro"));
         var excel = BotonSec(Ui.Fila(Ui.Ico(Iconos.Excel, 26, 26, Ui.VerdeXls), Ui.T("EXCEL", 21, SemiBold, Ui.Tinta, Ui.Cond).Margen(10, 0, 0, 0)), BajarExcel);
-        var acc = Ui.Columnas("* auto auto", 12, BotonGrande(m.ImpTxt, Iconos.Imprimir, Imprimir, m.ImpDis, 84, 33), registro, excel);
+        var acc = Ui.Columnas("* auto auto", 12, BotonGrande(m.ImpTxt, Iconos.Imprimir, () => Imprimir(), m.ImpDis, 84, 33), registro, excel);
         return Ui.Filas("56 auto * 84", 12, bar, top, trabajo, acc);
     }
 
