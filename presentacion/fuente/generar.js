@@ -197,7 +197,7 @@ pres.addSection({ title: 'Propuesta' });
   const k = im.w / 2048;
   puntero(s, x0, y0, k, 120, 1150);
   items(s, [
-    ['Dos grupos a la vista', 'El grupo seleccionado y el siguiente, cada uno en una fila de 42 celdas (1 a 21 y 42 a 22).'],
+    ['Un grupo a la vista', 'El grupo seleccionado en grande: arriba la fila de celdas 1 a 21 y abajo la de 42 a 22.'],
     ['Celda que sigue', 'Marcada en cobre según el orden de cosecha. Un toque cambia de celda o de grupo.'],
     ['Lado total o parcial', 'Se define una vez por lado (T o P) y entra en el rótulo.'],
     ['Emisión', '"Imprimir 1T22" envía la etiqueta a la Zebra y la deja pendiente de pesaje.'],
@@ -355,7 +355,7 @@ pres.addSection({ title: 'Solución' });
     ['Origen', 'Rotulado de cátodos comerciales; el operador queda identificado por su RUT.'],
     ['Etiqueta que sigue', 'Vista previa exacta de lo que imprime la Zebra.'],
     ['Pendientes de pesaje', 'Etiquetas emitidas que aún no pasan por la Báscula N9 y el último pesaje.'],
-    ['Grupo de producción', 'Dos grupos en filas de 42 celdas: pesada, en báscula, pendiente y la que sigue.'],
+    ['Grupo de producción', 'Celdas 1 a 21 arriba y 42 a 22 abajo: pesada, en báscula, pendiente y la que sigue.'],
     ['Imprimir', 'Un toque por lingada. Registro y Excel siempre disponibles.'],
   ], 8.15, 1.55, 1.02, 3.95);
 }

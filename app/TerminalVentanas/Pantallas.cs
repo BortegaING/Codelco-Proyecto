@@ -220,9 +220,8 @@ public partial class MainWindow
         var cab = Ui.Columnas("auto * auto auto auto", 12, Ui.T("PASO 2 · GRUPO DE PRODUCCIÓN", 19, Bold, Ui.Tinta, Ui.Cond), new Grid(), ley,
             BotonMini(S.Muestra ? "Muestra: sí" : "Muestra", AlternarMuestra, S.Muestra), BotonMini("Cambiar grupo", () => Abrir("grupo")));
         cab.MinHeight = 44;
-        // El grupo elegido en grande; el otro del par (por ejemplo el 22) en una barra que se toca para verlo
-        var otro = GrupoDe(G.G == S.Par ? S.Par + 1 : S.Par);
-        var caja = Ui.Tarjeta(Ui.Filas("auto auto auto", 8, cab, GrupoGrande(G, sig), BarraGrupo(otro)), relleno: new Thickness(16, 10, 16, 12));
+        // Un solo grupo, en grande: arriba la fila de celdas 1 a 21 y abajo la de 42 a 22. Otro grupo se elige con Cambiar grupo
+        var caja = Ui.Tarjeta(Ui.Filas("auto auto", 8, cab, GrupoGrande(G, sig)), relleno: new Thickness(16, 10, 16, 12));
         caja.VerticalAlignment = VerticalAlignment.Top;
         return caja;
     }
@@ -258,16 +257,6 @@ public partial class MainWindow
         var m1 = Ui.Grilla(21, D.Orden.Take(21).Select(Sq), 4);
         var m2 = Ui.Grilla(21, D.Orden.Skip(21).Select(Sq), 4);
         return Ui.Filas("auto auto auto auto auto", 6, head, f1, m1, f2, m2);
-    }
-
-    /// <summary>El otro grupo del par, en chico: cuántas etiquetas tiene y un toque para pasar a rotularlo.</summary>
-    private Border BarraGrupo(Grupo g)
-    {
-        var pes = g.Celdas.Values.Count(c => c.E == "pesada"); var pend = g.Celdas.Count - pes;
-        var info = g.Celdas.Count == 0 ? "sin etiquetas" : $"{pes} pesadas · {pend} pendientes";
-        var c = Ui.Columnas("auto * auto", 12, Ui.T($"GRUPO {g.G}", 20, Bold, Ui.Tinta, Ui.Cond), Ui.T(info, 15, Medium, Ui.Mut),
-            Ui.Fila(Ui.T("TOCAR PARA VER", 15, SemiBold, Ui.CobreClaro, Ui.Cond), Ui.T("›", 22, Bold, Ui.CobreClaro).Margen(8, 0, 0, 2)));
-        return Ui.Boton(c, A(() => { S.Grupo = g.G; S.Sel = Siguiente(g); S.Muestra = false; S.Msg = null; Render(); }), Ui.Fondo, Ui.Linea2, 10, new Thickness(14, 0, 14, 0), 44, null, false);
     }
 
     private static T Centro<T>(T el) where T : FrameworkElement { el.HorizontalAlignment = HorizontalAlignment.Center; return el; }
