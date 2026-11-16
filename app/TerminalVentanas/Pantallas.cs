@@ -220,50 +220,54 @@ public partial class MainWindow
         var cab = Ui.Columnas("auto * auto auto auto", 12, Ui.T("PASO 2 · GRUPO DE PRODUCCIÓN", 19, Bold, Ui.Tinta, Ui.Cond), new Grid(), ley,
             BotonMini(S.Muestra ? "Muestra: sí" : "Muestra", AlternarMuestra, S.Muestra), BotonMini("Cambiar grupo", () => Abrir("grupo")));
         cab.MinHeight = 44;
-        var nota = L($"Cada celda es una lingada de {D.CatodosCelda} cátodos. Toque una celda para rotularla; la que sigue tiene borde cobre.");
-        var caja = Ui.Tarjeta(Ui.Filas("auto auto auto auto", 8, cab, FilaGrupo(GrupoDe(S.Par)), FilaGrupo(GrupoDe(S.Par + 1)), nota));
+        // El grupo elegido en grande; el otro del par (por ejemplo el 22) en una barra que se toca para verlo
+        var otro = GrupoDe(G.G == S.Par ? S.Par + 1 : S.Par);
+        var caja = Ui.Tarjeta(Ui.Filas("auto auto auto", 8, cab, GrupoGrande(G, sig), BarraGrupo(otro)), relleno: new Thickness(16, 10, 16, 12));
         caja.VerticalAlignment = VerticalAlignment.Top;
         return caja;
     }
 
-    /// <summary>Un grupo en una sola fila: celdas 1 a 21 (un lado) y 42 a 22 (el otro), en el orden de la cosecha.</summary>
-    private UIElement FilaGrupo(Grupo g)
+    /// <summary>El grupo que se está rotulando: lado 1 a 21 arriba y 42 a 22 abajo, en el orden de la cosecha, con celdas grandes.</summary>
+    private UIElement GrupoGrande(Grupo g, int? sig)
     {
-        var activo = g.G == S.Grupo; var sig = Siguiente(g);
         var pes = g.Celdas.Values.Count(c => c.E == "pesada"); var pend = g.Celdas.Count - pes;
-        Border Lado(string k, string rango)
+        Border Lado(string k)
         {
             var l = k == "a" ? g.LadoA : g.LadoB;
-            return Ui.Boton(Ui.Fila(Ui.T($"{rango} · LADO {LadoTxt(l).ToUpperInvariant()}", 13, SemiBold, Ui.CobreClaro, Ui.Cond), Ui.Ico(Iconos.Lapiz, 14, 14, Ui.CobreClaro).Margen(5, 0, 0, 0)),
-                A(() => { S.Grupo = g.G; Abrir("lado", k); }), Brushes.Transparent, Ui.CobreBorde, 8, new Thickness(9, 0, 9, 0), 30);
+            return Ui.Boton(Ui.Fila(Ui.T($"LADO {LadoTxt(l).ToUpperInvariant()}", 14, SemiBold, Ui.CobreClaro, Ui.Cond), Ui.Ico(Iconos.Lapiz, 15, 15, Ui.CobreClaro).Margen(6, 0, 0, 0)),
+                A(() => Abrir("lado", k)), Brushes.Transparent, Ui.CobreBorde, 8, new Thickness(10, 0, 10, 0), 32);
         }
-        var titulo = Ui.T($"GRUPO {g.G}", 20, Bold, activo ? Ui.CobreClaro : Ui.Tinta, Ui.Cond);
-        var info = Ui.T(g.Celdas.Count == 0 ? "sin etiquetas" : $"{pes} pesadas · {pend} pendientes", 14, Medium, Ui.Mut);
-        var head = Ui.Columnas("auto auto * auto auto", 10, titulo, info, new Grid(), Lado("a", "1–21"), Lado("b", "42–22"));
+        var titulo = Ui.T($"GRUPO {g.G}", 22, Bold, Ui.CobreClaro, Ui.Cond);
+        var info = Ui.T(g.Celdas.Count == 0 ? $"sin etiquetas · {D.CatodosCelda} cátodos por celda" : $"{pes} pesadas · {pend} pendientes · {D.CatodosCelda} cátodos por celda", 14, Medium, Ui.Mut);
         UIElement Sq(int n)
         {
             g.Celdas.TryGetValue(n, out var c);
             Brush fondo = Ui.Fondo, borde = Ui.Linea, color = Ui.Mut; var grosor = 1.0;
             if (c != null) (fondo, borde, color) = c.E == "pesada" ? (Ui.VerdeF, Ui.VerdeL, Ui.VerdeC) : c.E == "bascula" ? (Ui.AmbarF, Ui.AmbarL, Ui.AmbarC) : (Ui.AzulF, Ui.AzulL, Ui.AzulC);
-            else if (activo && n == sig) { borde = Ui.Cobre; color = Ui.CobreClaro; grosor = 2.5; }
-            if (activo && !S.Muestra && n == S.Sel && n != sig) { fondo = Ui.Cobre; borde = Ui.Cobre; color = Ui.SobreCobre; }
-            var num = Centro(Ui.T(n.ToString(), 13, Bold, color, Ui.Cond)); num.VerticalAlignment = VerticalAlignment.Center;
-            return Ui.Boton(num, A(() => CeldaElegida(g.G, n)), fondo, borde, 5, new Thickness(0), 52, new Thickness(grosor));
+            else if (n == sig) { borde = Ui.Cobre; color = Ui.CobreClaro; grosor = 3; }
+            if (!S.Muestra && n == S.Sel && n != sig) { fondo = Ui.Cobre; borde = Ui.Cobre; color = Ui.SobreCobre; }
+            var col = Ui.Columna(Centro(Ui.T(n.ToString(), 21, Bold, color)));
+            if (c is { E: "pesada" } && c.P > 0) { var w = Ui.T(D.Kg(c.P), 10.5, SemiBold, Ui.VerdeC, Ui.Mono); w.Opacity = 0.85; col.Children.Add(Centro(w).Margen(0, 1, 0, 0)); }
+            col.VerticalAlignment = VerticalAlignment.Center;
+            return Ui.Boton(col, A(() => CeldaElegida(g.G, n)), fondo, borde, 9, new Thickness(0), 62, new Thickness(grosor));
         }
-        var celdas = new Grid();
-        var orden = D.Orden;
-        for (var i = 0; i < orden.Length; i++)
-        {
-            if (i == 21) celdas.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(8) });
-            celdas.ColumnDefinitions.Add(new ColumnDefinition());
-            var el = (FrameworkElement)Sq(orden[i]); el.Margin = new Thickness(1.2, 0, 1.2, 0);
-            Grid.SetColumn(el, i < 21 ? i : i + 1); celdas.Children.Add(el);
-        }
-        return new Border
-        {
-            BorderBrush = activo ? Ui.Cobre : Ui.Linea, BorderThickness = new Thickness(activo ? 2 : 1), CornerRadius = new CornerRadius(12), Padding = new Thickness(10, 8, 10, 10),
-            Background = activo ? Ui.Panel2 : Brushes.Transparent, Child = Ui.Filas("auto auto", 8, head, celdas),
-        };
+        var head = Ui.Columnas("auto auto *", 12, titulo, info, new Grid());
+        var f1 = Ui.Columnas("auto *", 10, Ui.Rotulo("Celdas 1 a 21", 14), Lado("a"));
+        var f2 = Ui.Columnas("auto *", 10, Ui.Rotulo("Celdas 42 a 22", 14), Lado("b"));
+        ((FrameworkElement)f1.Children[1]).HorizontalAlignment = HorizontalAlignment.Left; ((FrameworkElement)f2.Children[1]).HorizontalAlignment = HorizontalAlignment.Left;
+        var m1 = Ui.Grilla(21, D.Orden.Take(21).Select(Sq), 4);
+        var m2 = Ui.Grilla(21, D.Orden.Skip(21).Select(Sq), 4);
+        return Ui.Filas("auto auto auto auto auto", 6, head, f1, m1, f2, m2);
+    }
+
+    /// <summary>El otro grupo del par, en chico: cuántas etiquetas tiene y un toque para pasar a rotularlo.</summary>
+    private Border BarraGrupo(Grupo g)
+    {
+        var pes = g.Celdas.Values.Count(c => c.E == "pesada"); var pend = g.Celdas.Count - pes;
+        var info = g.Celdas.Count == 0 ? "sin etiquetas" : $"{pes} pesadas · {pend} pendientes";
+        var c = Ui.Columnas("auto * auto", 12, Ui.T($"GRUPO {g.G}", 20, Bold, Ui.Tinta, Ui.Cond), Ui.T(info, 15, Medium, Ui.Mut),
+            Ui.Fila(Ui.T("TOCAR PARA VER", 15, SemiBold, Ui.CobreClaro, Ui.Cond), Ui.T("›", 22, Bold, Ui.CobreClaro).Margen(8, 0, 0, 2)));
+        return Ui.Boton(c, A(() => { S.Grupo = g.G; S.Sel = Siguiente(g); S.Muestra = false; S.Msg = null; Render(); }), Ui.Fondo, Ui.Linea2, 10, new Thickness(14, 0, 14, 0), 44, null, false);
     }
 
     private static T Centro<T>(T el) where T : FrameworkElement { el.HorizontalAlignment = HorizontalAlignment.Center; return el; }

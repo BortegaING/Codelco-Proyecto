@@ -398,7 +398,7 @@ footer{padding-block:30px 40px;color:var(--muted);font-size:13px}
 .iso .lbl{fill:var(--ink);font:700 12px var(--f-mono)}
 .iso .mk{fill:var(--steel)} .iso .mk.on{fill:var(--copper)} .iso .mk-ring{fill:none;stroke:var(--copper);stroke-width:2}
 .iso .mk-t{fill:var(--panel);font:700 10px var(--f-mono);text-anchor:middle} .iso .mk-t.on{font-size:12px}
-/* Materiales de la báscula N9: barreras y grúa amarillas, tractor blanco, carros oxidados, pallet de madera, muros de la caseta */
+/* Materiales de la báscula N9: barreras y grúa amarillas, arrastre blanco, carros oxidados, pallet de madera, muros de la caseta */
 :root{--am:#E2B51E;--tg:#E9ECEC;--ru:#8A5A3A;--ru-d:#6B4128;--wd:#B8875A;--mu:#D9DEE1}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--am:#C99C12;--tg:#B9BFC2;--ru:#7A4E32;--ru-d:#A87650;--wd:#8E6A46;--mu:#7C8890}}
 :root[data-theme="dark"]{--am:#C99C12;--tg:#B9BFC2;--ru:#7A4E32;--ru-d:#A87650;--wd:#8E6A46;--mu:#7C8890}

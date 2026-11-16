@@ -52,7 +52,7 @@ La misma idea en texto, para editarla rápido:
 ```mermaid
 flowchart LR
   A["VT1200 en la nave:<br/>elige lo que sigue"] --> B["Imprime la etiqueta<br/>rótulo + QR"]
-  B --> C["Grúa o tractor<br/>lleva la carga"]
+  B --> C["Horquilla o carro<br/>lleva la carga"]
   C --> D{"¿La cámara lee<br/>la etiqueta?"}
   D -- No --> D2["La identifica el pesador<br/>B1 ámbar"] --> E
   D -- Sí --> E{"¿Grúa fuera, carga en el área<br/>y báscula en cero?"}

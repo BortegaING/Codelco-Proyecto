@@ -59,7 +59,7 @@ add(f'<rect width="{W}" height="{H}" fill="#FFFFFF"/>')
 texto(40, 52, "Flujo del sistema de trazabilidad y pesaje · Báscula N9", 28, 700, C["ink"])
 texto(40, 82, "Identificación estandarizada en origen, lectura por visión artificial y captura automática del peso en un registro único, con la hora real.", 16, 400, C["mut"])
 carriles = [(30, 305, "1 · Origen", "Cosecha de cátodos en la nave"),
-            (345, 255, "2 · Traslado", "Horquilla o tractor"),
+            (345, 255, "2 · Traslado", "Horquilla o carro de arrastre"),
             (615, 640, "3 · Báscula N9", "Visor, 4 celdas de carga, 2 cámaras y semáforo"),
             (1270, 300, "4 · Registro", "Registro único y seguimiento")]
 for i, (x, w, t, s) in enumerate(carriles):
@@ -77,7 +77,7 @@ flecha([(185, 530), (185, 568)])
 
 # ---------- 2 · Traslado ----------
 caja(362, 400, 220, 130, "Horquilla", "Lingadas de cátodos rotuladas, directo a la plataforma.")
-caja(362, 570, 220, 130, "Tractor", "Carro con rack de restos de ánodos.")
+caja(362, 570, 220, 130, "Carro de arrastre", "Rack con restos de ánodos.")
 flecha([(320, 635), (360, 635)])
 flecha([(320, 635), (340, 635), (340, 465), (360, 465)])
 

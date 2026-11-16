@@ -105,7 +105,7 @@ public partial class MainWindow
         await Esperar(() => B.Res.T2.Contains("Sin tara"), "carro sin tara", 20000); await Task.Delay(300); await FotoBascula(c, "bal-8-sin-tara"); L($"Sin tara: {B.Res.T1}");
         await Esperar(() => B.Chip == "cero", "plataforma disponible", 20000);
 
-        // Paso 2: una celda del grupo 22, en la fila de abajo
+        // Paso 2: el grupo 22 desde su barra de abajo, y su celda 1
         CeldaElegida(22, 1); await Foto(c, "07-grupo22"); Imprimir();
         await Esperar(() => S.Labels.Any(l => l.Codigo == "1T22"), "1T22 impresa", 5000); L("1T22 impresa desde la fila del grupo 22");
         await Esperar(() => S.Fase == null, "vuelve a la pantalla", 5000); await Foto(c, "08-pendientes");

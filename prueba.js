@@ -35,14 +35,14 @@ function estado(v,r){
   if(r.anod&&!v.carroReg) Object.assign(campo('Tara carro + rack'),{v:'sin registro',e:true,a:0});
   let b2='verde', pst='estable', jit=0, cam={txt:'Carga bien ubicada; nadie sobre la báscula',ok:true}, b1='off';
   if(v.nod){b2='rojo-blink';pst='bloqueado';cam={txt:'Nódulos de cobre en el borde de la plataforma',ok:false};}
-  else if(v.vehEncima){b2='rojo';pst='bloqueado';cam={txt:r.anod?'El tractor está sobre la báscula':'Ruedas de la grúa sobre la báscula',ok:false};}
+  else if(v.vehEncima){b2='rojo';pst='bloqueado';cam={txt:r.anod?'El arrastre del carro está sobre la báscula':'Ruedas de la grúa sobre la báscula',ok:false};}
   if(r.captura) b1=r.identificado?(r.enRango?'verde':'rojo'):'ambar-blink';
   else if(!r.identificado) b1='ambar-blink';
   let x;
   if(v.nod) x={t:'No vuelve a cero',focus:'bascula',quien:'Pesador',ope:'Pide retirar los nódulos del borde de la plataforma.',
     sis:`Los nódulos suman ${NODULOS_KG} kg y la báscula vacía no marca cero. No deja pesar.`,banner:{k:'err',txt:'Báscula sin cero: retire los nódulos.'}};
-  else if(v.vehEncima) x={t:r.anod?'Tractor sobre la báscula':'Grúa sobre la báscula',focus:'bascula',quien:r.anod?'Operador de tractor':'Operador de grúa',
-    ope:r.anod?'Avanza el tractor hasta dejarlo fuera de la báscula.':'Retrocede hasta dejar la báscula libre.',
+  else if(v.vehEncima) x={t:r.anod?'Arrastre sobre la báscula':'Horquilla sobre la báscula',focus:'bascula',quien:r.anod?'Operador del carro':'Operador de horquilla',
+    ope:r.anod?'Avanza hasta dejar el arrastre fuera de la báscula.':'Retrocede hasta dejar la báscula libre.',
     sis:`La cámara ve el vehículo sobre la plataforma: sumaría unos ${f0(VEHICULO_KG)} kg. B2 en rojo y no pesa.`,banner:{k:'err',txt:'Vehículo sobre la báscula. Sáquelo para pesar.'}};
   else if(!v.etq) x={t:'Llega sin etiqueta',focus:'caseta',quien:'Pesador',ope:'Identifica la carga en su pantalla con un toque.',
     sis:'La cámara no encuentra etiqueta. Propone lo que sigue en el orden y espera la confirmación.',banner:{k:'warn',txt:'Sin etiqueta: confirme a mano.'}};

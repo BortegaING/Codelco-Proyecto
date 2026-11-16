@@ -211,7 +211,7 @@ pres.addSection({ title: 'Situación actual' });
   const prods = [
     ['etq_cat_vt.png', 'Cátodos comerciales', ['Lingada de 39 cátodos por celda, de 4,3 a 4,9 t.', 'Ingresa con horquilla; sin tara.', 'Rótulo: celda + lado + grupo (12P31).']],
     ['etq_lam.png', 'Láminas', ['Pallet con correlativo mensual.', 'Tara de pallet: 12 kg.', 'Dos pallets montados: pesaje por diferencia.']],
-    ['etq_rs.png', 'Restos de ánodos', ['Carro + rack arrastrado por tractor.', 'Neto = bruto − tara de carro − tara de rack.', 'Tara leída por la cámara lateral.']],
+    ['etq_rs.png', 'Restos de ánodos', ['Carro de arrastre con rack.', 'Neto = bruto − tara de carro − tara de rack.', 'Tara leída por la cámara lateral.']],
   ];
   prods.forEach(([f, h, it], i) => {
     const x = 0.6 + i * 4.15;
@@ -342,7 +342,7 @@ pres.addSection({ title: 'Solución' });
   const s = pres.addSlide({ masterName: 'LIENZO', sectionTitle: 'Solución' });
   const t = tamPng(DIAGRAMA), h = 6.55, w = h * t.w / t.h;
   s.addImage({ path: DIAGRAMA, x: (13.333 - w) / 2, y: 0.32, w, h, altText: 'Diagrama del flujo: origen, traslado, Báscula N9 con visión artificial y semáforo, y registro', objectName: 'Diagrama de flujo' });
-  s.addNotes('1 a 3 en origen con la VT1200; traslado en horquilla o tractor; 4 a 6 en la báscula: lectura del QR, validación de posición y cero, captura del peso y neto; 7 a 9 registro único, Excel y pendientes de pesaje. Si la etiqueta no se lee, el sistema alerta y el pesador identifica la carga a mano.');
+  s.addNotes('1 a 3 en origen con la VT1200; traslado en horquilla o carro de arrastre; 4 a 6 en la báscula: lectura del QR, validación de posición y cero, captura del peso y neto; 7 a 9 registro único, Excel y pendientes de pesaje. Si la etiqueta no se lee, el sistema alerta y el pesador identifica la carga a mano.');
 }
 
 /* ===================== 8. La pantalla en origen ===================== */
@@ -395,7 +395,7 @@ pres.addSection({ title: 'Solución' });
     texto(s, h, { x: 2.1, y: 1.8 + i * 1.08, w: 3.9, h: 0.36, fontFace: CABEZA, fontSize: 17 });
     texto(s, b, { x: 2.1, y: 2.16 + i * 1.08, w: 3.9, h: 0.7, fontSize: 13, color: P.mut });
   });
-  texto(s, 'El semáforo queda a la vista del operador de horquilla o tractor.', { x: 0.6, y: 5.3, w: 5.4, h: 0.5, fontSize: 13, bold: true, color: C.accent1 });
+  texto(s, 'El semáforo queda a la vista del operador de la horquilla o del carro.', { x: 0.6, y: 5.3, w: 5.4, h: 0.5, fontSize: 13, bold: true, color: C.accent1 });
   // Cámaras y visor
   const cards = [
     ['Cámara superior', 'Detecta la llegada de cobre, identifica el producto y lee el QR de la etiqueta.'],
