@@ -155,16 +155,16 @@ pres.addSection({ title: 'Inicio' });
   texto(s, 'Etiquetado estandarizado de cátodos en origen, lectura por visión artificial y captura automática del peso en un registro único y auditable.',
     { x: 0.6, y: 3.95, w: 5.9, h: 1.3, fontSize: 18, color: P.claro });
   texto(s, 'Propuesta Ingmétrica · noviembre 2026', { x: 0.6, y: 6.35, w: 5.9, h: 0.35, fontSize: 14, color: P.claroMut });
-  imagen(s, IMG('vt_principal.png'), 6.85, 1.2, { w: 5.9, alt: 'Pantalla de la VT1200 en origen: etiqueta 5T21 que sigue y el grupo 21 con sus celdas' });
-  texto(s, 'VT1200 en origen: etiqueta que sigue y grupo de producción.', { x: 6.85, y: 5.75, w: 5.9, h: 0.3, fontSize: 11, color: P.claroMut });
-  s.addNotes('Sistema de trazabilidad y pesaje para la Báscula N9. En esta etapa la VT1200 de origen rotula cátodos comerciales; la báscula identifica y pesa con visión artificial.');
+  imagen(s, IMG('vt_principal.png'), 6.85, 1.2, { w: 5.9, alt: 'Pantalla de etiquetado en origen: etiqueta 5T21 que sigue y el grupo 21 con sus celdas' });
+  texto(s, 'Etiquetado en origen: etiqueta que sigue y grupo de producción.', { x: 6.85, y: 5.75, w: 5.9, h: 0.3, fontSize: 11, color: P.claroMut });
+  s.addNotes('Sistema de trazabilidad y pesaje para la Báscula N9. En esta etapa el programa de etiquetado en origen rotula cátodos comerciales; la báscula identifica y pesa con visión artificial.');
 }
 
 /* ===================== 2. Paso 1: selección de cuba en el layout ===================== */
 pres.addSection({ title: 'Propuesta' });
 {
   const s = lamina('Propuesta', 'PASO 1 · SELECCIÓN DE CUBA', 'El operador selecciona el grupo en el layout de circuitos');
-  const x0 = 0.6, y0 = 1.5, im = imagen(s, IMG('vt_paso1.png'), x0, y0, { w: 7.3, alt: 'VT1200, paso 1: layout de la nave con los circuitos I a VI, sus grupos y EW; el grupo 21 seleccionado' });
+  const x0 = 0.6, y0 = 1.5, im = imagen(s, IMG('vt_paso1.png'), x0, y0, { w: 7.3, alt: 'Paso 1: layout de la nave con los circuitos I a VI, sus grupos y EW; el grupo 21 seleccionado' });
   const k = im.w / 2048;
   puntero(s, x0, y0, k, 700, 668, [586, 614, 781, 697]);
   items(s, [
@@ -173,14 +173,14 @@ pres.addSection({ title: 'Propuesta' });
     ['Restricciones', 'Solo se rotulan cátodos: los grupos 1 y 2 quedan sin rotulado. EW queda por confirmar.'],
     ['Cierre del grupo', 'Desde "Cambiar grupo", "Terminar grupo" informa a la báscula que no vienen más lingadas de ese grupo.'],
   ], 8.3, 1.6, 1.25, 4.1);
-  s.addNotes('Es parte del formulario de la VT1200: la primera ventana al ingresar y al cambiar de grupo. Se toca el grupo en el layout; el puntero marca la selección.');
+  s.addNotes('Es parte del programa de etiquetado: la primera ventana al ingresar y al cambiar de grupo. Se toca el grupo en el layout; el puntero marca la selección.');
 }
 
 /* ===================== 3. Resumen ===================== */
 {
   const s = lamina('Propuesta', 'RESUMEN', 'Un registro único por lingada, sin digitación manual del peso');
   const cols = [
-    ['1 etiqueta', 'En origen', 'La VT1200 emite una etiqueta estandarizada por lingada (celda, lado, grupo, 39 cátodos y QR) y la deja registrada como pendiente de pesaje.'],
+    ['1 etiqueta', 'En origen', 'El programa de etiquetado emite una etiqueta estandarizada por lingada (celda, lado, grupo, 39 cátodos y QR) y la deja registrada como pendiente de pesaje.'],
     ['1 registro', 'En la Báscula N9', 'La cámara superior lee el QR, el visor entrega el peso estable y el sistema consolida identificación, peso, hora real y validaciones.'],
   ];
   cols.forEach(([big, h, body], i) => {
@@ -196,8 +196,8 @@ pres.addSection({ title: 'Propuesta' });
 
 /* ===================== 4. Paso 2: grupo de producción y celda ===================== */
 {
-  const s = lamina('Propuesta', 'PASO 2 · SELECCIÓN GRUPO DE PRODUCCIÓN', 'La VT1200 propone la celda que sigue y emite la etiqueta');
-  const x0 = 0.6, y0 = 1.5, im = imagen(s, IMG('vt_paso2.png'), x0, y0, { w: 7.3, alt: 'VT1200, paso 2: grupo 22 con las celdas 1 a 21 arriba y 22 a 42 abajo; celda 1 seleccionada y etiqueta 1T22 lista para imprimir' });
+  const s = lamina('Propuesta', 'PASO 2 · SELECCIÓN GRUPO DE PRODUCCIÓN', 'El programa propone la celda que sigue y emite la etiqueta');
+  const x0 = 0.6, y0 = 1.5, im = imagen(s, IMG('vt_paso2.png'), x0, y0, { w: 7.3, alt: 'Paso 2: grupo 22 con las celdas 1 a 21 arriba y 22 a 42 abajo; celda 1 seleccionada y etiqueta 1T22 lista para imprimir' });
   const k = im.w / 2048;
   puntero(s, x0, y0, k, 128, 968);
   items(s, [
@@ -225,7 +225,7 @@ pres.addSection({ title: 'Situación actual' });
     texto(s, it.map((t, j) => ({ text: t, options: { bullet: true, breakLine: j < it.length - 1 } })),
       { x: x + 0.35, y: 4.55, w: 3.2, h: 1.7, fontSize: 14, color: P.mut, paraSpaceAfter: 6 });
   });
-  texto(s, 'Alcance de esta etapa: la VT1200 rotula cátodos comerciales. Láminas y restos de ánodos se incorporan en la ampliación.',
+  texto(s, 'Alcance de esta etapa: el programa de etiquetado rotula cátodos comerciales. Láminas y restos de ánodos se incorporan en la ampliación.',
     { x: 0.6, y: 6.5, w: 12.1, h: 0.35, fontSize: 13, bold: true, color: C.accent1 });
 }
 
@@ -284,7 +284,7 @@ if (INCLUIR.sistema) {
     const h = encaja(s, IMG(f), x, y, w, hm, cap);
     texto(s, cap, { x, y: y + h + 0.06, w, h: 0.8, fontSize: 12, color: P.mut });
   });
-  s.addNotes('Son los datos que la pantalla Báscula de la VT1200 tiene que dejar ingresar y corregir. Fotos de la visita, recortadas sin nombres.');
+  s.addNotes('Son los datos que la pantalla de la báscula tiene que dejar ingresar y corregir. Fotos de la visita, recortadas sin nombres.');
 }
 
 /* ===================== 5. Un día real ===================== */
@@ -346,13 +346,13 @@ pres.addSection({ title: 'Solución' });
   const s = pres.addSlide({ masterName: 'LIENZO', sectionTitle: 'Solución' });
   const t = tamPng(DIAGRAMA), h = 6.55, w = h * t.w / t.h;
   s.addImage({ path: DIAGRAMA, x: (13.333 - w) / 2, y: 0.32, w, h, altText: 'Diagrama del flujo: origen, traslado, Báscula N9 con visión artificial y baliza, y registro', objectName: 'Diagrama de flujo' });
-  s.addNotes('1 a 3 en origen con la VT1200; traslado en horquilla o carro de arrastre; 4 a 6 en la báscula: lectura del QR, validación de posición y cero, captura del peso y neto; 7 a 9 registro único, Excel y pendientes de pesaje. Si la etiqueta no se lee, el sistema alerta y el pesador identifica la carga a mano.');
+  s.addNotes('1 a 3 en origen con el programa de etiquetado; traslado en horquilla o carro de arrastre; 4 a 6 en la báscula: lectura del QR, validación de posición y cero, captura del peso y neto; 7 a 9 registro único, Excel y pendientes de pesaje. Si la etiqueta no se lee, el sistema alerta y el pesador identifica la carga a mano.');
 }
 
 /* ===================== 8. La pantalla en origen ===================== */
 {
-  const s = lamina('Solución', 'PROGRAMA 1 · ETIQUETADO EN ORIGEN (VT1200)', 'Rotulado de cátodos: solo emite la etiqueta');
-  const im = imagen(s, IMG('vt_principal.png'), 0.6, 1.5, { w: 7.2, alt: 'Pantalla principal de la VT1200: etiqueta que sigue, grupo 21 con las celdas 1 a 21 y 22 a 42, y botón Imprimir' });
+  const s = lamina('Solución', 'PROGRAMA 1 · ETIQUETADO EN ORIGEN', 'Rotulado de cátodos: solo emite la etiqueta');
+  const im = imagen(s, IMG('vt_principal.png'), 0.6, 1.5, { w: 7.2, alt: 'Pantalla principal del programa de etiquetado: etiqueta que sigue, grupo 21 con las celdas 1 a 21 y 22 a 42, y botón Imprimir' });
   const k = im.w / 2048;
   MARCAS_ORIGEN.forEach(([px, py], i) => numero(s, i + 1, 0.6 + px * k - 0.18, 1.5 + py * k - 0.18, 0.36));
   items(s, [
@@ -388,7 +388,7 @@ pres.addSection({ title: 'Solución' });
 /* ===================== 12. Registro y Excel ===================== */
 {
   const s = lamina('Solución', 'REGISTRO Y EXCEL', 'Registro único y trazable, exportable a Excel por turno');
-  imagen(s, IMG('vt_registro.png'), 0.6, 1.5, { w: 6.3, alt: 'Registro del día en la VT1200: etiquetas emitidas, estado de pesaje, hora y neto' });
+  imagen(s, IMG('vt_registro.png'), 0.6, 1.5, { w: 6.3, alt: 'Registro del día en el programa de etiquetado: etiquetas emitidas, estado de pesaje, hora y neto' });
   texto(s, 'Contenido del registro', { x: 7.3, y: 1.5, w: 5.4, h: 0.4, fontFace: CABEZA, fontSize: 18 });
   const hojas = [['Cátodos', 'grupo, cuba, lado, muestra, peso, hora real de pesaje y validación.'],
     ['Pendientes', 'etiquetas emitidas sin pesaje asociado, para seguimiento y cierre del grupo.'],
@@ -418,7 +418,7 @@ pres.addSection({ title: 'Pesaje' });
     ['Anunciadas', 'Etiquetas emitidas en origen que todavía no se pesan.'],
     ['Identificación manual', 'Si la cámara no lee la etiqueta, el pesador escribe el rótulo y asocia el peso.'],
   ], 8.15, 1.45, 0.88, 3.95);
-  s.addNotes('Es un programa aparte del de la VT1200: se instala en el PC de la caseta. En esta etapa las cámaras y el visor están simulados.');
+  s.addNotes('Es un programa aparte del de etiquetado: se instala en el PC de la caseta. En esta etapa las cámaras y el visor están simulados.');
 }
 
 /* ===================== 8c. Programa 2: identificación manual ===================== */
@@ -454,7 +454,7 @@ pres.addSection({ title: 'Pesaje' });
       texto(s, cap, { x, y: y + 0.46 + im.h, w: 2.9, h: 0.3, fontSize: 12, color: P.mut });
     });
   });
-  s.addNotes('Es la lectura del programa de la caseta, no la de la VT1200. Rangos: cátodos 4.200 a 5.000 kg; restos 2.800 a 4.000 kg netos. Los valores de error son los de la simulación.');
+  s.addNotes('Es la lectura del programa de la caseta, no la del etiquetado. Rangos: cátodos 4.200 a 5.000 kg; restos 2.800 a 4.000 kg netos. Los valores de error son los de la simulación.');
 }
 
 /* ===================== 10. Visión artificial y baliza ===================== */
@@ -497,8 +497,8 @@ pres.addSection({ title: 'Cierre' });
 {
   const s = lamina('Cierre', 'PRUÉBELO', 'Dos programas: etiquetado y pesaje');
   imagen(s, IMG('app_impresa.jpg'), 0.6, 1.45, { w: 6.9, alt: 'Captura de TerminalVentanas.exe: etiqueta 5T21 impresa y el grupo 21' });
-  texto(s, 'Captura de TerminalVentanas.exe, la app que se instala en la VT1200.', { x: 0.6, y: 6.7, w: 6.9, h: 0.25, fontSize: 11, color: P.mut });
-  const bloques = [['Programa 1 · Etiquetado (VT1200)', 'TerminalVentanas.exe: selección de grupo en el layout, emisión de la etiqueta en la Zebra, registro y Excel.'],
+  texto(s, 'Captura de TerminalVentanas.exe, el programa de etiquetado en origen.', { x: 0.6, y: 6.7, w: 6.9, h: 0.25, fontSize: 11, color: P.mut });
+  const bloques = [['Programa 1 · Etiquetado en origen', 'TerminalVentanas.exe: selección de grupo en el layout, emisión de la etiqueta en la Zebra, registro y Excel.'],
     ['Programa 2 · Pesaje (caseta)', 'BasculaCaseta.exe: cámaras, baliza, captura del peso, registro de lo identificado e identificación manual.'],
     ['Instalación', 'Aplicaciones Windows autónomas (.NET 8): sin navegador ni internet; se instalan copiando una carpeta. Cámaras y visor simulados en esta etapa.']];
   bloques.forEach(([h, b], i) => {
