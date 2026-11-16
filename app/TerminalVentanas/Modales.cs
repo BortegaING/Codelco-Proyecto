@@ -87,11 +87,14 @@ public partial class MainWindow
                     BorderBrush = Ui.Linea2, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10), Padding = new Thickness(14, 12, 14, 12), VerticalAlignment = VerticalAlignment.Top,
                     Child = Ui.Columna(Ui.T("EW", 26, Bold, Ui.VerdeT, Ui.Cond), Ui.T("Cátodos electro-obtenidos: hoy llegan sin rótulo. Por confirmar con Codelco.", 14, Medium, Ui.Mut, ajustar: true).Margen(0, 4, 0, 0)),
                 };
-                var nota = Ui.T($"Toque el grupo que va a rotular. La pantalla lo muestra con sus celdas 1 a 21 arriba y 22 a 42 abajo. Los grupos 1 y 2 son el circuito de láminas.", 15, Medium, Ui.Mut, ajustar: true);
+                var nota = Ui.T($"Toque el grupo que va a rotular. La pantalla lo muestra con sus celdas 1 a 21 arriba y 22 a 42 abajo.", 15, Medium, Ui.Mut, ajustar: true);
                 nota.VerticalAlignment = VerticalAlignment.Top;
-                var fila2 = Ui.Columnas("* * 2*", 10, Bloque(cs[4].Nombre, cs[4].Pares, "1 y 2: circuito de láminas"), Bloque(cs[5].Nombre, cs[5].Pares), Ui.Filas("auto auto", 12, ew, nota));
-                return Ventana(984, Encabezado("Paso 1 · Layout de la nave", "¿Qué grupo va a rotular?"), fila1, fila2,
-                    Acciones(BotonVentana($"Terminar el grupo {G.G}", () => Abrir("terminar"), icono: Iconos.Warn, color: Ui.AmbarT), BotonVentana("Cancelar", Cerrar)));
+                var fila2 = Ui.Columnas("* * 2*", 10, Bloque(cs[4].Nombre, cs[4].Pares, "1 y 2: sin rotulado de cátodos"), Bloque(cs[5].Nombre, cs[5].Pares), Ui.Filas("auto auto", 12, ew, nota));
+                // Al entrar (paso 1 antes de la pantalla principal): se elige el grupo, o se sigue con el que quedó a medias
+                var acc = md.Val == "inicio"
+                    ? Acciones(G.Celdas.Count > 0 ? BotonVentana($"Seguir con el grupo {G.G}", Cerrar) : new Border(), BotonVentana("Salir", Salir))
+                    : Acciones(BotonVentana($"Terminar el grupo {G.G}", () => Abrir("terminar"), icono: Iconos.Warn, color: Ui.AmbarT), BotonVentana("Cancelar", Cerrar));
+                return Ventana(984, Encabezado("Paso 1 · Layout de la nave", "¿Qué grupo va a rotular?"), fila1, fila2, acc);
             }
             case "terminar":
             {

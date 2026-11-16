@@ -224,7 +224,10 @@ public partial class MainWindow
     {
         if (!D.RutValido(S.Rut)) return;
         S.User = S.Rut == "111111111" ? "Operador prueba" : "Operador " + S.Rut[^5..^1];
-        S.View = "main"; S.Prod = "cat"; S.Msg = null; Render(); Proximo();
+        S.View = "main"; S.Prod = "cat"; S.Msg = null;
+        // Lo primero es el paso 1: elegir el grupo en el layout de circuitos. Después queda la pantalla principal con ese grupo
+        if (!Caseta) S.Md = new Modal { Tipo = "grupo", Val = "inicio" };
+        Render(); Proximo();
     }
     private void Salir() { S.Md = null; S.View = "login"; S.User = ""; S.Rut = "111111111"; Render(); }
     /// <summary>Salir en la pantalla de ingreso: pregunta antes de cerrar el programa.</summary>

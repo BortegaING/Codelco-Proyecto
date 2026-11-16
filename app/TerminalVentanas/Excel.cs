@@ -4,8 +4,8 @@ using ClosedXML.Excel;
 namespace TerminalVentanas;
 
 /// <summary>
-/// El Excel del registro, con la forma de las planillas de hoy: cuaderno de cátodos, hoja de láminas despegue, restos por grupo,
-/// formulario de subproductos en PM y un resumen con las columnas del Sistema de Cátodos.
+/// El Excel del registro, con la forma de las planillas de hoy: cuaderno de cátodos y un resumen con las columnas del Sistema de Cátodos.
+/// La VT1200 rotula solo cátodos: las hojas de láminas, restos y subproductos salen solo si hay registros de esos productos.
 /// </summary>
 public static class Excel
 {
@@ -71,6 +71,8 @@ public static class Excel
         Hoja(wb, "Cátodos", C, new[] { 22, 13, 10, 16, 13, 8, 12, 10, 13, 10, 13, 40, 18, 30 });
 
         // 2. Láminas, como la hoja de láminas despegue: bloques H. INIC., C.O, L.VENTA y L.RECHAZO S/O
+        if (lam.Count > 0)
+        {
         var Lm = new List<object?[]> { F("HOJA DE LÁMINAS DESPEGUE"), F("Fecha", D.FECHA, "", "Turno", "A - C"), F(),
             F("Tipo", "Número", "Peso bruto", "Peso tara", "Producción neto", "Número de paquetes", "Turno", "Hora pesaje", "Control báscula") };
         foreach (var (t, tot) in new[] { ("aprob", "TOTAL H. INIC."), ("co", "TOTAL C.O"), ("venta", "TOTAL VENTA"), ("rso", "TOTAL RECHAZO S/O") })
@@ -84,10 +86,13 @@ public static class Excel
             Lm.Add(F(tot, "", "", "", Suma(d.Where(Ps)), d.Count));
         }
         Hoja(wb, "Láminas despegue", Lm, new[] { 20, 9, 11, 10, 15, 18, 8, 12, 40 });
+        }
 
         // 3. Restos de ánodos, como la recepción de restos: un bloque por grupo con los carros 1 a 12
-        var Rs = new List<object?[]> { F("RECEPCIÓN DE RESTOS DE ÁNODOS COMERCIALES"), F("PRODUCCIÓN DE RESTOS", "", "", "", "", D.FECHA), F() };
         var grupos = rs.Select(l => l.Ref.G).Distinct().ToList();
+        if (rs.Count > 0 || sub.Count > 0)
+        {
+        var Rs = new List<object?[]> { F("RECEPCIÓN DE RESTOS DE ÁNODOS COMERCIALES"), F("PRODUCCIÓN DE RESTOS", "", "", "", "", D.FECHA), F() };
         for (var k = 0; k < grupos.Count; k += 4)
         {
             var lote = grupos.Skip(k).Take(4).ToList();
@@ -115,8 +120,11 @@ public static class Excel
             Rs.Add(F(D.FECHA, l.Turno, l.Hora, l.Hp, l.Ref.G, l.Ref.N, int.TryParse(l.Ref.Carro, out var nc) ? nc : l.Ref.Carro,
                 Ps(l) || l.Estado == "sintara" ? l.Bruto : null, l.SinTara ? null : l.Tara, Ps(l) ? l.Neto : null, Est(l), l.Ctrl, l.Oper));
         Hoja(wb, "Restos de ánodos", Rs, new[] { 14, 10, 10, 13, 10, 12, 15, 11, 16, 10, 12, 40, 18 });
+        }
 
         // 4. Subproductos, como el formulario de entrega y recepción en PM: cajas y peso por turno
+        if (lam.Count > 0 || sub.Count > 0)
+        {
         var filas = new (string Nombre, Func<Etiqueta, bool> Es)[]
         {
             ("D.G · despuntes de guillotina", l => l.Prod == "sub" && l.Ref.St == "dg"), ("D.O · despuntes de orejas", l => l.Prod == "sub" && l.Ref.St == "do"),
@@ -140,6 +148,7 @@ public static class Excel
             }
         Sp.Add(F()); Sp.Add(F("Entregó conforme", "Pesador turno A", "", "Pesador turno C")); Sp.Add(F("Registro de encargados", "Productos Metalúrgicos"));
         Hoja(wb, "Subproductos", Sp, new[] { 34, 20, 20, 13, 13, 10, 10, 10, 10 });
+        }
 
         // 5. Resumen, con las mismas columnas que el Resumen del Sistema de Cátodos
         var R = new List<object?[]> { F("Resumen del día", D.FECHA), F("Control de cero", cero), F(), F("Cátodos (mismas columnas que el Resumen del Sistema de Cátodos)"),
@@ -151,11 +160,11 @@ public static class Excel
             var P = d.Where(l => !l.Ref.M && l.Lado == "P").ToList(); var T = d.Where(l => !l.Ref.M && l.Lado == "T").ToList(); var M = d.Where(l => l.Ref.M).ToList();
             R.Add(F(D.FECHA, 18, "Cátodo comercial", gr, Suma(P), Suma(T), Suma(M), Suma(P) + Suma(T) + Suma(M), P.Count, T.Count, P.Count + T.Count));
         }
-        R.Add(F()); R.Add(F("Láminas")); R.Add(F("Tipo", "Pallets pesados", "Neto kg"));
+        if (lam.Count > 0) { R.Add(F()); R.Add(F("Láminas")); R.Add(F("Tipo", "Pallets pesados", "Neto kg")); }
         foreach (var t in D.Lam) { var d = lam.Where(l => l.Ref.T == t.Id && Ps(l)).ToList(); if (d.Count > 0) R.Add(F(t.Nombre, d.Count, Suma(d))); }
-        R.Add(F()); R.Add(F("Restos de ánodos")); R.Add(F("Grupo", "Carros pesados", "Neto kg"));
+        if (rs.Count > 0) { R.Add(F()); R.Add(F("Restos de ánodos")); R.Add(F("Grupo", "Carros pesados", "Neto kg")); }
         foreach (var gr in grupos) { var d = rs.Where(l => l.Ref.G == gr && Ps(l)).ToList(); R.Add(F(gr, d.Count, Suma(d))); }
-        R.Add(F()); R.Add(F("Despuntes y otros (sin etiqueta)")); R.Add(F("Qué es", "Registros", "Peso kg"));
+        if (sub.Count > 0) { R.Add(F()); R.Add(F("Despuntes y otros (sin etiqueta)")); R.Add(F("Qué es", "Registros", "Peso kg")); }
         foreach (var t in D.Sub) { var d = sub.Where(l => l.Ref.St == t.Id && Ps(l)).ToList(); if (d.Count > 0) R.Add(F(t.Nombre, d.Count, Suma(d))); }
         R.Add(F()); R.Add(F("Nota", "Solo suman los pesos que ya capturó la báscula. Las etiquetas en camino aparecen en cada hoja sin peso."));
         R.Add(F("", "Hora pesaje: la hora real en que la báscula tomó el peso estable (no la hora en que se digita)."));

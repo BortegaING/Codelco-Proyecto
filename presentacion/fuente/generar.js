@@ -169,11 +169,11 @@ pres.addSection({ title: 'Propuesta' });
   puntero(s, x0, y0, k, 700, 668, [586, 614, 781, 697]);
   items(s, [
     ['Layout de la nave', 'Circuitos I a VI con sus grupos, en la misma disposición del plano de la refinería.'],
-    ['Selección con un toque', 'El grupo a cosechar queda marcado (en el ejemplo, grupo 21) y pasa a la pantalla de producción.'],
-    ['Restricciones', 'Grupos 1 y 2 (circuito de láminas) no se rotulan como cátodos. EW queda por confirmar.'],
-    ['Cierre del grupo', '"Terminar grupo" informa a la báscula que no vienen más lingadas de ese grupo.'],
+    ['Primera pantalla', 'Al ingresar, el operador toca el grupo a cosechar (en el ejemplo, grupo 21) y pasa a la pantalla de producción.'],
+    ['Restricciones', 'Solo se rotulan cátodos: los grupos 1 y 2 quedan sin rotulado. EW queda por confirmar.'],
+    ['Cierre del grupo', 'Desde "Cambiar grupo", "Terminar grupo" informa a la báscula que no vienen más lingadas de ese grupo.'],
   ], 8.3, 1.6, 1.25, 4.1);
-  s.addNotes('Es parte del formulario de la VT1200: la primera ventana al cambiar de grupo. Se toca el grupo en el layout; el puntero marca la selección.');
+  s.addNotes('Es parte del formulario de la VT1200: la primera ventana al ingresar y al cambiar de grupo. Se toca el grupo en el layout; el puntero marca la selección.');
 }
 
 /* ===================== 3. Resumen ===================== */

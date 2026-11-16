@@ -112,11 +112,12 @@ public partial class MainWindow
         ElegirTema("claro"); await Foto(c, "01c-ingreso-claro"); ElegirTema("contraste"); await Foto(c, "01d-ingreso-contraste"); ElegirTema("oscuro");
         Entrar();
         if (S.Prod != "cat") throw new Exception("La VT1200 debe quedar en cátodos");
-        await Foto(c, "02-principal");
 
-        // Paso 1: el layout de circuitos para elegir el grupo
-        Abrir("grupo"); await Foto(c, "04-paso1-grupos"); L("Paso 1: layout de circuitos");
-        ElegirGrupo(21); if (S.Grupo != 21) throw new Exception("No quedó el grupo 21");
+        // Paso 1: al entrar lo primero es el layout de circuitos para elegir el grupo; después, la pantalla principal
+        if (S.Md?.Tipo != "grupo") throw new Exception("Al entrar no apareció el paso 1 (elegir el grupo)");
+        await Foto(c, "04-paso1-grupos"); L("Paso 1: layout de circuitos al entrar");
+        ElegirGrupo(21); if (S.Grupo != 21 || S.Md != null) throw new Exception("No quedó el grupo 21 en la pantalla principal");
+        await Foto(c, "02-principal");
 
         // Imprimir 5T21 (la que sigue)
         Imprimir(); await Task.Delay(300);
