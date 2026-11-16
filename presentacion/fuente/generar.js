@@ -208,9 +208,32 @@ pres.addSection({ title: 'Propuesta' });
   ], 8.3, 1.6, 1.25, 4.1);
 }
 
-/* ===================== 5. Tres productos ===================== */
-pres.addSection({ title: 'Situación actual' });
+/* ===================== 11. La etiqueta ===================== */
 {
+  const s = lamina('Propuesta', 'LA ETIQUETA', 'Rótulo estandarizado: legible a distancia y por la cámara');
+  texto(s, '5T21', { x: 0.6, y: 1.5, w: 6.2, h: 1.3, fontFace: CABEZA, fontSize: 80, color: C.text1 });
+  const partes = [['5', 'Celda', 'de 1 a 42'], ['T', 'Lado', 'T total · P parcial'], ['21', 'Grupo', 'de la cosecha'], ['39', 'Cátodos', 'por celda']];
+  partes.forEach(([v, h, b], i) => {
+    const x = 0.6 + i * 1.58;
+    tarjeta(s, x, 2.95, 1.45, 1.35);
+    texto(s, v, { x: x + 0.18, y: 3.05, w: 1.2, h: 0.5, fontFace: CABEZA, fontSize: 26, color: C.accent1 });
+    texto(s, h, { x: x + 0.18, y: 3.55, w: 1.2, h: 0.3, fontSize: 14, bold: true });
+    texto(s, b, { x: x + 0.18, y: 3.85, w: 1.25, h: 0.3, fontSize: 11, color: P.mut });
+  });
+  texto(s, [
+    { text: 'Arriba: celda, lado y grupo en caracteres grandes, para lectura a distancia.', options: { bullet: true, breakLine: true } },
+    { text: 'Abajo: QR de mayor tamaño para la cámara superior; no depende de reflejos del cobre.', options: { bullet: true, breakLine: true } },
+    { text: 'Formato Zebra 100 × 70 mm, impresión térmica en origen.', options: { bullet: true, breakLine: true } },
+    { text: 'Si la cámara no lee el QR, el sistema alerta y el pesador identifica la carga.', options: { bullet: true } },
+  ], { x: 0.6, y: 4.6, w: 6.2, h: 2.1, fontSize: 15, color: P.mut, paraSpaceAfter: 6 });
+  imagen(s, IMG('etq_cat_vt.png'), 7.3, 1.55, { w: 5.4, alt: 'Etiqueta de cátodo 5T21: arriba celda, lado y grupo; abajo el QR y 39 cátodos' });
+}
+
+/* ===================== 5. Tres productos ===================== */
+// Benjamin la borró del PPT el 16-11: queda apagada. NO volver a subirla.
+const INCLUIR_PRODUCTOS = false;
+pres.addSection({ title: 'Situación actual' });
+if (INCLUIR_PRODUCTOS) {
   const s = lamina('Situación actual', 'PRODUCTOS DE LA BÁSCULA N9', 'Tres productos con identificación y tara distintas');
   const prods = [
     ['etq_cat_vt.png', 'Cátodos comerciales', ['Lingada de 39 cátodos por celda, de 4,3 a 4,9 t.', 'Ingresa con horquilla; sin tara.', 'Rótulo: celda + lado + grupo (12P31).']],
@@ -364,27 +387,6 @@ pres.addSection({ title: 'Solución' });
   ], 8.15, 1.55, 1.02, 3.95);
 }
 
-/* ===================== 11. La etiqueta ===================== */
-{
-  const s = lamina('Solución', 'LA ETIQUETA', 'Rótulo estandarizado: legible a distancia y por la cámara');
-  texto(s, '5T21', { x: 0.6, y: 1.5, w: 6.2, h: 1.3, fontFace: CABEZA, fontSize: 80, color: C.text1 });
-  const partes = [['5', 'Celda', 'de 1 a 42'], ['T', 'Lado', 'T total · P parcial'], ['21', 'Grupo', 'de la cosecha'], ['39', 'Cátodos', 'por celda']];
-  partes.forEach(([v, h, b], i) => {
-    const x = 0.6 + i * 1.58;
-    tarjeta(s, x, 2.95, 1.45, 1.35);
-    texto(s, v, { x: x + 0.18, y: 3.05, w: 1.2, h: 0.5, fontFace: CABEZA, fontSize: 26, color: C.accent1 });
-    texto(s, h, { x: x + 0.18, y: 3.55, w: 1.2, h: 0.3, fontSize: 14, bold: true });
-    texto(s, b, { x: x + 0.18, y: 3.85, w: 1.25, h: 0.3, fontSize: 11, color: P.mut });
-  });
-  texto(s, [
-    { text: 'Arriba: celda, lado y grupo en caracteres grandes, para lectura a distancia.', options: { bullet: true, breakLine: true } },
-    { text: 'Abajo: QR de mayor tamaño para la cámara superior; no depende de reflejos del cobre.', options: { bullet: true, breakLine: true } },
-    { text: 'Formato Zebra 100 × 70 mm, impresión térmica en origen.', options: { bullet: true, breakLine: true } },
-    { text: 'Si la cámara no lee el QR, el sistema alerta y el pesador identifica la carga.', options: { bullet: true } },
-  ], { x: 0.6, y: 4.6, w: 6.2, h: 2.1, fontSize: 15, color: P.mut, paraSpaceAfter: 6 });
-  imagen(s, IMG('etq_cat_vt.png'), 7.3, 1.55, { w: 5.4, alt: 'Etiqueta de cátodo 5T21: arriba celda, lado y grupo; abajo el QR y 39 cátodos' });
-}
-
 /* ===================== 12. Registro y Excel ===================== */
 {
   const s = lamina('Solución', 'REGISTRO Y EXCEL', 'Registro único y trazable, exportable a Excel por turno');
@@ -404,6 +406,37 @@ pres.addSection({ title: 'Solución' });
 }
 
 pres.addSection({ title: 'Pesaje' });
+/* ===================== 8a. Introducción al sistema de pesaje ===================== */
+{
+  const s = lamina('Pesaje', 'PROGRAMA 2 · SISTEMA DE PESAJE', 'Un segundo sistema en la caseta de la Báscula N9');
+  texto(s, 'El programa de etiquetado deja cada lingada rotulada en origen. El sistema de pesaje la recibe en la Báscula N9: la identifica, captura su peso y cierra el registro, sin digitación manual.',
+    { x: 0.6, y: 1.5, w: 12.1, h: 0.7, fontSize: 16, color: P.mut });
+  const pasos = [
+    ['Ingreso', 'La horquilla deja la lingada en la plataforma. La baliza indica cuándo ingresar.'],
+    ['Identificación', 'La cámara superior lee el QR y lo cruza con las etiquetas anunciadas desde origen.'],
+    ['Pesaje', 'Con la carga quieta y la posición validada por la cámara lateral, toma el peso estable del visor.'],
+    ['Registro', 'Guarda identificación, peso, hora real y validación. La baliza autoriza el retiro.'],
+  ];
+  const w = 2.75, g = 0.37;
+  pasos.forEach(([h, b], i) => {
+    const x = 0.6 + i * (w + g), y = 2.45;
+    tarjeta(s, x, y, w, 2.45, { objectName: `Paso ${i + 1}: ${h}` });
+    numero(s, i + 1, x + 0.25, y + 0.25, 0.45);
+    texto(s, h, { x: x + 0.25, y: y + 0.85, w: w - 0.5, h: 0.4, fontFace: CABEZA, fontSize: 18 });
+    texto(s, b, { x: x + 0.25, y: y + 1.3, w: w - 0.45, h: 1.05, fontSize: 13, color: P.mut });
+    if (i < pasos.length - 1) s.addShape(SH.rightArrow, { x: x + w + 0.06, y: y + 1.05, w: g - 0.12, h: 0.32, fill: { color: TEMA.colors.accent2 }, line: { color: TEMA.colors.accent2 }, objectName: 'Flecha' });
+  });
+  texto(s, 'Lo componen', { x: 0.6, y: 5.2, w: 12.1, h: 0.35, fontFace: CABEZA, fontSize: 16, color: C.accent1 });
+  const partes = ['Visor de la báscula', 'Cámara superior', 'Cámara lateral', 'Baliza', 'PC de la caseta · BasculaCaseta.exe'];
+  const anchos = [2.1, 1.9, 1.9, 1.3, 3.7]; let x = 0.6;
+  partes.forEach((t, i) => {
+    s.addText(t, { shape: SH.roundRect, rectRadius: 0.08, x, y: 5.62, w: anchos[i], h: 0.48, fontSize: 13, bold: true, color: TEMA.colors.dk1, align: 'center', valign: 'middle',
+      fill: { color: P.cobreSuave }, line: { color: TEMA.colors.accent2, width: 0.75 }, margin: 0, isTextBox: true, objectName: `Componente: ${t}` });
+    x += anchos[i] + 0.2;
+  });
+  texto(s, 'Si la etiqueta no se lee, el sistema alerta y el pesador identifica la carga a mano.', { x: 0.6, y: 6.35, w: 12.1, h: 0.35, fontSize: 13, color: P.mut });
+  s.addNotes('Introduce el segundo programa: es aparte del de etiquetado y se instala en el PC de la caseta. En esta etapa las cámaras y el visor están simulados.');
+}
 /* ===================== 8b. Programa 2: la caseta ===================== */
 {
   const s = lamina('Pesaje', 'PROGRAMA 2 · PESAJE EN LA CASETA DE LA BÁSCULA N9', 'Identificación por cámaras, captura del peso y registro');
