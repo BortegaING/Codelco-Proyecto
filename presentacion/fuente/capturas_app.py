@@ -35,7 +35,7 @@ abrir("06-impresa").resize((1400, 1050), Image.LANCZOS).save(os.path.join(img, "
 # El programa de la caseta (BasculaCaseta.exe): su prueba deja c*.png
 if len(sys.argv) > 2:
     caseta = sys.argv[2]
-    for destino, origen in {"cs_principal": "c03-capturando", "cs_manual": "c06-sin-etiqueta"}.items():
+    for destino, origen in {"cs_principal": "c03-capturando", "cs_manual": "c06-sin-etiqueta", "cs_manual_ok": "c07-manual"}.items():
         Image.open(os.path.join(caseta, origen + ".png")).convert("RGB").save(os.path.join(img, destino + ".png"), optimize=True)
 
 # Puntero de mouse (flecha blanca con borde negro y sombra), para "aquí se toca"

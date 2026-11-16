@@ -351,7 +351,7 @@ pres.addSection({ title: 'Solución' });
 
 /* ===================== 8. La pantalla en origen ===================== */
 {
-  const s = lamina('Solución', 'PROGRAMA 1 · VT1200 EN ORIGEN', 'Rotulado de cátodos: solo emite la etiqueta');
+  const s = lamina('Solución', 'PROGRAMA 1 · ETIQUETADO EN ORIGEN (VT1200)', 'Rotulado de cátodos: solo emite la etiqueta');
   const im = imagen(s, IMG('vt_principal.png'), 0.6, 1.5, { w: 7.2, alt: 'Pantalla principal de la VT1200: etiqueta que sigue, grupo 21 con las celdas 1 a 21 y 22 a 42, y botón Imprimir' });
   const k = im.w / 2048;
   MARCAS_ORIGEN.forEach(([px, py], i) => numero(s, i + 1, 0.6 + px * k - 0.18, 1.5 + py * k - 0.18, 0.36));
@@ -362,80 +362,6 @@ pres.addSection({ title: 'Solución' });
     ['Cambiar grupo', 'Abre el layout de circuitos (paso 1) para pasar a otro grupo.'],
     ['Imprimir', 'Un toque por lingada. Registro y Excel siempre disponibles.'],
   ], 8.15, 1.55, 1.02, 3.95);
-}
-
-/* ===================== 8b. Programa 2: la caseta ===================== */
-{
-  const s = lamina('Solución', 'PROGRAMA 2 · CASETA DE LA BÁSCULA N9', 'Identificación por cámaras, captura del peso y registro');
-  const im = imagen(s, IMG('cs_principal.png'), 0.6, 1.5, { w: 7.2, alt: 'Pantalla de la caseta: lectura de la Báscula N9, baliza, cámaras superior y lateral, registro de lo identificado, cargas anunciadas e identificación manual' });
-  const k = im.w / 2048;
-  MARCAS_CASETA.forEach(([px, py], i) => numero(s, i + 1, 0.6 + px * k - 0.18, 1.5 + py * k - 0.18, 0.36));
-  items(s, [
-    ['Báscula N9', 'Peso del visor y estado: disponible, registrando, registrado o bloqueado.'],
-    ['Baliza', 'La misma luz que ve el operador de la horquilla o del carro.'],
-    ['Cámaras', 'Superior: producto y etiqueta. Lateral: posición, lingadas y tara del carro.'],
-    ['Registro', 'Grilla con lo identificado: lectura por cámara o manual, bruto, tara, neto y validación.'],
-    ['Anunciadas', 'Etiquetas emitidas en origen que todavía no se pesan.'],
-    ['Identificación manual', 'Si la cámara no lee la etiqueta, el pesador escribe el rótulo y asocia el peso.'],
-  ], 8.15, 1.45, 0.88, 3.95);
-  s.addNotes('Es un programa aparte del de la VT1200: se instala en el PC de la caseta. En esta etapa las cámaras y el visor están simulados.');
-}
-
-/* ===================== 9. Control del peso ===================== */
-{
-  const s = lamina('Solución', 'BÁSCULA N9 · CONTROL DEL PESO', 'Captura automática del peso con validación de cada carga');
-  const filas = [
-    ['Secuencia normal', 1.45, [
-      ['bal_1-disponible.png', 'Disponible: plataforma libre, puede ingresar'], ['bal_2-leyendo.png', 'Leyendo etiqueta: cámara superior'],
-      ['bal_3-registrando.png', 'Registrando: baliza roja, carga quieta'], ['bal_4-registrado.png', 'Registrado: dentro de rango']]],
-    ['Desviaciones y alertas', 4.1, [
-      ['bal_5-horquilla.png', 'Horquilla sobre la báscula: +1.850 kg'], ['bal_7-carro-fuera.png', 'Carro fuera del área: −960 kg'],
-      ['bal_6-sincero.png', 'Sin cero: nódulos en la junta'], ['bal_8-sin-tara.png', 'Sin tara: carro sin tara validada']]],
-  ];
-  filas.forEach(([rot, y, imgs]) => {
-    texto(s, rot, { x: 0.6, y, w: 12.1, h: 0.32, fontFace: CABEZA, fontSize: 15, color: C.accent1 });
-    imgs.forEach(([f, cap], i) => {
-      const x = 0.6 + i * 3.07;
-      const im = imagen(s, IMG(f), x, y + 0.4, { w: 2.75, alt: cap });
-      texto(s, cap, { x, y: y + 0.46 + im.h, w: 2.9, h: 0.3, fontSize: 12, color: P.mut });
-    });
-  });
-  s.addNotes('Es la lectura del programa de la caseta, no la de la VT1200. Rangos: cátodos 4.200 a 5.000 kg; restos 2.800 a 4.000 kg netos. Los valores de error son los de la simulación.');
-}
-
-/* ===================== 10. Visión artificial y baliza ===================== */
-{
-  const s = lamina('Solución', 'BÁSCULA N9 · VISIÓN ARTIFICIAL Y BALIZA', 'Dos cámaras y una baliza coordinan la maniobra');
-  // Baliza de torre: tapa, tres módulos de luz (rojo, amarillo, verde), poste y base
-  const bx = 0.95, bw = 0.62;
-  s.addShape(SH.roundRect, { x: bx + 0.06, y: 1.55, w: bw - 0.12, h: 0.16, rectRadius: 0.06, fill: { color: '35505C' }, line: { color: '35505C' }, objectName: 'Baliza: tapa' });
-  const luces = [['C9473B', 'Rojo', 'Mantener la carga detenida mientras se captura el peso.'],
-    ['D9A21B', 'Amarillo', 'Posicionar la carga o corregir la posición del carro.'],
-    ['2F9E5F', 'Verde', 'Plataforma disponible: autoriza el ingreso. Al cerrar el registro, autoriza el retiro.']];
-  luces.forEach(([c, h, b], i) => {
-    const y = 1.73 + i * 0.86;
-    s.addShape(SH.rect, { x: bx, y, w: bw, h: 0.82, fill: { color: c }, line: { color: c }, objectName: `Baliza: luz ${h.toLowerCase()}` });
-    s.addShape(SH.rect, { x: bx, y: y + 0.8, w: bw, h: 0.04, fill: { color: '35505C' }, line: { color: '35505C' }, objectName: 'Baliza: separación' });
-    texto(s, h, { x: 2.1, y: y + 0.02, w: 3.9, h: 0.34, fontFace: CABEZA, fontSize: 17 });
-    texto(s, b, { x: 2.1, y: y + 0.36, w: 3.9, h: 0.5, fontSize: 13, color: P.mut });
-  });
-  s.addShape(SH.rect, { x: bx + bw / 2 - 0.07, y: 4.31, w: 0.14, h: 0.5, fill: { color: '35505C' }, line: { color: '35505C' }, objectName: 'Baliza: poste' });
-  s.addShape(SH.roundRect, { x: bx - 0.08, y: 4.8, w: bw + 0.16, h: 0.12, rectRadius: 0.04, fill: { color: '35505C' }, line: { color: '35505C' }, objectName: 'Baliza: base' });
-  texto(s, 'La baliza queda a la vista del operador de la horquilla o del carro.', { x: 0.6, y: 5.3, w: 5.4, h: 0.5, fontSize: 13, bold: true, color: C.accent1 });
-  // Cámaras y visor
-  const cards = [
-    ['Cámara superior', 'Detecta la llegada de cobre, identifica el producto y lee el QR de la etiqueta.'],
-    ['Cámara lateral', 'Verifica la posición de la carga o del carro, distingue si vienen 1 o 2 lingadas y lee las marcas de tara de carro y rack. Alerta si detecta un ánodo en la grilla abierta.'],
-    ['Visor de la báscula', 'Entrega el peso estable al sistema. Con la plataforma vacía y lectura distinta de cero, alerta por nódulos.'],
-  ];
-  cards.forEach(([h, b], i) => {
-    const y = 1.6 + i * 1.72;
-    tarjeta(s, 6.5, y, 6.2, 1.55);
-    texto(s, h, { x: 6.8, y: y + 0.18, w: 5.6, h: 0.4, fontFace: CABEZA, fontSize: 17 });
-    texto(s, b, { x: 6.8, y: y + 0.6, w: 5.6, h: 0.9, fontSize: 13, color: P.mut });
-  });
-  texto(s, 'Ubicación de cámaras, iluminación (día y noche) y secuencia de la baliza se validan en terreno y con los procedimientos de seguridad de Codelco.',
-    { x: 0.6, y: 6.55, w: 12.1, h: 0.35, fontSize: 12, color: P.mut });
 }
 
 /* ===================== 11. La etiqueta ===================== */
@@ -477,13 +403,103 @@ pres.addSection({ title: 'Solución' });
   texto(s, 'Historial auditable: cada fila guarda la hora real en que la báscula capturó el peso.', { x: 7.3, y: 5.85, w: 5.4, h: 0.5, fontSize: 13, color: P.mut });
 }
 
-/* ===================== 13. Demo ===================== */
+pres.addSection({ title: 'Pesaje' });
+/* ===================== 8b. Programa 2: la caseta ===================== */
 {
-  const s = lamina('Solución', 'PRUÉBELO', 'Dos programas: origen y caseta');
+  const s = lamina('Pesaje', 'PROGRAMA 2 · PESAJE EN LA CASETA DE LA BÁSCULA N9', 'Identificación por cámaras, captura del peso y registro');
+  const im = imagen(s, IMG('cs_principal.png'), 0.6, 1.5, { w: 7.2, alt: 'Pantalla de la caseta: lectura de la Báscula N9, baliza, cámaras superior y lateral, registro de lo identificado, cargas anunciadas e identificación manual' });
+  const k = im.w / 2048;
+  MARCAS_CASETA.forEach(([px, py], i) => numero(s, i + 1, 0.6 + px * k - 0.18, 1.5 + py * k - 0.18, 0.36));
+  items(s, [
+    ['Báscula N9', 'Peso del visor y estado: disponible, registrando, registrado o bloqueado.'],
+    ['Baliza', 'La misma luz que ve el operador de la horquilla o del carro.'],
+    ['Cámaras', 'Superior: producto y etiqueta. Lateral: posición, lingadas y tara del carro.'],
+    ['Registro', 'Grilla con lo identificado: lectura por cámara o manual, bruto, tara, neto y validación.'],
+    ['Anunciadas', 'Etiquetas emitidas en origen que todavía no se pesan.'],
+    ['Identificación manual', 'Si la cámara no lee la etiqueta, el pesador escribe el rótulo y asocia el peso.'],
+  ], 8.15, 1.45, 0.88, 3.95);
+  s.addNotes('Es un programa aparte del de la VT1200: se instala en el PC de la caseta. En esta etapa las cámaras y el visor están simulados.');
+}
+
+/* ===================== 8c. Programa 2: identificación manual ===================== */
+{
+  const s = lamina('Pesaje', 'PROGRAMA 2 · IDENTIFICACIÓN MANUAL', 'Si la cámara no lee la etiqueta, el pesador asocia el peso');
+  [['cs_manual.png', 'Etiqueta no legible: la báscula retiene el peso, la baliza queda en amarillo y la grilla muestra "Sin identificar".'],
+   ['cs_manual_ok.png', 'El pesador escribe el rótulo (9T21) y toca Asociar: queda registrado con lectura "Manual" y la baliza pasa a verde.']]
+    .forEach(([f, cap], i) => {
+      const x = 0.6 + i * 6.2;
+      numero(s, i + 1, x, 1.55, 0.4);
+      texto(s, cap, { x: x + 0.55, y: 1.47, w: 5.35, h: 0.75, fontSize: 14, color: P.mut });
+      imagen(s, IMG(f), x, 2.35, { w: 5.9, alt: cap });
+    });
+  texto(s, 'Cada identificación manual queda marcada en el registro y en el Excel, para auditoría.', { x: 0.6, y: 6.85, w: 12.1, h: 0.3, fontSize: 13, bold: true, color: C.accent1 });
+}
+
+/* ===================== 9. Control del peso ===================== */
+{
+  const s = lamina('Pesaje', 'PROGRAMA 2 · CONTROL DEL PESO', 'Captura automática del peso con validación de cada carga');
+  const filas = [
+    ['Secuencia normal', 1.45, [
+      ['bal_1-disponible.png', 'Disponible: plataforma libre, puede ingresar'], ['bal_2-leyendo.png', 'Leyendo etiqueta: cámara superior'],
+      ['bal_3-registrando.png', 'Registrando: baliza roja, carga quieta'], ['bal_4-registrado.png', 'Registrado: dentro de rango']]],
+    ['Desviaciones y alertas', 4.1, [
+      ['bal_5-horquilla.png', 'Horquilla sobre la báscula: +1.850 kg'], ['bal_7-carro-fuera.png', 'Carro fuera del área: −960 kg'],
+      ['bal_6-sincero.png', 'Sin cero: nódulos en la junta'], ['bal_8-sin-tara.png', 'Sin tara: carro sin tara validada']]],
+  ];
+  filas.forEach(([rot, y, imgs]) => {
+    texto(s, rot, { x: 0.6, y, w: 12.1, h: 0.32, fontFace: CABEZA, fontSize: 15, color: C.accent1 });
+    imgs.forEach(([f, cap], i) => {
+      const x = 0.6 + i * 3.07;
+      const im = imagen(s, IMG(f), x, y + 0.4, { w: 2.75, alt: cap });
+      texto(s, cap, { x, y: y + 0.46 + im.h, w: 2.9, h: 0.3, fontSize: 12, color: P.mut });
+    });
+  });
+  s.addNotes('Es la lectura del programa de la caseta, no la de la VT1200. Rangos: cátodos 4.200 a 5.000 kg; restos 2.800 a 4.000 kg netos. Los valores de error son los de la simulación.');
+}
+
+/* ===================== 10. Visión artificial y baliza ===================== */
+{
+  const s = lamina('Pesaje', 'PROGRAMA 2 · VISIÓN ARTIFICIAL Y BALIZA', 'Dos cámaras y una baliza coordinan la maniobra');
+  // Baliza de torre: tapa, tres módulos de luz (rojo, amarillo, verde), poste y base
+  const bx = 0.95, bw = 0.62;
+  s.addShape(SH.roundRect, { x: bx + 0.06, y: 1.55, w: bw - 0.12, h: 0.16, rectRadius: 0.06, fill: { color: '35505C' }, line: { color: '35505C' }, objectName: 'Baliza: tapa' });
+  const luces = [['C9473B', 'Rojo', 'Mantener la carga detenida mientras se captura el peso.'],
+    ['D9A21B', 'Amarillo', 'Posicionar la carga o corregir la posición del carro.'],
+    ['2F9E5F', 'Verde', 'Plataforma disponible: autoriza el ingreso. Al cerrar el registro, autoriza el retiro.']];
+  luces.forEach(([c, h, b], i) => {
+    const y = 1.73 + i * 0.86;
+    s.addShape(SH.rect, { x: bx, y, w: bw, h: 0.82, fill: { color: c }, line: { color: c }, objectName: `Baliza: luz ${h.toLowerCase()}` });
+    s.addShape(SH.rect, { x: bx, y: y + 0.8, w: bw, h: 0.04, fill: { color: '35505C' }, line: { color: '35505C' }, objectName: 'Baliza: separación' });
+    texto(s, h, { x: 2.1, y: y + 0.02, w: 3.9, h: 0.34, fontFace: CABEZA, fontSize: 17 });
+    texto(s, b, { x: 2.1, y: y + 0.36, w: 3.9, h: 0.5, fontSize: 13, color: P.mut });
+  });
+  s.addShape(SH.rect, { x: bx + bw / 2 - 0.07, y: 4.31, w: 0.14, h: 0.5, fill: { color: '35505C' }, line: { color: '35505C' }, objectName: 'Baliza: poste' });
+  s.addShape(SH.roundRect, { x: bx - 0.08, y: 4.8, w: bw + 0.16, h: 0.12, rectRadius: 0.04, fill: { color: '35505C' }, line: { color: '35505C' }, objectName: 'Baliza: base' });
+  texto(s, 'La baliza queda a la vista del operador de la horquilla o del carro.', { x: 0.6, y: 5.3, w: 5.4, h: 0.5, fontSize: 13, bold: true, color: C.accent1 });
+  // Cámaras y visor
+  const cards = [
+    ['Cámara superior', 'Detecta la llegada de cobre, identifica el producto y lee el QR de la etiqueta.'],
+    ['Cámara lateral', 'Verifica la posición de la carga o del carro, distingue si vienen 1 o 2 lingadas y lee las marcas de tara de carro y rack. Alerta si detecta un ánodo en la grilla abierta.'],
+    ['Visor de la báscula', 'Entrega el peso estable al sistema. Con la plataforma vacía y lectura distinta de cero, alerta por nódulos.'],
+  ];
+  cards.forEach(([h, b], i) => {
+    const y = 1.6 + i * 1.72;
+    tarjeta(s, 6.5, y, 6.2, 1.55);
+    texto(s, h, { x: 6.8, y: y + 0.18, w: 5.6, h: 0.4, fontFace: CABEZA, fontSize: 17 });
+    texto(s, b, { x: 6.8, y: y + 0.6, w: 5.6, h: 0.9, fontSize: 13, color: P.mut });
+  });
+  texto(s, 'Ubicación de cámaras, iluminación (día y noche) y secuencia de la baliza se validan en terreno y con los procedimientos de seguridad de Codelco.',
+    { x: 0.6, y: 6.55, w: 12.1, h: 0.35, fontSize: 12, color: P.mut });
+}
+
+/* ===================== 13. Demo ===================== */
+pres.addSection({ title: 'Cierre' });
+{
+  const s = lamina('Cierre', 'PRUÉBELO', 'Dos programas: etiquetado y pesaje');
   imagen(s, IMG('app_impresa.jpg'), 0.6, 1.45, { w: 6.9, alt: 'Captura de TerminalVentanas.exe: etiqueta 5T21 impresa y el grupo 21' });
   texto(s, 'Captura de TerminalVentanas.exe, la app que se instala en la VT1200.', { x: 0.6, y: 6.7, w: 6.9, h: 0.25, fontSize: 11, color: P.mut });
-  const bloques = [['Programa 1 · VT1200 en origen', 'TerminalVentanas.exe: selección de grupo en el layout, emisión de la etiqueta en la Zebra, registro y Excel.'],
-    ['Programa 2 · Caseta', 'BasculaCaseta.exe: cámaras, baliza, captura del peso, registro de lo identificado e identificación manual.'],
+  const bloques = [['Programa 1 · Etiquetado (VT1200)', 'TerminalVentanas.exe: selección de grupo en el layout, emisión de la etiqueta en la Zebra, registro y Excel.'],
+    ['Programa 2 · Pesaje (caseta)', 'BasculaCaseta.exe: cámaras, baliza, captura del peso, registro de lo identificado e identificación manual.'],
     ['Instalación', 'Aplicaciones Windows autónomas (.NET 8): sin navegador ni internet; se instalan copiando una carpeta. Cámaras y visor simulados en esta etapa.']];
   bloques.forEach(([h, b], i) => {
     const y = 1.55 + i * 1.7;
@@ -493,7 +509,6 @@ pres.addSection({ title: 'Solución' });
 }
 
 /* ===================== 14. Supuestos ===================== */
-pres.addSection({ title: 'Cierre' });
 {
   const s = lamina('Cierre', 'SUPUESTOS', 'Supuestos y puntos por validar');
   const listas = [
