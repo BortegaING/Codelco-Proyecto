@@ -47,6 +47,13 @@ public sealed class ConfigImpresora
     /// <summary>Nombre de la impresora en Windows (la Zebra por USB).</summary>
     public string Nombre { get; set; } = "ZDesigner ZT610R-203dpi ZPL";
 
+    /// <summary>Ancho de impresión en puntos (203 dpi): 812 = 100 mm (Zebra ZT610R); 576 = 72 mm (Godex MX30, impresora portátil). La etiqueta se escala a ese ancho.</summary>
+    public int AnchoPuntos { get; set; } = 812;
+
+    /// <summary>Papel en blanco al final de cada etiqueta, en puntos (8 = 1 mm). En papel continuo deja el QR antes del borde de corte:
+    /// la Godex MX30 corta unos 15 mm por encima del cabezal, así que usa 160 (20 mm). La Zebra con etiquetas troqueladas usa 0.</summary>
+    public int LargoExtraPuntos { get; set; } = 0;
+
     /// <summary>Dónde quedan los .zpl en modo seco.</summary>
     public string CarpetaZpl { get; set; } = @"C:\BasculaN9\Etiquetas";
 }

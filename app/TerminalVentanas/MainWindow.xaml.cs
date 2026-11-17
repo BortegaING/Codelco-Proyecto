@@ -28,7 +28,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         if (Caseta) { Title = "Báscula N9 · Caseta"; Persistencia.Archivo = "registro-caseta.json"; }
-        Gs1.Codigo = (_cfg.Codigo ?? "qr").Trim().ToLowerInvariant(); Gs1.Gtin = (_cfg.Gtin ?? "").Trim();
+        Gs1.Codigo = (_cfg.Codigo ?? "qr").Trim().ToLowerInvariant(); Gs1.Gtin = (_cfg.Gtin ?? "").Trim(); Zpl.Ancho = _cfg.Impresora.AnchoPuntos; Zpl.LargoExtra = _cfg.Impresora.LargoExtraPuntos;
         if (!Caseta && Gs1.Activo) { Title += " · DataMatrix GS1"; Persistencia.Archivo = "registro-gs1.json"; }
         var args = Environment.GetCommandLineArgs();
         var i = Array.IndexOf(args, "--prueba");
