@@ -268,6 +268,7 @@ public partial class MainWindow
                 EscC("carro", "Carro de restos", "Llega un carro de arrastre con rack; la tara sale de la lista validada.", false),
                 EscC("fuera", "Carro fuera del área", "Llega un carro pasado de la plataforma.", false),
                 EscC("cero", "Sin cero", "Vacía marca 6 kg por nódulos en la junta.", Esc.Cero),
+                PesoPruebaBloque(),
                 Ui.Boton(Ui.T("REINICIAR EL REGISTRO", 18, SemiBold, Ui.RojoT, Ui.Cond), () => { _panelAbierto = false; Persistencia.Olvidar(); Arrancar(false); }, Brushes.Transparent, Ui.ErrBorde, 10, new Thickness(14, 0, 14, 0), 50).Margen(0, 6, 0, 8),
                 Ui.Boton(Ui.T("CERRAR EL PANEL", 18, SemiBold, Ui.SobreCobre, Ui.Cond), () => { _panelAbierto = false; RenderPanel(); }, Ui.Cobre, Ui.Cobre, 10, new Thickness(14, 0, 14, 0), 50));
             PanelPrueba.Children.Add(new Border { Width = 380, HorizontalAlignment = HorizontalAlignment.Right, Background = Ui.Panel, BorderBrush = Ui.Cobre, BorderThickness = new Thickness(2, 0, 0, 0), Padding = new Thickness(20, 18, 20, 18), Child = new ScrollViewer { Content = colC, VerticalScrollBarVisibility = ScrollBarVisibility.Auto } });

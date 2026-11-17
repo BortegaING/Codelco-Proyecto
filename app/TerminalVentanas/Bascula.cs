@@ -86,8 +86,10 @@ public partial class MainWindow
         if (neto < R.Value.Min || neto > R.Value.Max)
         {
             var bajo = neto < R.Value.Min; var ult = l.Prod == "rs" && bajo;
-            return new("warn", t1, ult ? "Bajo lo esperado: ¿último carro del grupo?" : $"{(bajo ? "Bajo" : "Sobre")} lo esperado ({D.Kg(R.Value.Min)} a {D.Kg(R.Value.Max)})",
-                "pesada", ult ? "Bajo lo esperado: último carro del grupo" : $"{(bajo ? "Bajo" : "Sobre")} lo esperado", "fuera de rango");
+            // Fuera de norma: cuánto falta para el mínimo o cuánto se pasa del máximo
+            var fuera = bajo ? $"Bajo el rango: faltan {D.Kg(R.Value.Min - neto)} kg" : $"Sobre el rango: se pasa por {D.Kg(neto - R.Value.Max)} kg";
+            return new("warn", t1, ult ? "Bajo lo esperado: ¿último carro del grupo?" : $"{fuera} ({D.Kg(R.Value.Min)} a {D.Kg(R.Value.Max)})",
+                "pesada", ult ? "Bajo lo esperado: último carro del grupo" : fuera, "fuera de rango");
         }
         return new("ok", t1, det.Length > 0 ? $"{det} · dentro de rango" : $"Dentro de rango ({D.Kg(R.Value.Min)} a {D.Kg(R.Value.Max)})", "pesada", "Dentro de rango", "dentro de rango");
     }

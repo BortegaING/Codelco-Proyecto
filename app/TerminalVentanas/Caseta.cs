@@ -64,7 +64,8 @@ public partial class MainWindow
         if (B.Chip == "cero") return ("verde", "Disponible", "Puede ingresar");
         if (B.Chip == "espera") return ("amarillo", "Posicionar", "Deje la carga y retírese");
         if (B.Chip == "inestable") return B.Pic == "sale" ? ("verde", "Retirar", "Peso registrado") : ("rojo", "Capturando", "No se mueva");
-        if (B.Chip == "estable") return B.Esperando ? ("amarillo", "Espere", "Identificación manual") : ("verde", "Retirar", "Peso registrado");
+        if (B.Chip == "estable") return B.Esperando ? ("amarillo", "Espere", "Identificación manual")
+            : B.Res.K == "warn" ? ("amarillo", "Alerta", "Fuera de rango: retire la carga") : ("verde", "Retirar", "Peso registrado");
         if (B.Chip == "sintara") return ("verde", "Retirar", "Registrado con observación");
         if (B.Chip == "sincero") return ("amarillo", "Revisar", "Residuos en la plataforma");
         return ("amarillo", "Corregir", B.Pic == "grua" ? "Retire la horquilla" : "Acomode el carro");
@@ -247,6 +248,47 @@ public partial class MainWindow
         B.Liberar.TrySetResult(l);
         Avisar($"{l.Codigo} identificada a mano y registrada.", "ok");
     }
+
+    /* ---------- Peso de prueba (panel F2): uno mismo pone el peso para ver el control de rango ---------- */
+    private string _pesoPrueba = "4750";
+
+    /// <summary>La próxima celda anunciada llega a la báscula con este bruto en vez del peso real.</summary>
+    internal void PesarPrueba(int kg)
+    {
+        if (kg <= 0 || kg > 20000) { Avisar("Escriba un peso entre 1 y 20.000 kg.", "warn"); return; }
+        var gr = 21; var G = GrupoDe(gr); var n = Siguiente(G);
+        while (n == null && gr < 48) { gr++; G = GrupoDe(gr); n = Siguiente(G); }
+        if (n == null) { Avisar("No quedan celdas por anunciar.", "info"); return; }
+        var l = EtqCat(gr, n.Value, LadoDe(G, n.Value), Tick(), kg, "Operador origen");
+        l.M = S.Min; l.Nota = "peso de prueba"; Agregar(l); G.Celdas[n.Value] = new Celda { E = "camino", H = l.Hora, Id = l.Id }; Encolar(l, 1500);
+        Avisar($"{l.Codigo} llega a la báscula con {D.Kg(kg)} kg (peso de prueba).", "info");
+        _panelAbierto = false; RenderPanel();
+    }
+
+    private UIElement PesoPruebaBloque()
+    {
+        var (min, max) = D.Rango["cat"];
+        var tb = new TextBox
+        {
+            Text = _pesoPrueba, FontFamily = Ui.Mono, FontSize = 24, FontWeight = Bold, Foreground = Ui.Tinta, Background = Ui.Fondo, CaretBrush = Ui.Tinta,
+            BorderBrush = Ui.Linea2, BorderThickness = new Thickness(2), Padding = new Thickness(10, 0, 10, 0), MaxLength = 5, Height = 50, VerticalContentAlignment = VerticalAlignment.Center,
+        };
+        tb.TextChanged += (_, _) => _pesoPrueba = new string(tb.Text.Where(char.IsDigit).ToArray());
+        void Pesar() { if (int.TryParse(_pesoPrueba, out var kg)) PesarPrueba(kg); else Avisar("Escriba el peso en kg, solo números.", "warn"); }
+        var pesar = Ui.Boton(Ui.T("PESAR CON ESTE PESO", 16, SemiBold, Ui.SobreCobre, Ui.Cond), Pesar, Ui.Cobre, Ui.Cobre, 10, new Thickness(10, 0, 10, 0), 50);
+        Border Rapido(int kg, string txt) => Ui.Boton(Ui.Columna(Centro(Ui.T(D.Kg(kg), 18, Bold, Ui.Tinta, Ui.Mono)), Centro(Ui.T(txt, 12, SemiBold, Ui.Mut))),
+            () => PesarPrueba(kg), Ui.Fondo, Ui.Linea2, 8, new Thickness(4), 54);
+        return new Border
+        {
+            BorderBrush = Ui.Linea2, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10), Padding = new Thickness(14, 10, 14, 12), Margin = new Thickness(0, 0, 0, 8),
+            Child = Ui.Columna(Ui.T("PESO DE PRUEBA (KG)", 18, Bold, Ui.Tinta, Ui.Cond),
+                Ui.T($"La próxima carga anunciada llega con este bruto. Rango de cátodos: {D.Kg(min)} a {D.Kg(max)} kg.", 13, Medium, Ui.Mut, ajustar: true).Margen(0, 3, 0, 8),
+                Ui.Columnas("* auto", 8, tb, pesar),
+                Ui.Columnas("* * *", 6, Rapido(4750, "dentro"), Rapido(3900, "bajo"), Rapido(5300, "sobre")).Margen(0, 8, 0, 0)),
+        };
+    }
+    /// <summary>Enter con el panel F2 abierto: pesa con lo escrito en Peso de prueba.</summary>
+    internal void PesarPruebaEscrito() { if (int.TryParse(_pesoPrueba, out var kg)) PesarPrueba(kg); }
 
     /// <summary>Panel F2 de la caseta: las situaciones que se muestran en la demostración.</summary>
     private void EscenarioCaseta(string k)

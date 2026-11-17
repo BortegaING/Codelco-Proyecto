@@ -97,6 +97,16 @@ public partial class MainWindow
         var sinTara = EtqRs(S.Rs.Grupo, "31", S.Rs.Lista.Count + 1, Hora(), D.RestosNetos[1], null, "Báscula"); Agregar(sinTara); Encolar(sinTara, 300);
         await Esperar(() => B.Chip == "sintara", "carro sin tara", 20000); await Task.Delay(300); await FotoBascula(c, "bal-8-sin-tara"); L($"Caseta sin tara: {B.Res.T1}");
         await Esperar(() => B.Chip == "cero", "plataforma disponible", 20000);
+        // Pesos de prueba: uno dentro, uno bajo y uno sobre el rango de cátodos
+        foreach (var (kg, espera, foto) in new[] { (4750, "Dentro", "c12-prueba-4750"), (3900, "Bajo el rango: faltan 300 kg", "c13-prueba-3900"), (5300, "Sobre el rango: se pasa por 300 kg", "c14-prueba-5300") })
+        {
+            var antes = S.Labels.Count; PesarPrueba(kg); var lp = S.Labels[0];
+            if (S.Labels.Count != antes + 1 || lp.Bruto != kg) throw new Exception($"El peso de prueba {kg} no quedó en la carga");
+            await Esperar(() => lp.Estado == "pesada", $"peso de prueba {kg}", 20000); await Task.Delay(300); await Foto(c, foto);
+            if (!lp.Ctrl.StartsWith(espera)) throw new Exception($"Peso de prueba {kg}: esperaba '{espera}' y quedó '{lp.Ctrl}'");
+            L($"Peso de prueba {D.Kg(kg)} kg · {lp.Codigo} · {lp.Ctrl} · baliza {EstadoBaliza().Txt}");
+            await Esperar(() => B.Chip == "cero", "plataforma disponible", 20000);
+        }
         _panelAbierto = true; RenderPanel(); await Foto(c, "c11-panel-f2"); _panelAbierto = false; RenderPanel();
         ElegirTema("claro"); await Foto(c, "c21-claro"); ElegirTema("contraste"); await Foto(c, "c22-contraste"); ElegirTema("oscuro");
         var ruta = Excel.Guardar(S, _cfg.CarpetaExcel); L($"Excel: {ruta} ({new FileInfo(ruta).Length} bytes)");

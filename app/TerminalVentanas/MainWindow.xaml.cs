@@ -154,6 +154,7 @@ public partial class MainWindow : Window
         else if (e.Key == Key.Enter)
         {
             if (S.View == "login") Entrar();
+            else if (_panelAbierto && Caseta) PesarPruebaEscrito();
             else if (kp) OkKeypad();
             else if (S.Md == null && S.View == "bas") GrabarBF();
             else if (S.Md == null && Caseta) AsociarManual();
