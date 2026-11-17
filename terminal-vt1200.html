@@ -343,17 +343,165 @@ html.app .guia{position:fixed;top:0;right:0;bottom:0;width:350px;overflow:auto;z
 html.app.demo .guia{transform:none}
 html.app .g-app{display:grid}
 @media (prefers-reduced-motion:reduce){.hero.imprimiendo .sticker,.hero.impresa .st-ok,.bal-on i,.bal-pic .cel{animation:none}.bal-pic .carga,.bal-pic .grua{transition:none}}
+/* ===================== Pantalla actual: igual al programa de etiquetado (TerminalVentanas, origen) =====================
+   Temas de la pantalla del equipo: Original (oscuro, por defecto), Claro y Alto contraste. "Como Windows" elige uno de los tres.
+   Lo de abajo manda sobre lo anterior: la pantalla vieja con productos y báscula quedó sin uso. */
+.vt{--fondo:#0E181E;--panel:#16242C;--panel2:#1A2A33;--linea:#24363F;--linea2:#35505C;--linea3:#2C4450;--tecla:#1D2E37;
+  --tinta:#D6E5EB;--mut:#86A0AB;--mut2:#5F7883;--cobre:#DA8B4F;--cobre-cl:#F6C79F;--cobre-borde:#9A6337;--sobre-cobre:#1A0F07;
+  --azul-f:#13324F;--azul-l:#4F92E2;--azul-c:#CFE3FA;--verde-t:#8FE0A9;--ambar-t:#F3C969;--azul-t:#A9CBF2;--rojo-t:#FF9C92;--xls:#5FD38F;
+  --warn-b:#A07A12;--err-b:#B63A30;--apag-f:#24363F;--apag-t:#5F7883;--insig:#24363F;--sobre-insig:#D6E5EB;--capa:rgba(5,10,14,.82);--panel-f:rgba(5,10,14,.6);
+  background:var(--fondo);color:var(--tinta)}
+.vt[data-tema="claro"]{--fondo:#EDF0F1;--panel:#FFFFFF;--panel2:#FBF1E8;--linea:#D3DBDE;--linea2:#8E9EA6;--linea3:#B4C1C7;--tecla:#F3F6F7;
+  --tinta:#13212A;--mut:#4C606A;--mut2:#7D9099;--cobre:#B05C20;--cobre-cl:#93460F;--cobre-borde:#C99470;--sobre-cobre:#FFFFFF;
+  --azul-f:#E0EBF9;--azul-l:#3B7FD0;--azul-c:#1B4C86;--verde-t:#1C7442;--ambar-t:#875100;--azul-t:#1C5CA3;--rojo-t:#B42318;--xls:#1C7442;
+  --warn-b:#C9910F;--err-b:#D9473A;--apag-f:#D3DBDE;--apag-t:#5E717A;--insig:#D3DBDE;--sobre-insig:#13212A;--capa:rgba(19,33,42,.5);--panel-f:rgba(19,33,42,.35)}
+.vt[data-tema="contraste"]{--fondo:#000000;--panel:#000000;--panel2:#000000;--linea:#FFFFFF;--linea2:#FFFFFF;--linea3:#FFFFFF;--tecla:#000000;
+  --tinta:#FFFFFF;--mut:#FFFFFF;--mut2:#BDBDBD;--cobre:#FFFF00;--cobre-cl:#FFFF00;--cobre-borde:#FFFF00;--sobre-cobre:#000000;
+  --azul-f:#000000;--azul-l:#1AEBFF;--azul-c:#1AEBFF;--verde-t:#3FF23F;--ambar-t:#FFFF00;--azul-t:#1AEBFF;--rojo-t:#FF6E6E;--xls:#3FF23F;
+  --warn-b:#FFFF00;--err-b:#FF6E6E;--apag-f:#000000;--apag-t:#BDBDBD;--insig:#FFFFFF;--sobre-insig:#000000;--capa:rgba(0,0,0,.9);--panel-f:rgba(0,0,0,.8)}
+.vt .modal{background:var(--capa)}
+.vt .cond{font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif}
+.n-up{text-transform:uppercase}
+/* Botones */
+.n-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:46px;padding:0 16px;border-radius:10px;border:1px solid var(--linea2);background:transparent;
+  font:600 17px "Barlow Condensed","Arial Narrow",sans-serif!important;letter-spacing:.02em;text-transform:uppercase;color:var(--tinta)!important}
+.n-btn svg{width:20px;height:20px;color:var(--cobre-cl)}
+.n-btn.on{border-color:var(--cobre);background:var(--panel2);color:var(--cobre-cl)!important}
+/* Ingreso */
+.n-login{height:100%;position:relative;display:grid;place-items:center}
+.n-login .n-arriba{position:absolute;top:0;right:0;display:flex;gap:10px}
+.n-lg{width:448px;display:flex;flex-direction:column;gap:14px}
+.n-marca{display:flex;align-items:center;gap:16px;margin:0 0 4px 4px}
+.n-marca svg{width:40px;height:40px;color:var(--cobre)}
+.n-marca b{display:block;font:700 28px/1.05 "Barlow Condensed","Arial Narrow",sans-serif;text-transform:uppercase}
+.n-marca span{display:block;font:600 13px "Barlow Condensed","Arial Narrow",sans-serif;color:var(--mut);text-transform:uppercase;letter-spacing:.03em}
+.n-rut{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;border:2px solid var(--cobre-borde);border-radius:10px;padding:6px 16px 8px}
+.n-rut small{font:600 13px "Barlow Condensed",sans-serif;color:var(--mut);text-transform:uppercase;padding-bottom:6px;white-space:nowrap}
+.n-rut b{font:700 40px/1.1 "JetBrains Mono",Consolas,monospace;color:var(--cobre-cl);white-space:nowrap}
+.n-kp{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.n-k{height:60px;border-radius:8px;border:1px solid var(--linea);background:var(--tecla);font:600 26px "JetBrains Mono",Consolas,monospace!important;color:var(--tinta)!important;display:grid;place-items:center}
+.n-k svg{width:26px;height:26px}
+.n-entrar{height:72px;border-radius:12px;border:0;background:var(--cobre);color:var(--sobre-cobre)!important;font:700 30px "Barlow Condensed",sans-serif!important;text-transform:uppercase;letter-spacing:.02em}
+.n-entrar:disabled{background:var(--apag-f);color:var(--apag-t)!important}
+.n-lg-nota{text-align:center;font:600 14px "Barlow Condensed",sans-serif}
+/* Pantalla principal */
+.n-bar{flex:none;height:56px;display:grid;grid-template-columns:auto 1fr auto auto auto;align-items:center;gap:12px}
+.n-bar>svg{width:34px;height:34px;color:var(--cobre)}
+.n-tit b{display:block;font:700 24px/1.05 "Barlow Condensed",sans-serif;text-transform:uppercase}
+.n-tit span{display:block;font:600 12.5px "Barlow Condensed",sans-serif;color:var(--mut);text-transform:uppercase;letter-spacing:.03em}
+.n-who{font:600 15px "Barlow Condensed",sans-serif;color:var(--mut);text-transform:uppercase;white-space:nowrap}
+.n-who b{color:var(--tinta);font-weight:700}
+.vt .n-hero{flex:none;display:grid;grid-template-columns:minmax(0,1fr) 266px;gap:14px;align-items:center;background:var(--panel);border:1px solid var(--linea);border-radius:16px;padding:12px 14px 12px 22px}
+.n-lbl{font:600 15px "Barlow Condensed",sans-serif;color:var(--mut);text-transform:uppercase;letter-spacing:.03em}
+.n-cod{font:700 92px/1 "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.01em;margin:4px 0 10px!important;white-space:nowrap;color:var(--tinta)}
+.n-cod.vacio{color:var(--mut2)}
+.n-est{display:flex;align-items:center;gap:10px;font:600 19px/1.25 "Barlow",sans-serif;min-height:30px}
+.n-est svg{width:24px;height:24px}
+.n-est.ok{color:var(--verde-t)} .n-est.info{color:var(--azul-t)} .n-est.warn{color:var(--ambar-t)} .n-est.err{color:var(--rojo-t)}
+.n-volver{height:36px;padding:0 12px;border-radius:8px;border:1px solid var(--warn-b);background:transparent;color:var(--ambar-t)!important;font:600 15px "Barlow Condensed",sans-serif!important;text-transform:uppercase}
+.vt[data-tema="claro"] .boca{background:linear-gradient(#22313A,#0A1013)}
+.n-trab{flex:1;min-height:0;background:var(--panel);border:1px solid var(--linea);border-radius:16px;padding:12px 16px;display:flex;flex-direction:column;gap:6px}
+.n-trab-h{display:flex;align-items:center;gap:12px}
+.n-trab-h>b{flex:1;font:700 19px "Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.02em}
+.n-ley{display:flex;align-items:center;gap:6px;font:500 13px "Barlow",sans-serif;color:var(--mut)}
+.n-ley i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-left:6px}
+.n-ley .l-imp{background:var(--azul-l)} .n-ley .l-sig{border:2px solid var(--cobre)}
+.n-mini{height:42px;padding:0 14px;border-radius:9px;border:1px solid var(--linea2);background:transparent;font:600 16px "Barlow Condensed",sans-serif!important;text-transform:uppercase;color:var(--tinta)!important}
+.n-mini.on{border-color:var(--cobre);background:var(--panel2);color:var(--cobre-cl)!important}
+.n-gr{display:flex;align-items:baseline;gap:12px}
+.n-gr b{font:700 22px "Barlow Condensed",sans-serif;color:var(--cobre-cl);text-transform:uppercase}
+.n-gr span{font:500 14px "Barlow",sans-serif;color:var(--mut)}
+.n-rot{display:flex;align-items:center;gap:10px;min-height:20px;font:600 14px "Barlow Condensed",sans-serif;color:var(--mut);text-transform:uppercase}
+.n-lado{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;border-radius:8px;border:1px solid var(--cobre-borde);background:transparent;
+  font:600 14px "Barlow Condensed",sans-serif!important;color:var(--cobre-cl)!important;text-transform:uppercase}
+.n-lado svg{width:15px;height:15px}
+.n-mapa{display:grid;grid-template-columns:repeat(21,1fr);gap:4px}
+.n-c{height:62px;border-radius:9px;border:1px solid var(--linea);background:var(--fondo);font:700 21px "Barlow",sans-serif!important;color:var(--mut)!important;padding:0}
+.n-c.imp{background:var(--azul-f);border-color:var(--azul-l);color:var(--azul-c)!important}
+.n-c.sig{border:3px solid var(--cobre);color:var(--cobre-cl)!important}
+.n-c.sel{background:var(--cobre);border-color:var(--cobre);color:var(--sobre-cobre)!important}
+.n-acc{flex:none;display:grid;grid-template-columns:1fr auto auto;gap:12px}
+.n-imp{height:84px;border-radius:14px;border:0;background:var(--cobre);color:var(--sobre-cobre)!important;display:flex;align-items:center;justify-content:center;gap:16px;
+  font:700 33px "Barlow Condensed",sans-serif!important;text-transform:uppercase;letter-spacing:.02em}
+.n-imp svg{width:36px;height:36px}
+.n-imp:disabled{background:var(--apag-f);color:var(--apag-t)!important}
+.n-sec{height:84px;padding:0 24px;border-radius:14px;border:1px solid var(--linea2);background:transparent;display:flex;align-items:center;gap:12px;
+  font:600 22px "Barlow Condensed",sans-serif!important;text-transform:uppercase;color:var(--tinta)!important}
+.n-sec svg{width:24px;height:24px}
+.n-sec .n-n{min-width:28px;height:28px;padding:0 8px;border-radius:14px;background:var(--insig);color:var(--sobre-insig);font:700 15px "Barlow",sans-serif;display:grid;place-items:center}
+.n-sec.xls svg{color:var(--xls)}
+/* Sticker: números arriba, QR abajo (lo mismo que imprime la Zebra) */
+.sticker.n-st{grid-template-rows:auto auto 1fr;gap:5px}
+.n-st .st-cajas b{font-size:28px}
+.n-st-abajo{display:grid;grid-template-columns:72px minmax(0,1fr);gap:8px;align-items:center;min-height:0}
+.n-st-abajo .st-qr svg{width:72px;height:72px}
+.n-st-abajo b{display:block;font:700 23px/1 "Barlow Condensed","Arial Narrow",sans-serif}
+.n-st-abajo small{display:block;font:500 8.5px/1.3 "Barlow",Arial,sans-serif;margin-top:4px}
+/* Ventanas */
+.n-md{width:720px;max-height:744px;background:var(--panel);border:2px solid var(--linea2);border-radius:16px;padding:16px 20px;display:flex;flex-direction:column;gap:14px;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.n-md.ancho{width:984px} .n-md.chico{width:560px}
+.n-md-h small{display:block;font:600 14px "Barlow Condensed",sans-serif;color:var(--mut);text-transform:uppercase;letter-spacing:.03em}
+.n-md-h b{display:block;font:700 32px/1.15 "Barlow",sans-serif}
+.n-ops{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.n-op{min-height:150px;border-radius:14px;border:1px solid var(--linea);background:var(--panel);padding:12px 20px;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:4px;color:var(--tinta)!important}
+.n-op b{font:700 32px/1.1 "Barlow",sans-serif}
+.n-op span{font:500 17px/1.3 "Barlow",sans-serif;color:var(--mut)}
+.n-op.on{border:2px solid var(--cobre);border-left-width:5px} .n-op.on span{color:var(--cobre-cl)}
+.n-ops.colores .n-op{min-height:104px} .n-ops.colores .n-op b{font-size:25px}
+.n-acciones{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:12px}
+.n-bv{height:72px;border-radius:14px;border:1px solid var(--linea2);background:transparent;display:flex;align-items:center;justify-content:center;gap:10px;
+  font:600 24px "Barlow Condensed",sans-serif!important;text-transform:uppercase;color:var(--tinta)!important}
+.n-bv svg{width:26px;height:26px}
+.n-bv.pri{border:0;background:var(--cobre);color:var(--sobre-cobre)!important;font-weight:700!important}
+.n-bv.alerta{border-color:var(--warn-b);color:var(--ambar-t)!important}
+.n-nota{font:500 16px/1.35 "Barlow",sans-serif;color:var(--mut)}
+/* Paso 1: layout de circuitos */
+.n-circ{border:1px solid var(--linea2);border-radius:10px;overflow:hidden}
+.n-circ-h{background:var(--panel2);padding:5px 0;text-align:center;font:700 16px "Barlow Condensed",sans-serif;text-transform:uppercase}
+.n-circ-g{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px}
+.n-circ-pie{text-align:center;font:600 13px "Barlow Condensed",sans-serif;color:var(--mut);text-transform:uppercase;padding:0 0 7px}
+.n-g{height:40px;border-radius:8px;border:1px solid var(--linea3);background:var(--panel);font:700 17px "Barlow Condensed",sans-serif!important;color:var(--tinta)!important;white-space:nowrap}
+.n-g small{font:600 14px "Barlow Condensed",sans-serif;color:var(--cobre-cl);margin-left:5px}
+.n-g.act{border:2px solid var(--cobre);background:var(--cobre);color:var(--sobre-cobre)!important}
+.n-g:disabled{background:transparent;color:var(--mut2)!important;opacity:.55}
+.n-fila1{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.n-fila2{display:grid;grid-template-columns:1fr 1fr 2fr;gap:10px;align-items:start}
+.n-ew{border:1px solid var(--linea2);border-radius:10px;padding:10px 14px}
+.n-ew b{display:block;font:700 26px "Barlow Condensed",sans-serif;color:var(--verde-t)}
+.n-ew span{font:500 14px/1.3 "Barlow",sans-serif;color:var(--mut)}
+/* Registro */
+.n-lista{max-height:420px;overflow:auto;border-radius:10px;background:var(--fondo)}
+.n-lista table{width:100%;border-collapse:collapse}
+.n-lista th{position:sticky;top:0;background:var(--panel2);text-align:left;font:600 13px "Barlow Condensed",sans-serif;color:var(--mut);text-transform:uppercase;padding:8px 12px}
+.n-lista td{padding:8px 12px;border-bottom:1px solid var(--linea);font:500 16px "Barlow",sans-serif;color:var(--tinta);background:transparent}
+.n-lista td.cod{font:700 20px "Barlow Condensed",sans-serif;color:var(--cobre-cl)}
+.n-lista td.hora{font-family:"JetBrains Mono",Consolas,monospace;font-size:15px}
+.n-lista td em{color:var(--ambar-t);font-style:normal}
+.n-re{height:40px;padding:0 14px;border-radius:8px;border:1px solid var(--linea2);background:transparent;font:600 15px "Barlow Condensed",sans-serif!important;text-transform:uppercase;color:var(--tinta)!important}
+/* Panel de prueba (F2), dentro del equipo */
+.n-panel{position:absolute;inset:0;z-index:40;background:var(--panel-f);display:flex;justify-content:flex-end}
+.n-panel>div{width:360px;height:100%;background:var(--panel);border-left:2px solid var(--cobre);padding:20px;display:flex;flex-direction:column;gap:10px}
+.n-panel h3{margin:0;font:700 24px "Barlow Condensed",sans-serif;text-transform:uppercase}
+.n-panel p{font:500 14px/1.35 "Barlow",sans-serif;color:var(--mut)}
+.n-sw{min-height:64px;border-radius:10px;border:1px solid var(--linea2);background:var(--fondo);padding:10px 14px;text-align:left;display:grid;gap:2px;color:var(--tinta)!important}
+.n-sw.on{border-color:var(--cobre);background:var(--panel2)}
+.n-sw b{font:600 18px "Barlow Condensed",sans-serif;text-transform:uppercase}
+.n-sw i{font:700 20px "Barlow Condensed",sans-serif;font-style:normal;color:var(--mut)} .n-sw.on i{color:var(--cobre-cl)}
+.n-sw span{font:500 13px/1.3 "Barlow",sans-serif;color:var(--mut)}
+.n-pb{height:52px;border-radius:10px;border:1px solid var(--err-b);background:transparent;font:600 18px "Barlow Condensed",sans-serif!important;text-transform:uppercase;color:var(--rojo-t)!important}
+.n-pb.pri{border:0;background:var(--cobre);color:var(--sobre-cobre)!important}
 </style>
 
 <div class="pagina">
   <header class="ph">
     <div>
       <p class="eyebrow">Codelco División Ventanas · Báscula N9 · Propuesta Ingmétrica</p>
-      <h1>Terminal de rotulado en la VT1200</h1>
-      <p class="lead">Es la pantalla de la nave, el punto A de la simulación: ahí el operador imprime la etiqueta de cada paquete antes de que la grúa lo lleve a la báscula. Un toque por paquete. A la derecha ve la Báscula N9 en vivo: marca el peso, lo controla y lo registra solo. Todo queda registrado y se baja a Excel.</p>
+      <h1>Programa 1 · Etiquetado en origen</h1>
+      <p class="lead">Es la pantalla del equipo de origen, igual al programa de etiquetado (TerminalVentanas). El operador elige el grupo en el layout de circuitos y emite la etiqueta de cada lingada de cátodos: un toque por lingada. Solo emite la etiqueta; el peso lo captura el programa de la caseta de la Báscula N9.</p>
     </div>
     <div class="ph-acc">
       <button class="bt-p pri" id="btnFull" type="button">Pantalla completa</button>
+      <button class="bt-p" id="btnF2" type="button">Panel de prueba (F2)</button>
       <button class="bt-p" id="btnReset" type="button">Reiniciar</button>
     </div>
   </header>
@@ -361,66 +509,60 @@ html.app .g-app{display:grid}
   <div class="zona">
     <div>
       <div class="marco" id="marco">
-        <div class="vt" id="vt" role="application" aria-label="Pantalla de la VT1200: rotulado de cargas">
+        <div class="vt" id="vt" role="application" aria-label="Pantalla de etiquetado de cátodos en origen">
           <div class="pant" id="pant"></div>
           <div class="modal" id="modal" hidden></div>
+          <div class="n-panel" id="panelF2" hidden></div>
           <div class="toast" id="toast" role="status" hidden></div>
         </div>
       </div>
-      <div class="marco-pie"><span>VT1200 · 1024 × 768 · Zebra por USB · Báscula N9 por red</span><span>Maqueta con datos simulados: no se conecta a la báscula ni a la impresora.</span></div>
+      <div class="marco-pie"><span>Equipo de origen · 1024 × 768 · Zebra por USB</span><span>Maqueta con datos simulados: no se conecta a la impresora.</span></div>
     </div>
 
     <aside class="guia">
       <section class="g-bloque g-app">
         <h2>Panel de prueba</h2>
-        <p class="nota">Solo para la demostración en la VT1200. Se abre y se cierra con la tecla F2.</p>
+        <p class="nota">Solo para la demostración. Se abre y se cierra con la tecla F2.</p>
         <div class="ph-acc"><button class="bt-p pri" id="btnPanel" type="button">Cerrar el panel</button><button class="bt-p" id="btnReset2" type="button">Reiniciar el registro</button></div>
       </section>
       <section class="g-bloque">
         <h2>Qué hace el operador</h2>
         <ol class="pasos">
           <li><span>Toca <b>Entrar</b>. El RUT de prueba ya está escrito.</span></li>
-          <li><span>Toca <b>Imprimir 5T21</b> y pega la etiqueta arriba del paquete. El terminal pasa solo a la que sigue.</span></li>
-          <li><span>Mira la <b>Báscula N9</b>: cuando el paquete llega, marca el peso, lo controla y lo registra solo.</span></li>
-          <li><span>Cuando quiera, toca <b>Excel</b> y baja el registro del día.</span></li>
+          <li><span><b>Paso 1:</b> toca el grupo a cosechar en el layout de circuitos (en el ejemplo, el 21).</span></li>
+          <li><span><b>Paso 2:</b> toca <b>Imprimir celda 5</b> y responde <b>Total</b> o <b>Parcial</b>. La etiqueta sale con esa letra (5T21 o 5P21) y el terminal pasa a la celda que sigue.</span></li>
+          <li><span>Cuando quiera, toca <b>Registro</b> o <b>Excel</b>.</span></li>
         </ol>
-        <p class="nota">Si el paquete es otro, toca su celda en el mapa. En restos, escribe el número pintado del carro y toca Imprimir.</p>
+        <p class="nota">Si la lingada es de otra celda, toca esa celda en el grupo. Para otro grupo, <b>Cambiar grupo</b>.</p>
       </section>
       <section class="g-bloque">
-        <h2>La báscula en vivo</h2>
-        <ul class="ley-b">
-          <li><span class="chip espera">Llegando</span><span>La grúa deja la carga y la cámara lee la etiqueta.</span></li>
-          <li><span class="chip inestable">Estabilizando</span><span>El peso todavía se mueve: nadie toca la carga.</span></li>
-          <li><span class="chip estable">Estable</span><span>Toma el peso, lo compara con lo esperado y lo registra.</span></li>
-          <li><span class="chip bloqueado">Bloqueado</span><span>Grúa encima, carro fuera del área o báscula sin cero: no registra.</span></li>
+        <h2>La pantalla</h2>
+        <ul class="hace">
+          <li><b>Etiqueta que sigue</b>: vista previa exacta de lo que imprime la Zebra: celda, lado y grupo arriba; QR y 39 cátodos abajo.</li>
+          <li><b>Grupo de producción</b>: celdas 1 a 21 arriba y 22 a 42 abajo. En azul, las que ya tienen etiqueta; con borde cobre, la que sigue.</li>
+          <li><b>Muestra</b>: etiqueta del paquete de muestra del grupo (cuba 00).</li>
+          <li><b>Colores</b>: Original, Claro, Alto contraste o Como Windows. Queda elegido en el equipo.</li>
         </ul>
-        <p class="nota">Toque <b>Abrir</b> en la báscula para ver el pesaje con los datos de las planillas y del sistema: grupo, cuba, lado y muestra; número, bruto, tara y neto; grupo, carro y tara de carro + rack; despuntes D.G y D.O, Cu sucio, láminas MFCI y botes de hojas madres. Todo se puede corregir antes o después de grabar, y ahí están el turno A o C y el control de cero.</p>
-        <p class="nota">Lo esperado: cátodos 4.200 a 5.000 kg; láminas aprobadas 3.200 a 3.900 kg netos (tara 12 kg por pallet); restos 2.800 a 4.000 kg netos (tara de carro + rack). Los cuatro puntos del dibujo son las 4 celdas de carga de la báscula.</p>
+        <p class="nota">Solo cátodos. Esta pantalla no pesa: el peso lo captura el programa de la caseta de la Báscula N9.</p>
       </section>
       <section class="g-bloque">
-        <h2>Probar la báscula</h2>
-        <div class="esc">
-          <button type="button" data-esc="grua" aria-pressed="false"><b>Grúa encima</b><span>La grúa deja el paquete y no retrocede.</span></button>
-          <button type="button" data-esc="fuera" aria-pressed="false"><b>Carro fuera del área</b><span>El carro queda pasado de la plataforma.</span></button>
-          <button type="button" data-esc="cero" aria-pressed="false"><b>Báscula sin cero</b><span>Quedan nódulos en la junta: vacía marca 6 kg.</span></button>
-          <button type="button" data-esc="caja" aria-pressed="false"><b>Caja sin etiqueta</b><span>Llega una caja de despuntes: se ingresa a mano en la pantalla Báscula.</span></button>
-        </div>
-        <p class="nota" id="escNota">Elija una situación y mírela en la báscula de la pantalla.</p>
+        <h2>Panel de prueba (F2)</h2>
+        <ul class="hace">
+          <li><b>Lado sobre las celdas</b>: muestra u oculta el botón Lado total / parcial arriba de cada fila. Viene apagado; al imprimir siempre se pregunta.</li>
+          <li><b>Reiniciar el registro</b>: vuelve a los datos de ejemplo.</li>
+        </ul>
       </section>
       <section class="g-bloque">
         <h2>El Excel</h2>
         <ul class="hace">
-          <li>Una hoja por producto, con las columnas de las planillas de hoy: cátodos (grupo, cuba, lado, muestra, peso), láminas (número, bruto, tara 12, neto) y restos (carro, bruto, tara de carro + rack, neto y total del grupo).</li>
-          <li>Cada fila trae la hora real en que la báscula tomó el peso, el turno y lo que dijo el control.</li>
-          <li>Con la forma de las planillas de hoy: el cuaderno de cátodos por grupo (T, P, M y total), la hoja de láminas despegue por bloque, los restos por grupo y el formulario de subproductos en PM por turno.</li>
-          <li>Una hoja Resumen con las mismas columnas que el Resumen del Sistema de Cátodos: Lado-P, Lado-T, Muestra, Tot-peso, Col-parc, Col-total y Tot-coli.</li>
+          <li>Hoja Cátodos con la forma del cuaderno: un bloque por grupo (celdas 1 a 21 y 22 a 42) y el detalle de cada etiqueta: grupo, cuba, lado (T o P), muestra, hora y operador.</li>
+          <li>Hoja Resumen con las columnas del Resumen del Sistema de Cátodos: Lado-P, Lado-T, Muestra, Tot-peso y Tot-coli.</li>
         </ul>
-        <p class="nota">En la VT1200 real el Excel se guarda solo, por turno, en la carpeta de la báscula. En esta maqueta se baja con el botón Excel.</p>
+        <p class="nota">En el equipo real el Excel se guarda en la carpeta configurada. En esta maqueta se baja con el botón Excel.</p>
       </section>
       <section class="g-bloque">
-        <h2>Simulación</h2>
-        <label class="sw" for="chkSim"><input type="checkbox" id="chkSim" checked> Simular la báscula: cada etiqueta llega y se pesa a los pocos segundos.</label>
-        <p class="nota">Datos simulados. Parte en el grupo 21 del 22-10-2026: celdas 1 a 3 pesadas y la 4 en camino. Los pesos imitan los de ese día (cátodos y restos) y los de la hoja de láminas del 21-10. Taras de carro + rack: de ejemplo. Reiniciar borra lo registrado en este equipo.</p>
+        <h2>Datos</h2>
+        <p class="nota">Datos simulados. Parte en el grupo 21 del 22-10-2026 con las celdas 1 a 4 ya etiquetadas. Lo hecho queda guardado en este navegador; Reiniciar vuelve al inicio.</p>
       </section>
     </aside>
   </div>
@@ -439,13 +581,21 @@ if(APP) document.documentElement.classList.add('app');
 const aEquipo=msg=>{try{if(APP) window.chrome.webview.postMessage(msg);}catch(e){}};
 const f0=v=>Math.round(v).toLocaleString('es-CL');
 const pad2=n=>String(n).padStart(2,'0');
-const FECHA='22-10-2026', DIA='22', MES='10', FQ='20261022', GUARDA='ventanas-rotulado-v6';
+const FECHA='22-10-2026', DIA='22', MES='10', FQ='20261022', GUARDA='ventanas-rotulado-v7';
 const hhmm=m=>`${pad2(Math.floor(m/60)%24)}:${pad2(m%60)}`;
 
 /* Pesos reales del 22-10-2026, grupo 21 (consulta "Detalle pesaje de producción" del Sistema de Cátodos) */
 const PESO_CELDA={1:4796,2:4855,3:4722,4:4687,5:4860,6:4815,7:4818,8:4843,9:4742,10:4831,11:4869,12:4724,13:4610,14:4725,15:4714,16:4680,17:4800,18:4789,19:4790,20:4644,21:4775,
   42:4310,41:4646,40:4714,39:4445,38:4365,37:4791,36:4756,35:4796,34:4641,33:4612,32:4651,31:4640,30:4626,29:4316};
 const PESO_MUESTRA=854;
+/* Cátodos por celda (van en la etiqueta) y el layout de la nave: circuitos con sus pares de grupos, como el plano */
+const CATODOS_CELDA=39;
+const CIRCUITOS=[['Circuito IV',[[32,25],[31,26],[30,27],[29,28]]],['Circuito III',[[24,17],[23,18],[22,19],[21,20]]],['Circuito V',[[40,33],[39,34],[38,35],[37,36]]],
+  ['Circuito VI',[[48,41],[47,42],[46,43],[45,44]]],['Circuito I',[[4,5],[3,6],[2,7],[1,8]]],['Circuito II',[[12,13],[11,14],[10,15],[9,16]]]];
+const SIN_ROTULO=g=>g===1||g===2;
+/* RUT: dígito verificador (módulo 11) */
+const dvRut=c=>{let s=0,m=2; for(let i=c.length-1;i>=0;i--){s+=(+c[i])*m; m=m===7?2:m+1;} const r=11-s%11; return r===11?'0':r===10?'K':String(r);};
+const rutValido=r=>r.length>=8&&r.length<=9&&/^\d+$/.test(r.slice(0,-1))&&r.slice(-1).toUpperCase()===dvRut(r.slice(0,-1));
 /* Restos de ánodos del mismo grupo: netos de los 11 carros del cuaderno, en orden */
 const RESTOS_NETOS=[3413,3878,3488,3718,3868,3464,3506,3274,3394,3912,2046];
 /* Tara de carro + rack por número pintado: valores de ejemplo (la lista real la tiene el pesador) */
@@ -471,9 +621,9 @@ const SUB=[
   {id:'hm',nombre:'Restos de hojas madres (bote)',corto:'Hojas madres',bote:true}];
 const CAJAS_EJ=[329,400,312,1192];
 /* Orden de pesaje que se vio el 22-10: celdas 1 a 21 subiendo y después desde la 42 bajando */
-const ORDEN=[]; for(let i=1;i<=21;i++) ORDEN.push(i); for(let i=42;i>=22;i--) ORDEN.push(i);
+const ORDEN=[]; for(let i=1;i<=42;i++) ORDEN.push(i);  /* 1 a 21 y después 22 a 42, siempre subiendo */
 const LADO_TXT={T:'total',P:'parcial'};
-const EST_TXT={camino:'En camino',bascula:'En la báscula',pesada:'Pesada',sintara:'Sin tara'};
+const EST_TXT={camino:'Pendiente de pesaje',bascula:'En la báscula',pesada:'Pesada',sintara:'Sin tara'};
 /* Lo esperado por producto (las reglas de la simulación). C.O, rechazo S/O y la muestra todavía no tienen rango */
 const RANGO={cat:[4200,5000],aprob:[3200,3900],rs:[2800,4000]};
 const CHIP={cero:['cero','En cero'],espera:['espera','Llegando'],inestable:['inestable','Estabilizando'],estable:['estable','Estable'],bloqueado:['bloqueado','Bloqueado'],sincero:['bloqueado','Sin cero']};
@@ -494,6 +644,8 @@ const ICON={
   tag:`<svg viewBox="0 0 24 24" aria-hidden="true">${g('<path d="M3 5v6l9 9 8-8-9-9H5z"/><circle cx="7.5" cy="8.5" r="1.5"/>')}</svg>`,
   caja:`<svg viewBox="0 0 96 72" aria-hidden="true">${g('<path d="M16 30h64v30H16zM16 30l10-14h44l10 14M40 30v9h16v-9"/>',4)}</svg>`,
   grabar:`<svg viewBox="0 0 24 24" aria-hidden="true">${g('<path d="M4 4h13l3 3v13H4z"/><path d="M8 4v5h8V4M8 20v-6h8v6"/>')}</svg>`,
+  pal:`<svg viewBox="0 0 24 24" aria-hidden="true">${g('<circle cx="12" cy="12" r="9.5"/><path d="M12 2.5v19M12 7.5c3 0 4.5 2 4.5 4.5S15 16.5 12 16.5"/>')}</svg>`,
+  bksp:`<svg viewBox="0 0 24 24" aria-hidden="true">${g('<path d="M8 5h12v14H8l-6-7z"/><path d="M11.5 9.5l5 5M16.5 9.5l-5 5"/>')}</svg>`,
   muted:`<svg viewBox="0 0 24 24" aria-hidden="true">${g('<path d="M3 15.5h18v3H3z"/><path d="M7 15.5V12h10v3.5"/>')}</svg>`
 };
 
@@ -538,7 +690,7 @@ const editar=(v,val,max)=>v==='C'?'':v==='del'?val.slice(0,-1):val.length<max?va
 /* ---------- Etiquetas: lo mismo que hoy se escribe a mano, más el QR ---------- */
 function etqCat(gr,n,lado,h,peso,oper){
   return {hora:h,prod:'cat',codigo:`${n}${lado}${gr}`,detalle:`Celda ${n}, lado ${LADO_TXT[lado]}, grupo ${gr}`,lado:lado,estado:'camino',neto:peso,tara:0,bruto:peso,oper:oper,tag:'CÁTODO',
-    qr:`VEN|CAT|C${pad2(n)}|L${lado}|G${gr}|M-N`,cajas:[['CELDA',String(n)],['LADO',lado],['GRUPO',String(gr)]],pie:`Cátodo comercial · lado ${LADO_TXT[lado]} · ${FECHA} ${h}`,ref:{g:gr,n:n}};
+    qr:`VEN|CAT|C${pad2(n)}|L${lado}|G${gr}|N${CATODOS_CELDA}`,cajas:[['CELDA',String(n)],['LADO',lado],['GRUPO',String(gr)]],pie:`Cátodo comercial · lado ${LADO_TXT[lado]} · ${FECHA} ${h}`,ref:{g:gr,n:n,cant:CATODOS_CELDA}};
 }
 function etqMuestra(gr,h,oper){
   return {hora:h,prod:'cat',codigo:`MUESTRA G${gr}`,detalle:`Muestra del grupo ${gr} (cuba 00)`,lado:'',estado:'camino',neto:PESO_MUESTRA,tara:0,bruto:PESO_MUESTRA,oper:oper,tag:'MUESTRA',
@@ -565,26 +717,29 @@ function qrSvg(txt){
   catch(e){return '<svg viewBox="0 0 10 10"><rect width="10" height="10" fill="none" stroke="#111" stroke-width=".5"/><text x="5" y="6" font-size="2.4" text-anchor="middle" fill="#111">QR</text></svg>';}
 }
 function sticker(l){
-  return `<div class="sticker"><div class="st-top"><span class="st-tag">${l.tag}</span><span class="st-id">${l.codigo}</span></div>`+
-    `<div class="st-main"><div class="st-qr">${qrSvg(l.qr)}</div><div class="st-cajas">${l.cajas.map(([a,b])=>`<div><small>${a}</small><b>${b}</b></div>`).join('')}</div></div>`+
-    `<div class="st-pie">${l.pie}</div><div class="st-ok">${ICON.ok}<b>Impresa</b></div></div>`;
+  const cant=l.ref&&l.ref.cant?`${l.ref.cant} CÁTODOS`:l.tag==='MUESTRA'?'MUESTRA':'';
+  return `<div class="sticker n-st"><div class="st-top"><span class="st-tag">${l.tag}</span><span class="st-id">${l.codigo}</span></div>`+
+    `<div class="st-cajas">${l.cajas.map(([a,b])=>`<div><small>${a}</small><b>${b}</b></div>`).join('')}</div>`+
+    `<div class="n-st-abajo"><div class="st-qr">${qrSvg(l.qr)}</div><div><b>${cant}</b><small>${l.pie}</small></div></div>`+
+    `<div class="st-ok">${ICON.ok}<b>Impresa</b></div></div>`;
 }
 
 /* ---------- Área de trabajo de cada producto ---------- */
 function trabajoCat(G,sig){
-  const cel=Object.values(G.celdas), pes=cel.filter(c=>c.e==='pesada').length, cam=cel.length-pes;
-  const sq=n=>{const c=G.celdas[n]; let cls='sq';
-    if(c) cls+=c.e==='pesada'?' pes':c.e==='bascula'?' bas':' cam'; else if(n===sig) cls+=' sig';
+  const imp=Object.keys(G.celdas).length;
+  const sq=n=>{const c=G.celdas[n]; let cls='n-c';
+    if(c) cls+=' imp'; else if(n===sig) cls+=' sig';
     if(!S.muestra&&n===S.sel&&n!==sig) cls+=' sel';
-    const kg=c&&c.e==='pesada'&&c.p?`<small>${f0(c.p)}</small>`:'';
-    return `<button class="${cls}" type="button" data-act="celda" data-v="${n}" aria-label="Celda ${n}${c?', '+EST_TXT[c.e].toLowerCase()+(c.e==='pesada'?' '+f0(c.p)+' kg':''):n===sig?', es la que sigue':''}">${n}${kg}</button>`;};
-  const lado=k=>`<button class="lado-b" type="button" data-act="f-lado" data-v="${k}">lado ${LADO_TXT[G.lados[k]]}${ICON.lapiz}</button>`;
-  return `<section class="caja"><div class="caja-h"><b>Grupo ${G.g}</b><span class="cuenta">${pes} pesadas · ${cam} en camino</span>`+
-    `<span class="ley"><i class="l-pes"></i>Pesada<i class="l-bas"></i>En báscula<i class="l-cam"></i>En camino<i class="l-sig"></i>Sigue</span>`+
-    `<button class="mini-b${S.muestra?' on':''}" type="button" data-act="muestra">${S.muestra?'Muestra: sí':'Muestra'}</button>`+
-    `<button class="mini-b" type="button" data-act="f-grupo">Cambiar grupo</button></div>`+
-    `<p class="fila-lbl">Celdas 1 a 21 · ${lado('a')}<em>Si el paquete es otro, toque su celda</em></p><div class="mapa">${ORDEN.slice(0,21).map(sq).join('')}</div>`+
-    `<p class="fila-lbl">Celdas 42 a 22 · ${lado('b')}</p><div class="mapa">${ORDEN.slice(21).map(sq).join('')}</div></section>`;
+    return `<button class="${cls}" type="button" data-act="celda" data-v="${n}" aria-label="Celda ${n}${c?', etiqueta impresa':n===sig?', es la que sigue':''}">${n}</button>`;};
+  /* El botón de lado sobre cada fila es opcional (panel F2): al imprimir siempre se pregunta Total o Parcial */
+  const rot=(txt,k)=>`<p class="n-rot">${txt}${ladoFilas?`<button class="n-lado" type="button" data-act="f-lado" data-v="${k}">Lado ${LADO_TXT[G.lados[k]]}${ICON.lapiz}</button>`:''}</p>`;
+  return `<section class="n-trab"><div class="n-trab-h"><b>Paso 2 · Grupo de producción</b>`+
+    `<span class="n-ley"><i class="l-imp"></i>Etiqueta impresa<i class="l-sig"></i>Sigue</span>`+
+    `<button class="n-mini${S.muestra?' on':''}" type="button" data-act="muestra">${S.muestra?'Muestra: sí':'Muestra'}</button>`+
+    `<button class="n-mini" type="button" data-act="f-grupo">Cambiar grupo</button></div>`+
+    `<div class="n-gr"><b>Grupo ${G.g}</b><span>${imp?`${imp} etiquetas impresas`:'sin etiquetas'} · ${CATODOS_CELDA} cátodos por celda</span></div>`+
+    `${rot('Celdas 1 a 21','a')}<div class="n-mapa">${ORDEN.slice(0,21).map(sq).join('')}</div>`+
+    `${rot('Celdas 22 a 42','b')}<div class="n-mapa">${ORDEN.slice(21).map(sq).join('')}</div></section>`;
 }
 function trabajoLam(T,n){
   const seg=LAM.map(t=>`<button class="${t.id===T.id?'on':''}" type="button" data-act="lamtipo" data-v="${t.id}" aria-pressed="${t.id===T.id}"><b>${t.corto}</b><i>Sigue Nº ${S.lam.sig[t.id]}</i></button>`).join('');
@@ -619,11 +774,11 @@ function modeloCat(){
   const n=S.sel, c=n&&G.celdas[n], ld=n?ladoDe(G,n):'';
   const m={lbl:'Etiqueta que sigue',codigo:mu?'MUESTRA':n?codCat(G,n):'—',
     sticker:mu?etqMuestra(G.g,hora()):n?etqCat(G.g,n,ld,hora(),0):etqVacia('CÁTODO'),
-    trabajo:trabajoCat(G,sig),imp:{txt:`Imprimir ${mu?'muestra':n?codCat(G,n):''}`,dis:false},estado:null};
+    trabajo:trabajoCat(G,sig),imp:{txt:`Imprimir ${mu?'muestra':n?`celda ${n}`:''}`,dis:false},estado:null};
   if(mu){m.lbl=`Muestra del grupo ${G.g}`;
     if(G.muestra){m.estado={k:'info',txt:`Ya tiene etiqueta (${G.muestra.h}). Reimprima solo si se dañó.`}; m.imp.txt='Reimprimir muestra';}
     else m.estado={k:'info',txt:'Se graba como cuba 00, sin lado'};}
-  else if(!n){m.lbl='Cátodos'; m.estado={k:'ok',txt:`Grupo ${G.g} completo. Toque Cambiar grupo.`}; m.imp={txt:'Imprimir',dis:true};}
+  else if(!n){m.lbl='Cátodos'; m.estado={k:'ok',txt:`Grupo ${G.g} completo. Toque otro grupo o Cambiar grupo.`}; m.imp={txt:'Imprimir',dis:true};}
   else if(c){m.lbl='Celda con etiqueta'; m.estado={k:'info',txt:`Ya tiene etiqueta (${c.h}). Reimprima solo si se dañó.`}; m.imp.txt=`Reimprimir ${codCat(G,n)}`;}
   else if(sig&&n!==sig){m.lbl='Etiqueta elegida'; m.estado={k:'warn',txt:`Ojo: la que sigue es ${codCat(G,sig)}`,volver:codCat(G,sig)};}
   else m.estado=S.msg||{k:'ok',txt:'Es la que sigue'};
@@ -644,31 +799,31 @@ function modeloRs(){
   else m.estado={k:'ok',txt:`Tara de carro + rack: ${f0(tara)} kg`};
   return m;
 }
-const modelo=()=>({cat:modeloCat,lam:modeloLam,rs:modeloRs})[S.prod]();
+/* Esta pantalla rotula solo cátodos (láminas y restos quedaron fuera) */
+const modelo=()=>modeloCat();
 
 /* ---------- Pantallas ---------- */
 function vLogin(){
-  const t=[1,2,3,4,5,6,7,8,9].map(d=>`<button class="k" type="button" data-act="rut" data-v="${d}">${d}</button>`).join('')+
-    `<button class="k txt" type="button" data-act="rut" data-v="C">Borrar</button><button class="k" type="button" data-act="rut" data-v="0">0</button><button class="k txt" type="button" data-act="rut" data-v="del" aria-label="Borrar un número">&#9003;</button>`;
-  return `<div class="login"><div class="lg-card"><div class="lg-marca">${ICON.tag}<div><b>Rotulado de cargas</b><span>Nave · Báscula N9 · VT1200</span></div></div>`+
-    `<div class="dsp"><small>RUT del operador</small><b>${fmtRut(S.rut)||'—'}</b></div><div class="kp">${t}</div>`+
-    `<button class="b-imp" type="button" data-act="entrar">Entrar</button><p class="lg-nota">El RUT de prueba ya está escrito: toque Entrar.</p></div></div>`;
+  const t=[1,2,3,4,5,6,7,8,9].map(d=>`<button class="n-k" type="button" data-act="rut" data-v="${d}">${d}</button>`).join('')+
+    `<button class="n-k" type="button" data-act="rut" data-v="K">K</button><button class="n-k" type="button" data-act="rut" data-v="0">0</button><button class="n-k" type="button" data-act="rut" data-v="del" aria-label="Borrar un número">${ICON.bksp}</button>`;
+  const ok=rutValido(S.rut), nota=ok?['var(--verde-t)','RUT válido: toque Entrar.']:S.rut.length<8?['var(--mut)','Escriba el RUT con el dígito verificador.']:['var(--rojo-t)','RUT no válido: revise el dígito verificador.'];
+  return `<div class="n-login"><div class="n-arriba"><button class="n-btn" type="button" data-act="colores">${ICON.pal}Colores</button><button class="n-btn" type="button" data-act="pedir-cerrar">Salir</button></div>`+
+    `<div class="n-lg"><div class="n-marca">${ICON.tag}<div><b>Rotulado de cátodos</b><span>Origen · Etiqueta para la Báscula N9</span></div></div>`+
+    `<div class="n-rut"><small>RUT del operador</small><b>${fmtRut(S.rut)||'—'}</b></div><div class="n-kp">${t}</div>`+
+    `<button class="n-entrar" type="button" data-act="entrar"${ok?'':' disabled'}>Entrar</button><p class="n-lg-nota" style="color:${nota[0]}">${nota[1]}</p></div></div>`;
 }
 function vMain(m){
-  const tab=(v,ic,t)=>`<button class="tabp${S.prod===v?' on':''}" type="button" role="tab" aria-selected="${S.prod===v}" data-act="prod" data-v="${v}">${ic}${t}</button>`;
-  /* El código grande: "Nº" va chico al lado, para que el número se lea de lejos */
-  const e=m.estado, cod=m.corto||m.codigo, pre=cod.startsWith('Nº ')?'Nº':'', num=pre?cod.slice(3):cod;
-  const fs=Math.min(92,Math.floor((pre?240:270)/(0.6*Math.max(1,[...num].length))));
-  const codHtml=(pre?`<span class="pre">${pre}</span>`:'')+num;
-  return `<div class="bar"><nav class="tabs" role="tablist" aria-label="Producto">${tab('cat',ICON.cat,'Cátodos')}${tab('lam',ICON.lam,'Láminas')}${tab('rs',ICON.rs,'Restos de ánodos')}</nav>`+
-    `<div class="who"><span><b>${S.user}</b> · ${hora()}</span><button class="b-out" type="button" data-act="salir">Salir</button></div></div>`+
-    `<div class="top"><section class="hero${S.fase?' '+S.fase:''}"><div class="h-txt"><p class="h-lbl">${m.lbl}</p><p class="h-cod${m.vacio||cod==='—'?' vacio':''}" style="font-size:${fs}px">${codHtml}</p>`+
-    `<p class="estado ${e.k}" role="status">${ICON[e.k]}<span>${e.txt}</span>${e.volver?`<button class="volver" type="button" data-act="volver">Volver a ${e.volver}</button>`:''}</p></div>`+
-    `<div class="zebra" aria-hidden="true"><div class="boca"></div><div class="salida">${sticker(m.sticker)}</div></div></section>${balanzaHtml()}</div>`+
-    `<div class="trabajo">${m.trabajo}</div>`+
-    `<div class="acc"><button class="b-imp" type="button" data-act="imprimir"${m.imp.dis?' disabled':''}>${ICON.prn}<span>${m.imp.txt}</span></button>`+
-    `<button class="b-sec" type="button" data-act="registro">${ICON.lista}<span>Registro</span><span class="n">${S.labels.length}</span></button>`+
-    `<button class="b-sec xls" type="button" data-act="excel"${dl?'':' hidden'}>${ICON.xls}<span>Excel</span></button></div>`;
+  const e=m.estado, cod=m.corto||m.codigo;
+  const fs=Math.min(92,Math.floor(300/(0.58*Math.max(1,[...cod].length))));
+  return `<div class="n-bar">${ICON.cat}<div class="n-tit"><b>Rotulado de cátodos</b><span>Origen · Etiqueta para la Báscula N9</span></div>`+
+    `<span class="n-who"><b>${S.user}</b> · ${hora()}</span><button class="n-btn" type="button" data-act="colores">${ICON.pal}Colores</button><button class="n-btn" type="button" data-act="salir">Salir</button></div>`+
+    `<section class="hero n-hero${S.fase?' '+S.fase:''}"><div><p class="n-lbl">${m.lbl}</p><p class="n-cod${cod==='—'?' vacio':''}" style="font-size:${fs}px">${cod}</p>`+
+    `<p class="n-est ${e.k}" role="status">${ICON[e.k]}<span>${e.txt}</span>${e.volver?`<button class="n-volver" type="button" data-act="volver">Volver a ${e.volver}</button>`:''}</p></div>`+
+    `<div class="zebra" aria-hidden="true"><div class="boca"></div><div class="salida">${sticker(m.sticker)}</div></div></section>`+
+    m.trabajo+
+    `<div class="n-acc"><button class="n-imp" type="button" data-act="imprimir"${m.imp.dis?' disabled':''}>${ICON.prn}<span>${m.imp.txt}</span></button>`+
+    `<button class="n-sec" type="button" data-act="registro">${ICON.lista}<span>Registro</span><span class="n-n">${S.labels.length}</span></button>`+
+    `<button class="n-sec xls" type="button" data-act="excel">${ICON.xls}<span>Excel</span></button></div>`;
 }
 
 /* ---------- Ventanas: cambiar grupo, lado, terminar grupo y registro ---------- */
@@ -676,20 +831,55 @@ const mdH=(a,b)=>`<div class="md-h"><small>${a}</small><b>${b}</b></div>`;
 const opt=(act,v,t,s,on)=>`<button class="opt${on?' on':''}" type="button" data-act="${act}" data-v="${v}"><span>${t}</span><i>${s}</i></button>`;
 const teclasMd=()=>[1,2,3,4,5,6,7,8,9].map(d=>`<button class="k" type="button" data-act="kp" data-v="${d}">${d}</button>`).join('')+
   `<button class="k txt" type="button" data-act="kp" data-v="C">Borrar</button><button class="k" type="button" data-act="kp" data-v="0">0</button><button class="k txt" type="button" data-act="kp" data-v="del" aria-label="Borrar un número">&#9003;</button>`;
+const nMd=(a,b)=>`<div class="n-md-h"><small>${a}</small><b>${b}</b></div>`;
+const nOp=(act,v,t,s,on)=>`<button class="n-op${on?' on':''}" type="button" data-act="${act}" data-v="${v}"><b>${t}</b><span>${s}</span></button>`;
+const nBv=(act,txt,cls,v,ic)=>`<button class="n-bv${cls?' '+cls:''}" type="button" data-act="${act}"${v!=null?` data-v="${v}"`:''}>${ic||''}<span>${txt}</span></button>`;
 const MODAL={
-  lado(){const G=grupoAct(), k=S.md.val, r=k==='a'?'1 a 21':'42 a 22';
-    return `<div class="md">${mdH(`Grupo ${G.g} · celdas ${r}`,'¿Se sacan las 21 celdas de este lado?')}<div class="opts dos">`+
-      opt('set-lado','T','Sí, las 21','Lado total · T',G.lados[k]==='T')+opt('set-lado','P','No, solo algunas','Lado parcial · P',G.lados[k]==='P')+`</div>`+
-      `<div class="md-acc"><button class="b-sec" type="button" data-act="cerrar">Cancelar</button></div></div>`;},
-  grupo(){const G=grupoAct(), v=S.md.val;
-    return `<div class="md chico">${mdH('Cátodos','¿Qué grupo va a etiquetar?')}<div class="dsp"><small>Grupo</small><b>${v||'—'}</b></div><div class="kp">${teclasMd()}</div>`+
-      `<div class="md-acc"><button class="b-imp" type="button" data-act="ok-grupo"${v?'':' disabled'}>Aceptar</button><button class="b-sec" type="button" data-act="cerrar">Cancelar</button></div>`+
-      `<div class="md-acc"><button class="b-sec alerta" type="button" data-act="terminar">${ICON.warn}<span>Terminar el grupo ${G.g}</span></button></div></div>`;},
+  /* Paso 1: el layout de la nave, como el plano de circuitos. Al entrar es lo primero (modo "inicio") */
+  grupo(){const G=grupoAct(), inicio=S.md.val==='inicio';
+    const bot=g=>{const lam=SIN_ROTULO(g), act=g===S.grupo, h=S.grupos[g]?Object.keys(S.grupos[g].celdas).length:0;
+      return `<button class="n-g${act?' act':''}" type="button" data-act="elegir-grupo" data-v="${g}"${lam?' disabled':''}>Grupo ${g}${!act&&h?`<small>· ${h}</small>`:''}</button>`;};
+    const bloque=([nom,pares],pie)=>`<div class="n-circ"><div class="n-circ-h">${nom}</div><div class="n-circ-g">${pares.map(([a,b])=>bot(a)+bot(b)).join('')}</div>${pie?`<div class="n-circ-pie">${pie}</div>`:''}</div>`;
+    const acc=inicio?`<div class="n-acciones">${Object.keys(G.celdas).length?nBv('cerrar',`Seguir con el grupo ${G.g}`):''}${nBv('salir','Salir')}</div>`
+      :`<div class="n-acciones">${nBv('terminar',`Terminar el grupo ${G.g}`,'alerta',null,ICON.warn)}${nBv('cerrar','Cancelar')}</div>`;
+    return `<div class="n-md ancho">${nMd('Paso 1 · Layout de la nave','¿Qué grupo va a rotular?')}`+
+      `<div class="n-fila1">${CIRCUITOS.slice(0,4).map(c=>bloque(c)).join('')}</div>`+
+      `<div class="n-fila2">${bloque(CIRCUITOS[4],'1 y 2: sin rotulado de cátodos')}${bloque(CIRCUITOS[5])}`+
+      `<div style="display:grid;gap:12px"><div class="n-ew"><b>EW</b><span>Cátodos electro-obtenidos: hoy llegan sin rótulo. Por confirmar con Codelco.</span></div>`+
+      `<p class="n-nota" style="font-size:15px">Toque el grupo que va a rotular. La pantalla lo muestra con sus celdas 1 a 21 arriba y 22 a 42 abajo.</p></div></div>${acc}</div>`;},
+  /* Al tocar Imprimir: ¿la celda sale de un lado total o parcial? La letra (T o P) va en el rótulo */
+  tp(){const G=grupoAct(), n=+S.md.val, act=ladoDe(G,n), r=n<=21?'celdas 1 a 21':'celdas 22 a 42';
+    return `<div class="n-md">${nMd(`Celda ${n} · grupo ${G.g} · ${r}`,'¿Total o parcial?')}<div class="n-ops">`+
+      nOp('tp','T','Total',`Etiqueta ${n}T${G.g} · se sacan las 21 celdas`,act==='T')+nOp('tp','P','Parcial',`Etiqueta ${n}P${G.g} · solo algunas celdas`,act==='P')+
+      `</div><div class="n-acciones">${nBv('cerrar','Cancelar')}</div></div>`;},
+  lado(){const G=grupoAct(), k=S.md.val, r=k==='a'?'1 a 21':'22 a 42';
+    return `<div class="n-md">${nMd(`Grupo ${G.g} · celdas ${r}`,'¿Se sacan las 21 celdas de este lado?')}<div class="n-ops">`+
+      nOp('set-lado','T','Sí, las 21','Lado total · T',G.lados[k]==='T')+nOp('set-lado','P','No, solo algunas','Lado parcial · P',G.lados[k]==='P')+
+      `</div><div class="n-acciones">${nBv('cerrar','Cancelar')}</div></div>`;},
   terminar(){const G=grupoAct(), a=ORDEN.slice(0,21).filter(n=>G.celdas[n]).length, b=ORDEN.slice(21).filter(n=>G.celdas[n]).length;
-    return `<div class="md">${mdH(`Grupo ${G.g}`,'¿Terminar el grupo?')}<table class="md-t"><tr><td>Celdas 1 a 21 · lado ${LADO_TXT[G.lados.a]}</td><td>${a} paquetes</td></tr>`+
-      `<tr><td>Celdas 42 a 22 · lado ${LADO_TXT[G.lados.b]}</td><td>${b} paquetes</td></tr><tr><td>Muestra</td><td>${G.muestra?'Sí':'No'}</td></tr></table>`+
-      `<p class="xls-nota">La báscula sabrá que no vienen más paquetes de este grupo. Después se elige el grupo que sigue.</p>`+
-      `<div class="md-acc"><button class="b-imp" type="button" data-act="ok-terminar">Terminar grupo ${G.g}</button><button class="b-sec" type="button" data-act="cerrar">Volver</button></div></div>`;},
+    const fila=(x,y)=>`<tr><td style="padding:10px 6px;border-bottom:1px solid var(--linea);font:500 18px Barlow,sans-serif">${x}</td><td style="text-align:right;padding:10px 6px;border-bottom:1px solid var(--linea);font:700 18px Barlow,sans-serif;color:var(--cobre-cl)">${y}</td></tr>`;
+    return `<div class="n-md">${nMd(`Grupo ${G.g}`,'¿Terminar el grupo?')}<table style="width:100%;border-collapse:collapse">`+
+      fila(`Celdas 1 a 21 · lado ${LADO_TXT[G.lados.a]}`,`${a} paquetes`)+fila(`Celdas 22 a 42 · lado ${LADO_TXT[G.lados.b]}`,`${b} paquetes`)+fila('Muestra',G.muestra?'Sí':'No')+`</table>`+
+      `<p class="n-nota">La báscula sabrá que no vienen más paquetes de este grupo. Después se elige el grupo que sigue.</p>`+
+      `<div class="n-acciones">${nBv('ok-terminar',`Terminar grupo ${G.g}`,'pri')}${nBv('cerrar','Volver')}</div></div>`;},
+  colores(){const win=NOMBRE_TEMA[temaWindows()].toLowerCase();
+    const op=(v,s)=>nOp('tema',v,NOMBRE_TEMA[v],s,temaElegido===v);
+    return `<div class="n-md">${nMd('Pantalla','¿Con qué colores se ve?')}<div class="n-ops colores">`+
+      op('oscuro','El diseño original: fondo oscuro y cobre')+op('claro','El mismo diseño con fondo claro, para el día')+
+      op('contraste','Negro, blanco y amarillo, para leer con reflejo o de lejos')+op('auto',`Igual que Windows (ahora ${win})`)+`</div>`+
+      `<p class="n-nota">Queda elegido en este equipo para todos los turnos. Lo impreso no cambia: la etiqueta es siempre blanca.</p>`+
+      `<div class="n-acciones">${nBv('cerrar','Listo','pri')}</div></div>`;},
+  cerrar(){return `<div class="n-md chico">${nMd('Terminal de rotulado','¿Cerrar el programa?')}`+
+      `<p class="n-nota" style="font-size:19px">Lo impreso queda guardado en el equipo. Al volver a abrir el programa, sigue donde quedó.</p>`+
+      `<div class="n-acciones">${nBv('cerrar-prog','Cerrar programa','pri')}${nBv('cerrar','Volver')}</div></div>`;},
+  /* Registro del equipo: solo lo emitido aquí; el peso lo registra la caseta */
+  registro(){
+    const filas=S.labels.map(l=>`<tr><td class="hora">${l.hora}</td><td class="cod">${l.codigo}</td><td>${l.detalle}${l.nota?` <em>· ${l.nota}</em>`:''}</td>`+
+      `<td style="text-align:right"><button class="n-re" type="button" data-act="reimprimir" data-v="${l.id}">Reimprimir</button></td></tr>`).join('');
+    return `<div class="n-md ancho">${nMd(`Registro del ${FECHA}`,`${S.labels.length} etiquetas`)}<div class="n-lista"><table><thead><tr><th>Hora</th><th>Etiqueta</th><th>Detalle</th><th></th></tr></thead><tbody>${filas}</tbody></table></div>`+
+      `<p class="n-nota" style="font-size:14px">Etiquetas emitidas en este equipo. El peso lo captura y registra el programa de la caseta de la Báscula N9.</p>`+
+      `<div class="n-acciones">${nBv('excel','Bajar Excel','pri',null,ICON.xls)}${nBv('cerrar','Cerrar')}</div></div>`;},
+  /* De la pantalla anterior (báscula y restos): sin uso en esta pantalla */
   rsgrupo(){const v=S.md.val;
     return `<div class="md chico">${mdH('Restos de ánodos','¿De qué grupo son los carros?')}<div class="dsp"><small>Grupo</small><b>${v||'—'}</b></div><div class="kp">${teclasMd()}</div>`+
       `<div class="md-acc"><button class="b-imp" type="button" data-act="ok-rsgrupo"${v?'':' disabled'}>Aceptar</button><button class="b-sec" type="button" data-act="cerrar">Cancelar</button></div></div>`;},
@@ -703,19 +893,35 @@ const MODAL={
     if(k==='st'){tit='¿Qué es la carga?'; ops=SUB.map(t=>[t.id,t.corto,t.nombre]); cls='opts tres';}
     return `<div class="md">${mdH('Báscula',tit)}<div class="${cls}">${ops.map(([v,a,b])=>opt('set-bfop',v,a,b,String(f[k])===v)).join('')}</div>`+
       `<div class="md-acc"><button class="b-sec" type="button" data-act="cerrar">Cancelar</button></div></div>`;},
-  registro(){
-    const filas=S.labels.map(l=>`<tr><td>${l.hora}</td><td class="cod">${l.codigo}</td><td>${l.detalle}${l.nota?` <em>· ${l.nota}</em>`:''}${l.ctrl&&l.ctrl!=='Dentro de rango'?` <em>· ${l.ctrl.replace(/^Dentro de rango · /,'').toLowerCase()}</em>`:''}</td>`+
-      `<td><span class="est ${l.estado}">${EST_TXT[l.estado]}</span>${l.hp?`<span class="hp">${l.hp}</span>`:''}</td><td class="num">${l.estado==='pesada'?f0(l.neto)+' kg':'—'}</td>`+
-      `<td class="num bts">${l.prod!=='sub'&&!l.manual?`<button type="button" data-act="reimprimir" data-v="${l.id}">Reimprimir</button>`:''}<button class="ed" type="button" data-act="editar" data-v="${l.id}">Editar</button></td></tr>`).join('');
-    return `<div class="md ancho">${mdH(`Registro del ${FECHA}`,`${S.labels.length} etiquetas`)}<div class="lista"><table><thead><tr><th>Etiqueta</th><th></th><th>Detalle</th><th>Báscula</th><th style="text-align:right">Neto</th><th></th></tr></thead><tbody>${filas}</tbody></table></div>`+
-      `<p class="xls-nota">El Excel trae una hoja por producto y un resumen como el del Sistema de Cátodos. Los pesos aparecen cuando la báscula los captura.</p>`+
-      `<div class="md-acc">${dl?`<button class="b-imp" type="button" data-act="excel">${ICON.xls}<span>Bajar Excel</span></button>`:''}<button class="b-sec" type="button" data-act="cerrar">Cerrar</button></div></div>`;}
 };
 function render(){
-  const lst=mdl.querySelector('.lista'), arriba=lst?lst.scrollTop:0;
+  vt.dataset.tema=temaActual();
+  const lst=mdl.querySelector('.n-lista,.lista'), arriba=lst?lst.scrollTop:0;
   pant.innerHTML=S.view==='login'?vLogin():S.view==='bas'?vBas():vMain(S.snap||modelo());
-  if(S.md){mdl.innerHTML=MODAL[S.md.tipo](); mdl.hidden=false; const l2=mdl.querySelector('.lista'); if(l2&&arriba) l2.scrollTop=arriba;} else {mdl.hidden=true; mdl.innerHTML='';}
+  if(S.md){mdl.innerHTML=MODAL[S.md.tipo](); mdl.hidden=false; const l2=mdl.querySelector('.n-lista,.lista'); if(l2&&arriba) l2.scrollTop=arriba;} else {mdl.hidden=true; mdl.innerHTML='';}
+  pintarPanel();
   if(S.view!=='login') guardar();
+}
+/* ---------- Colores de la pantalla (como el programa): Original, Claro, Alto contraste o Como Windows ---------- */
+const NOMBRE_TEMA={oscuro:'Original',claro:'Claro',contraste:'Alto contraste',auto:'Como Windows'};
+const leerLs=(k,d)=>{try{const v=localStorage.getItem(k); return v==null?d:v;}catch(e){return d;}};
+const ponerLs=(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}};
+let temaElegido=leerLs('ventanas-tema','oscuro'); if(!NOMBRE_TEMA[temaElegido]) temaElegido='oscuro';
+const mm=q=>!!(window.matchMedia&&window.matchMedia(q).matches);
+const temaWindows=()=>mm('(forced-colors: active)')||mm('(prefers-contrast: more)')?'contraste':mm('(prefers-color-scheme: light)')?'claro':'oscuro';
+const temaActual=()=>temaElegido==='auto'?temaWindows():temaElegido;
+if(window.matchMedia) ['(prefers-color-scheme: light)','(prefers-contrast: more)'].forEach(q=>{const x=window.matchMedia(q); if(x.addEventListener) x.addEventListener('change',()=>{if(temaElegido==='auto'&&S) render();});});
+/* ---------- Botón de lado sobre las filas: prendido o apagado (apagado por defecto; al imprimir siempre se pregunta) ---------- */
+let ladoFilas=leerLs('ventanas-lado-filas','apagado')==='prendido';
+let panelAbierto=false;
+const panelF2=document.getElementById('panelF2');
+function pintarPanel(){
+  if(!panelAbierto||S.view==='login'){panelF2.hidden=true; panelF2.innerHTML=''; return;}
+  panelF2.hidden=false;
+  panelF2.innerHTML=`<div><h3>Panel de prueba</h3><p>Solo para la demostración. Se abre y se cierra con F2.</p>`+
+    `<button class="n-sw${ladoFilas?' on':''}" type="button" data-act="lado-filas"><b>Lado sobre las celdas</b><i>${ladoFilas?'PRENDIDO':'APAGADO'}</i>`+
+    `<span>Botón Lado total / parcial arriba de cada fila. Toque para ${ladoFilas?'apagarlo':'prenderlo'}. Al imprimir siempre se pregunta.</span></button>`+
+    `<button class="n-pb" type="button" data-act="reiniciar">Reiniciar el registro</button><button class="n-pb pri" type="button" data-act="cerrar-panel">Cerrar el panel</button></div>`;
 }
 const abrir=(tipo,val)=>{S.md={tipo:tipo,val:val||''}; render(); const b=mdl.querySelector('.opt.on,.b-imp:not(:disabled),button'); if(b) b.focus({preventScroll:true});};
 const cerrar=()=>{S.md=null; render();};
@@ -744,32 +950,24 @@ function imprimirEtiqueta(l,m,fin,donde){
     later(reduce?400:900,()=>{S.fase=null; S.snap=null; S.msg=despues; render();});
   });
 }
-function imprimir(){
+function imprimir(lado){
   const m=modelo(); if(m.imp.dis) return;
-  if(S.prod==='cat'){
-    const G=grupoAct();
-    if(S.muestra){
-      if(G.muestra){const l=S.labels.find(x=>x.ref&&x.ref.m&&x.ref.g===G.g); if(l) reimprimir(l); return;}
-      const l=etqMuestra(G.g,tick(),S.user); l.m=S.min;
-      imprimirEtiqueta(l,m,()=>{agregar(l); G.muestra={h:l.hora}; S.muestra=false; encolar(l); const s=siguiente(G);
-        return {k:'ok',txt:s?`Muestra impresa · ahora sigue ${codCat(G,s)}`:'Muestra impresa'};},'Péguela en el paquete de muestra');
-      return;
-    }
-    const n=S.sel, c=G.celdas[n], sig=siguiente(G);
-    if(c){const l=S.labels.find(x=>x.prod==='cat'&&x.ref&&x.ref.g===G.g&&x.ref.n===n); if(l) reimprimir(l); return;}
-    const l=etqCat(G.g,n,ladoDe(G,n),tick(),PESO_CELDA[n]||pesoEjemplo(n),S.user); l.m=S.min; if(sig&&n!==sig) l.nota='fuera de orden';
-    imprimirEtiqueta(l,m,()=>{agregar(l); G.celdas[n]={e:'camino',h:l.hora,id:l.id}; S.sel=siguiente(G); encolar(l);
-      const nx=S.sel; return {k:'ok',txt:nx?`${l.codigo} impresa · ahora sigue ${codCat(G,nx)}`:`${l.codigo} impresa · grupo ${G.g} completo`};},
-      'Péguela arriba del paquete, en la esquina');
-  }else if(S.prod==='lam'){
-    const T=tipoLam(), n=S.lam.sig[T.id], l=etqLam(T,n,tick(),T.ej[(S.lam.ej++)%T.ej.length],S.user); l.m=S.min;
-    imprimirEtiqueta(l,m,()=>{agregar(l); S.lam.sig[T.id]++; encolar(l); return {k:'ok',txt:`${codLam(T,n)} impresa · ahora sigue el ${n+1}`};},'Péguela en el paquete del pallet');
-  }else{
-    const R=S.rs, n=R.lista.filter(x=>x.g===R.grupo).length+1, tara=TARA_CARRO[R.carro];
-    const l=etqRs(R.grupo,R.carro,n,tick(),RESTOS_NETOS[(n-1)%RESTOS_NETOS.length],tara,S.user); l.m=S.min;
-    imprimirEtiqueta(l,m,()=>{agregar(l); R.lista.push({g:R.grupo,carro:R.carro,n:n,id:l.id}); R.carro=''; encolar(l);
-      return tara?{k:'ok',txt:`C${l.ref.carro} impresa · escriba el carro que sigue`}:{k:'warn',txt:`C${l.ref.carro} impresa sin tara · escriba el que sigue`};},'Cuélguela junto al número pintado');
+  const G=grupoAct();
+  if(S.muestra){
+    if(G.muestra){const l=S.labels.find(x=>x.ref&&x.ref.m&&x.ref.g===G.g); if(l) reimprimir(l); return;}
+    const l=etqMuestra(G.g,tick(),S.user); l.m=S.min;
+    imprimirEtiqueta(l,m,()=>{agregar(l); G.muestra={h:l.hora}; S.muestra=false; const s=siguiente(G);
+      return {k:'ok',txt:s?`Muestra impresa · ahora sigue ${codCat(G,s)}`:'Muestra impresa'};},'Péguela en el paquete de muestra');
+    return;
   }
+  const n=S.sel, c=G.celdas[n], sig=siguiente(G);
+  if(c){const l=S.labels.find(x=>x.prod==='cat'&&x.ref&&!x.ref.m&&x.ref.g===G.g&&x.ref.n===n); if(l) reimprimir(l); return;}
+  if(!lado){abrir('tp',String(n)); return;}
+  if(n<=21) G.lados.a=lado; else G.lados.b=lado;  /* la respuesta queda para ese lado del grupo */
+  const l=etqCat(G.g,n,lado,tick(),PESO_CELDA[n]||pesoEjemplo(n),S.user); l.m=S.min; if(sig&&n!==sig) l.nota='fuera de orden';
+  imprimirEtiqueta(l,m,()=>{agregar(l); G.celdas[n]={e:'camino',h:l.hora,id:l.id}; S.sel=siguiente(G);
+    const nx=S.sel; return {k:'ok',txt:nx?`${l.codigo} impresa · ahora sigue ${codCat(G,nx)}`:`${l.codigo} impresa · grupo ${G.g} completo`};},
+    'Péguela arriba del paquete, en la esquina');
 }
 function reimprimir(l){imprimirEtiqueta(l,modelo(),()=>({k:'info',txt:`${l.codigo} impresa de nuevo`}),'Reemplace la etiqueta dañada');}
 function agregar(l){l.id=++uid; S.labels.unshift(l);}
@@ -1125,7 +1323,7 @@ function libroExcel(){
     const T=LAM.find(x=>x.id===t), d=lam.filter(l=>l.ref.t===t);
     d.forEach((l,i)=>Lm.push([T.corto,l.ref.n,ps(l)?l.bruto:'',l.tara!=null?l.tara:12,ps(l)?l.neto:'',i+1,l.turno||'',l.hp||'',ps(l)?ctl(l):EST_TXT[l.estado]]));
     Lm.push([tot,'','','',suma(d.filter(ps)),d.length,'','','']);});
-  hoja('Láminas despegue',Lm,[20,9,11,10,15,18,8,12,40]);
+  if(lam.length) hoja('Láminas despegue',Lm,[20,9,11,10,15,18,8,12,40]);
   /* 3. Restos de ánodos, como "Recepción de restos de ánodos comerciales": un bloque por grupo con los carros 1 a 12 */
   const Rs=[['RECEPCIÓN DE RESTOS DE ÁNODOS COMERCIALES'],['PRODUCCIÓN DE RESTOS','','','','',FECHA],[]];
   const gruposRs=[...new Set(rs.map(l=>l.ref.g))];
@@ -1142,7 +1340,7 @@ function libroExcel(){
   hm.forEach(l=>Rs.push([l.ref.bote,l.neto,l.turno||'',l.hp||'']));
   Rs.push(['TOTAL',suma(hm)],[],['Detalle de carros'],['Fecha','Turno','Hora tarjeta','Hora pesaje','Grupo','Nº en el grupo','Carro (pintado)','Peso bruto','Tara carro + rack','Neto','Estado','Control báscula','Operador']);
   rs.forEach(l=>Rs.push([FECHA,l.turno||'',l.hora,l.hp||'',l.ref.g,l.ref.n,Number(l.ref.carro),(ps(l)||l.estado==='sintara')?l.bruto:'',l.sinTara?'':l.tara,ps(l)?l.neto:'',EST_TXT[l.estado],ctl(l),l.oper||'']));
-  hoja('Restos de ánodos',Rs,[14,10,10,13,10,12,15,11,16,10,12,40,18]);
+  if(rs.length||sub.length) hoja('Restos de ánodos',Rs,[14,10,10,13,10,12,15,11,16,10,12,40,18]);
   /* 4. Subproductos, como el "Formulario entrega y recepción de subproductos en PM": cajas y peso por turno, y el peso de cada una */
   const FILAS=[['D.G · despuntes de guillotina',l=>l.prod==='sub'&&l.ref.st==='dg'],['D.O · despuntes de orejas',l=>l.prod==='sub'&&l.ref.st==='do'],
     ['Láminas rech S/O despegue',l=>l.prod==='lam'&&l.ref.t==='rso'],['Láminas venta despegue',l=>l.prod==='lam'&&l.ref.t==='venta'],
@@ -1155,17 +1353,17 @@ function libroExcel(){
   Sp.push([],['Peso individual de subproductos (kg)'],['Producto','Turno','Pesos']);
   FILAS.forEach(([n,f])=>['A','C'].forEach(t=>{const d=deT(f,t); if(d.length) Sp.push([n,t,...d.map(l=>l.neto)]);}));
   Sp.push([],['Entregó conforme','Pesador turno A','','Pesador turno C'],['Registro de encargados','Productos Metalúrgicos']);
-  hoja('Subproductos',Sp,[34,20,20,13,13,10,10,10,10]);
+  if(lam.length||sub.length) hoja('Subproductos',Sp,[34,20,20,13,13,10,10,10,10]);
   const R=[['Resumen del día',FECHA],['Control de cero',cero],[],['Cátodos (mismas columnas que el Resumen del Sistema de Cátodos)'],
     ['Día','Prod.','Descripción','Grupo','Lado-P','Lado-T','Muestra','Tot-peso','Col-parc','Col-total','Tot-coli']];
   const cp=cat.filter(ps);
   [...new Set(cp.map(l=>l.ref.g))].forEach(gr=>{const d=cp.filter(l=>l.ref.g===gr), P=d.filter(l=>!l.ref.m&&l.lado==='P'), T=d.filter(l=>!l.ref.m&&l.lado==='T'), M=d.filter(l=>l.ref.m);
     R.push([FECHA,18,'Cátodo comercial',gr,suma(P),suma(T),suma(M),suma(P)+suma(T)+suma(M),P.length,T.length,P.length+T.length]);});
-  R.push([],['Láminas'],['Tipo','Pallets pesados','Neto kg']);
+  if(lam.length) R.push([],['Láminas'],['Tipo','Pallets pesados','Neto kg']);
   LAM.forEach(t=>{const d=lam.filter(l=>l.ref.t===t.id&&ps(l)); if(d.length) R.push([t.nombre,d.length,suma(d)]);});
-  R.push([],['Restos de ánodos'],['Grupo','Carros pesados','Neto kg']);
+  if(rs.length) R.push([],['Restos de ánodos'],['Grupo','Carros pesados','Neto kg']);
   gruposRs.forEach(gr=>{const d=rs.filter(l=>l.ref.g===gr&&ps(l)); R.push([gr,d.length,suma(d)]);});
-  R.push([],['Despuntes y otros (sin etiqueta)'],['Qué es','Registros','Peso kg']);
+  if(sub.length) R.push([],['Despuntes y otros (sin etiqueta)'],['Qué es','Registros','Peso kg']);
   SUB.forEach(t=>{const d=sub.filter(l=>l.ref.st===t.id&&ps(l)); if(d.length) R.push([t.nombre,d.length,suma(d)]);});
   R.push([],['Nota','Solo suman los pesos que ya capturó la báscula. Las etiquetas en camino aparecen en cada hoja sin peso.'],
     ['','Hora pesaje: la hora real en que la báscula tomó el peso estable (no la hora en que se digita).'],
@@ -1188,9 +1386,24 @@ async function bajarExcel(){
 
 /* ---------- Lo que hace cada botón ---------- */
 const ACT={
-  rut(v){S.rut=editar(v,S.rut,9); render();},
-  entrar(){if(S.rut.length<8) return; S.user=S.rut==='111111111'?'Operador prueba':'Operador '+S.rut.slice(-5,-1); S.view='main'; S.msg=null; render(); proximo();},
-  salir(){S.md=null; S.view='login'; S.user=''; S.rut='111111111'; render();},
+  /* Teclado del RUT: la K solo puede ir al final (es el dígito verificador) y después de ella no va nada */
+  rut(v){if(v==='K'){if(S.rut.length>=7&&S.rut.length<9&&!S.rut.endsWith('K')) S.rut+='K';}
+    else if(v!=='C'&&v!=='del'&&S.rut.endsWith('K')){}
+    else S.rut=editar(v,S.rut,9);
+    render();},
+  /* Lo primero es el paso 1: elegir el grupo en el layout de circuitos. Después queda la pantalla principal con ese grupo */
+  entrar(){if(!rutValido(S.rut)) return; S.user=S.rut==='111111111'?'Operador prueba':'Operador '+S.rut.slice(-5,-1); S.view='main'; S.prod='cat'; S.msg=null; S.md={tipo:'grupo',val:'inicio'}; render();},
+  salir(){S.md=null; panelAbierto=false; S.view='login'; S.user=''; S.rut='111111111'; render();},
+  'pedir-cerrar'(){abrir('cerrar');},
+  'cerrar-prog'(){S.md=null; render(); toast('En el equipo aquí se cierra el programa. La maqueta sigue abierta.','info');},
+  colores(){abrir('colores');},
+  tema(v){temaElegido=v; ponerLs('ventanas-tema',v); render();},
+  'elegir-grupo'(v){const g=+v, nuevo=!S.grupos[g]; S.grupo=g; const G=grupoAct(); S.sel=siguiente(G); S.muestra=false;
+    S.msg=nuevo?{k:'info',txt:`Grupo ${g} · al imprimir se elige total o parcial`}:null; cerrar();},
+  tp(v){S.md=null; imprimir(v);},
+  'lado-filas'(){ladoFilas=!ladoFilas; ponerLs('ventanas-lado-filas',ladoFilas?'prendido':'apagado'); render();},
+  'cerrar-panel'(){panelAbierto=false; render();},
+  reiniciar(){panelAbierto=false; olvidar(); arrancar(false);},
   imprimir(){imprimir();},
   registro(){abrir('registro');},
   excel(){bajarExcel();},
@@ -1201,12 +1414,12 @@ const ACT={
   muestra(){S.muestra=!S.muestra; S.msg=null; render();},
   'f-lado'(v){abrir('lado',v);},
   'set-lado'(v){grupoAct().lados[S.md.val]=v; S.msg=null; cerrar();},
-  'f-grupo'(){abrir('grupo');},
+  'f-grupo'(){abrir('grupo','');},
   kp(v){S.md.val=editar(v,S.md.val,S.md.max||2); render();},
   'ok-grupo'(){const gr=parseInt(S.md.val,10); if(!gr) return; const nuevo=!S.grupos[gr]; S.grupo=gr; const G=grupoAct(); S.sel=siguiente(G); S.muestra=false;
     S.msg=nuevo?{k:'info',txt:`Grupo ${gr} nuevo · si un lado es parcial, toque su lado`}:null; cerrar();},
   terminar(){abrir('terminar');},
-  'ok-terminar'(){const gr=S.grupo; S.md={tipo:'grupo',val:String(Math.min(99,gr+1))}; toast(`Grupo ${gr} terminado. Elija el grupo que sigue.`,'ok'); render();},
+  'ok-terminar'(){const gr=S.grupo; S.md={tipo:'grupo',val:''}; toast(`Grupo ${gr} terminado. Elija el grupo que sigue.`,'ok'); render();},
   lamtipo(v){S.lam.tipo=v; S.msg=null; render();},
   carro(v){S.rs.carro=editar(v,S.rs.carro,3); S.msg=null; render();},
   'f-rsgrupo'(){abrir('rsgrupo');},
@@ -1244,16 +1457,16 @@ const ACT={
     if(B.pic==='cero'){S.cero={h:hora(),ok:false}; if(S.bf) S.bf.msg={k:'err',txt:`Control de cero: falla. Vacía marca ${f0(Math.round(B.lect))} kg`}; render(); return;}
     S.cero={h:hora(),ok:true}; if(S.bf) S.bf.msg={k:'ok',txt:`Control de cero OK a las ${S.cero.h}: vacía marca 0 kg`}; render();}
 };
-vt.addEventListener('click',e=>{if(S.fase) return; const b=e.target.closest('[data-act]'); if(!b||b.disabled||!vt.contains(b)) return; const f=ACT[b.dataset.act]; if(f) f(b.dataset.v);});
+vt.addEventListener('click',e=>{if(S.fase) return; if(e.target===panelF2){panelAbierto=false; render(); return;} const b=e.target.closest('[data-act]'); if(!b||b.disabled||!vt.contains(b)) return; const f=ACT[b.dataset.act]; if(f) f(b.dataset.v);});
 document.addEventListener('keydown',e=>{
   if(!S||S.fase||e.target.closest('input,textarea,select')) return;
-  if(e.key==='Escape'&&S.md){cerrar();return;}
-  if(e.key==='Escape'&&S.view==='bas'){ACT['cerrar-bas']();return;}
-  const kp=S.md&&['grupo','rsgrupo','bfkp'].includes(S.md.tipo);
-  const act=kp?'kp':S.view==='login'?'rut':(!S.md&&S.view==='main'&&S.prod==='rs')?'carro':null;
-  if(act&&/^\d$/.test(e.key)) ACT[act](e.key);
-  else if(act&&e.key==='Backspace') ACT[act]('del');
-  else if(e.key==='Enter'){ if(S.view==='login') ACT.entrar(); else if(kp) ACT['ok-'+S.md.tipo](); else if(!S.md&&S.view==='bas') ACT.grabar(); else if(!S.md) ACT.imprimir(); }
+  if(e.key==='F2'&&S.view!=='login'){e.preventDefault(); panelAbierto=!panelAbierto; render(); return;}
+  if(e.key==='Escape'){if(panelAbierto){panelAbierto=false; render();} else if(S.md) cerrar(); return;}
+  if(S.view==='login'&&!S.md){
+    if(/^\d$/.test(e.key)) ACT.rut(e.key); else if(e.key==='k'||e.key==='K') ACT.rut('K');
+    else if(e.key==='Backspace') ACT.rut('del'); else if(e.key==='Enter') ACT.entrar();
+    return;}
+  if(e.key==='Enter'&&!S.md&&S.view==='main') ACT.imprimir();
 });
 
 /* ---------- Tamaño del equipo en la página ---------- */
@@ -1282,9 +1495,8 @@ function arrancar(conGuardado){
   if(o&&Array.isArray(o.labels)){DURABLE.forEach(k=>{if(o[k]!==undefined) S[k]=o[k];}); uid=o.uid||S.labels.reduce((a,l)=>Math.max(a,l.id||0),0);}
   /* Lo que quedó en camino o sobre la báscula vuelve a la fila */
   const pend=S.labels.filter(l=>l.estado==='camino'||l.estado==='bascula').reverse();
-  pend.forEach(l=>marcar(l,'camino'));
+  /* Esta pantalla no pesa: lo emitido queda pendiente de pesaje en la caseta */
   render();
-  pend.forEach(l=>encolar(l,2500));
 }
 /* Situaciones para probar el control de la báscula (botones de la guía, fuera del equipo) */
 const ESC_TXT={grua:'Grúa encima: se verá con la próxima carga que llegue.',fuera:'Carro fuera del área: se verá con el próximo carro de restos.',cero:'Sin cero: apenas la báscula quede libre.'};
@@ -1292,7 +1504,7 @@ let cajaN=0;
 function pintarEsc(){
   document.querySelectorAll('[data-esc]').forEach(b=>b.setAttribute('aria-pressed',String(!!ESC[b.dataset.esc])));
   const on=Object.keys(ESC).filter(k=>ESC[k]);
-  $('#escNota').textContent=on.length?on.map(k=>ESC_TXT[k]).join(' '):'Elija una situación y mírela en la báscula de la pantalla.';
+  const nota=$('#escNota'); if(nota) nota.textContent=on.length?on.map(k=>ESC_TXT[k]).join(' '):'';
 }
 document.querySelectorAll('[data-esc]').forEach(b=>b.addEventListener('click',()=>{
   const k=b.dataset.esc;
@@ -1314,12 +1526,10 @@ $('#btnReset').addEventListener('click',()=>{olvidar(); arrancar(false);});
 const panel=v=>document.documentElement.classList.toggle('demo',v);
 $('#btnPanel').addEventListener('click',()=>panel(false));
 $('#btnReset2').addEventListener('click',()=>{olvidar(); arrancar(false); panel(false);});
-document.addEventListener('keydown',e=>{if(APP&&e.key==='F2'){e.preventDefault(); panel();}});
+$('#btnF2').addEventListener('click',()=>{if(S.view==='login'){toast('Entre primero: el panel se abre con la sesión iniciada.','info'); return;} panelAbierto=!panelAbierto; render();});
 if(APP) window.chrome.webview.addEventListener('message',e=>{const m=e.data||{};
   if(m.tipo==='excel') toast(m.ok?`Excel guardado en ${m.ruta}`:`No se pudo guardar el Excel: ${m.error||''}`,m.ok?'ok':'err');
   if(m.tipo==='impresion'&&!m.ok) toast(`La Zebra no imprimió: ${m.error||''}`,'err');});
-$('#chkSim').addEventListener('change',e=>{if(e.target.checked) proximo();});
-setInterval(leer,120);
 arrancar(true);
 ajustar();
 /* El botón Excel aparece solo si este visor permite bajar archivos */

@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Báscula N9 Caseta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* Programa 2: la pantalla de la caseta de la Báscula N9, igual que BasculaCaseta.exe.
+   Pantalla fija de 1024 x 768 que se escala a la ventana. Temas: Original (oscuro), Claro, Alto contraste y Como Windows. */
+:root,[data-t="oscuro"]{
+  --fondo:#0E181E; --panel:#16242C; --panel2:#1A2A33; --linea:#24363F; --linea2:#35505C; --tecla:#1D2E37;
+  --tinta:#D6E5EB; --mut:#86A0AB; --mut3:#9DB3BD; --cobre:#DA8B4F; --cobre-claro:#F6C79F; --cobre-medio:#F0B37E; --sobre-cobre:#1A0F07;
+  --oscuro:#0A1317; --brillo:#EEF6F8; --lectura-borde:#2A3F49;
+  --verde-t:#8FE0A9; --ambar-t:#F3C969; --azul-t:#A9CBF2; --rojo-t:#FF9C92; --verde-xls:#5FD38F;
+  --azul-f:#13324F; --azul-l:#4F92E2; --azul-c:#CFE3FA; --ambar-l:#E3A824;
+  --ok-f:#123C25; --ok-b:#2F8C55; --ok-x:#E9FFF1; --warn-f:#3F3005; --warn-b:#A07A12; --warn-x:#FFF4D6;
+  --err-f:#4A1713; --err-b:#B63A30; --err-x:#FFE9E6; --info-f:#13324F; --info-b:#3D72B0; --info-x:#E6F1FF;
+  --chip-espera:#1E4F86; --chip-inestable:#8A6200; --chip-estable:#17703D; --chip-bloq:#A12A21; --chip-neutro:#2A3A43; --sobre-chip:#EEF6F8;
+  --insignia:#24363F; --sobre-insignia:#D6E5EB; --capa:rgba(5,10,14,.82); --pagina:#070D10;
+}
+[data-t="claro"]{
+  --fondo:#EDF0F1; --panel:#FFFFFF; --panel2:#FBF1E8; --linea:#D3DBDE; --linea2:#8E9EA6; --tecla:#F3F6F7;
+  --tinta:#13212A; --mut:#4C606A; --mut3:#4C606A; --cobre:#B05C20; --cobre-claro:#93460F; --cobre-medio:#B05C20; --sobre-cobre:#FFFFFF;
+  --oscuro:#16232A; --brillo:#EEF6F8; --lectura-borde:#2A3F49;
+  --verde-t:#1C7442; --ambar-t:#875100; --azul-t:#1C5CA3; --rojo-t:#B42318; --verde-xls:#1C7442;
+  --azul-f:#E0EBF9; --azul-l:#3B7FD0; --azul-c:#1B4C86; --ambar-l:#C9910F;
+  --ok-f:#E2F3E8; --ok-b:#2E9E5B; --ok-x:#135530; --warn-f:#FFF3D2; --warn-b:#C9910F; --warn-x:#664400;
+  --err-f:#FCE7E4; --err-b:#D9473A; --err-x:#8E1F16; --info-f:#E2EDF9; --info-b:#3B7FD0; --info-x:#1B4C86;
+  --chip-espera:#1C5CA3; --chip-inestable:#875100; --chip-estable:#1C7442; --chip-bloq:#B42318; --chip-neutro:#5A6B73; --sobre-chip:#FFFFFF;
+  --insignia:#D3DBDE; --sobre-insignia:#13212A; --capa:rgba(19,33,42,.5); --pagina:#C9D1D5;
+}
+[data-t="contraste"]{
+  --fondo:#000; --panel:#000; --panel2:#000; --linea:#FFF; --linea2:#FFF; --tecla:#000;
+  --tinta:#FFF; --mut:#FFF; --mut3:#FFF; --cobre:#FFFF00; --cobre-claro:#FFFF00; --cobre-medio:#FFFF00; --sobre-cobre:#000;
+  --oscuro:#000; --brillo:#FFF; --lectura-borde:#FFF;
+  --verde-t:#3FF23F; --ambar-t:#FFFF00; --azul-t:#1AEBFF; --rojo-t:#FF6E6E; --verde-xls:#3FF23F;
+  --azul-f:#000; --azul-l:#1AEBFF; --azul-c:#1AEBFF; --ambar-l:#FFFF00;
+  --ok-f:#000; --ok-b:#3FF23F; --ok-x:#3FF23F; --warn-f:#000; --warn-b:#FFFF00; --warn-x:#FFFF00;
+  --err-f:#000; --err-b:#FF6E6E; --err-x:#FF6E6E; --info-f:#000; --info-b:#1AEBFF; --info-x:#1AEBFF;
+  --chip-espera:#1AEBFF; --chip-inestable:#FFFF00; --chip-estable:#3FF23F; --chip-bloq:#FF6E6E; --chip-neutro:#FFF; --sobre-chip:#000;
+  --insignia:#FFF; --sobre-insignia:#000; --capa:rgba(0,0,0,.9); --pagina:#000;
+}
+*{box-sizing:border-box;margin:0}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--pagina);color:var(--tinta);font-family:"Barlow","Segoe UI",Arial,sans-serif;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+.cond{font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif}
+.mono{font-family:"JetBrains Mono",Consolas,monospace}
+
+/* La pantalla de 1024 x 768, escalada a la ventana */
+#marco{position:absolute;left:50%;top:50%;width:1024px;height:768px;transform-origin:center center}
+#pant{position:absolute;inset:0;background:var(--fondo);padding:12px;overflow:hidden}
+.rot{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:600;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.tarj{background:var(--panel);border:1px solid var(--linea);border-radius:14px}
+.ico{display:inline-block;flex:none}
+.ico svg{width:100%;height:100%;display:block}
+
+/* Botones */
+.bsec{display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--linea2);border-radius:12px;background:var(--panel);
+  font-family:"Barlow Condensed",Arial,sans-serif;font-weight:600;color:var(--tinta);padding:0 16px}
+.bsec:active{background:var(--panel2)}
+.bgrande{display:flex;align-items:center;justify-content:center;gap:10px;border-radius:14px;background:var(--cobre);color:var(--sobre-cobre);
+  font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;text-transform:uppercase}
+.bgrande:disabled{background:var(--panel2);color:var(--mut);border:1px solid var(--linea);cursor:default}
+
+/* Ingreso */
+.login{position:absolute;inset:0;display:grid;place-items:center}
+.login .col{width:520px}
+.marca{display:flex;align-items:center;gap:14px}
+.marca .ico{color:var(--cobre-medio)}
+.marca b{display:block;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:30px;line-height:1.1}
+.dsp{margin-top:16px;background:var(--oscuro);border:1px solid var(--lectura-borde);border-radius:12px;padding:10px 16px}
+.dsp b{display:block;font-family:"JetBrains Mono",monospace;font-size:44px;color:var(--brillo);line-height:1.15}
+.teclado{margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.k{height:70px;border-radius:12px;background:var(--tecla);border:1px solid var(--linea);font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:30px;color:var(--tinta)}
+.k:active{background:var(--panel2)}
+.nota{margin-top:14px;text-align:center;font-weight:600;font-size:15px;color:var(--mut)}
+.nota.ok{color:var(--verde-t)} .nota.err{color:var(--rojo-t)}
+.arriba{position:absolute;top:12px;right:12px;display:flex;gap:10px}
+
+/* Principal */
+.main{display:grid;grid-template-rows:56px auto 1fr 84px;gap:12px;height:100%}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.bar .tit b{display:block;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:24px;line-height:1.05}
+.who{display:flex;align-items:center;gap:8px}
+.quien{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:600;font-size:15px;color:var(--mut);margin-right:4px}
+.quien b{color:var(--tinta);font-weight:600}
+.turno{display:flex;border:1px solid var(--linea2);border-radius:10px;overflow:hidden}
+.turno button{height:44px;padding:0 12px;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:600;font-size:15px;color:var(--mut)}
+.turno button.on{background:var(--cobre);color:var(--sobre-cobre)}
+.top{display:grid;grid-template-columns:380px 150px 1fr;gap:12px}
+.medio{display:grid;grid-template-columns:1fr 210px;gap:12px;min-height:0}
+
+/* Báscula */
+.bal{padding:12px 14px;display:grid;gap:9px}
+.bal .cab{display:flex;justify-content:space-between;align-items:center}
+.vivo{display:flex;align-items:center;gap:7px;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:600;font-size:13px;color:var(--verde-t)}
+.vivo i{width:8px;height:8px;border-radius:50%;background:var(--verde-t);animation:latido 1.6s ease-in-out infinite}
+@keyframes latido{50%{opacity:.25}}
+.disp{background:var(--oscuro);border:1px solid var(--lectura-borde);border-radius:12px;padding:10px 10px 10px 14px;display:grid;grid-template-columns:1fr 96px;gap:8px;align-items:center}
+.chip{display:inline-block;border-radius:5px;padding:3px 10px;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:13px;text-transform:uppercase;color:var(--sobre-chip);background:var(--chip-neutro)}
+.chip.espera{background:var(--chip-espera)} .chip.inestable{background:var(--chip-inestable)} .chip.estable{background:var(--chip-estable)} .chip.bloqueado{background:var(--chip-bloq)}
+.num{display:flex;align-items:flex-end;margin-top:6px}
+.num b{font-family:"JetBrains Mono",monospace;font-weight:700;color:var(--brillo);font-size:58px;line-height:1}
+.num b.largo{font-size:48px}
+.num small{font-size:22px;font-weight:600;color:var(--mut);margin:0 0 4px 6px}
+.res{display:grid;grid-template-columns:24px 1fr;gap:8px;min-height:44px}
+.res b{display:block;font-weight:600;font-size:19px;line-height:1.2}
+.res small{display:block;font-weight:500;font-size:14px;color:var(--mut3)}
+.k-ok{color:var(--verde-t)} .k-warn{color:var(--ambar-t)} .k-err{color:var(--rojo-t)} .k-info{color:var(--azul-t)} .k-muted{color:var(--mut)}
+
+/* Pictograma de la plataforma */
+.bal-pic{width:96px;height:68px;display:block;overflow:visible}
+.bal-pic .carga{opacity:0;transform:translate(-26px,-13px);transition:transform .7s cubic-bezier(.2,.7,.2,1),opacity .45s ease}
+.bal-pic.sobre .carga,.bal-pic.grua .carga{opacity:1;transform:none}
+.bal-pic.fuera .carga{opacity:1;transform:translate(15px,7.5px)}
+.bal-pic.sale .carga{opacity:0;transform:translate(26px,13px)}
+.bal-pic .grua{opacity:0;transform:translate(12px,6px);transition:opacity .4s ease,transform .6s ease}
+.bal-pic.grua .grua{opacity:1;transform:none}
+.bal-pic .cel{fill:#4A5F69;transition:fill .3s}
+.bal-pic.sobre .cel,.bal-pic.fuera .cel{fill:#3BB86F}
+.bal-pic.grua .cel{fill:#EE5B4D}
+.bal-pic.fuera .c2,.bal-pic.fuera .c3{fill:#E3A824}
+.bal-pic .nod{opacity:0;transition:opacity .3s}
+.bal-pic.cero .nod{opacity:1}
+.bal-pic.cero .cel{fill:#EE5B4D;animation:parpadeo 1s step-end infinite}
+@keyframes parpadeo{50%{fill:#4A5F69}}
+
+/* Baliza de torre: tapa, tres módulos (rojo, ámbar, verde), poste y base */
+.baliza{padding:12px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.baliza .rot{align-self:flex-start}
+.torre{display:flex;flex-direction:column;align-items:center;margin-top:4px}
+.torre .tapa{width:36px;height:8px;border-radius:4px 4px 0 0;background:var(--linea2)}
+.torre .luz{width:44px;height:30px;margin-bottom:2px;border-radius:3px;border:1.5px solid;transition:background .25s,box-shadow .25s}
+.luz.rojo{--c:229,72,59} .luz.amarillo{--c:242,179,61} .luz.verde{--c:53,182,107}
+.torre .luz{background:rgba(var(--c),.22);border-color:rgba(var(--c),.43)}
+.torre .luz.on{background:rgb(var(--c));border-color:rgb(var(--c));box-shadow:0 0 22px 4px rgba(var(--c),.85)}
+.torre .poste{width:12px;height:18px;background:var(--linea2)}
+.torre .base{width:40px;height:6px;border-radius:2px;background:var(--linea2)}
+.baliza .txt{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:18px;text-transform:uppercase}
+.baliza .sub{font-weight:500;font-size:13px;color:var(--mut);text-align:center;line-height:1.25}
+
+/* Cámaras */
+.cams{padding:12px 14px;display:grid;gap:8px;align-content:start}
+.cam{background:var(--fondo);border:1px solid var(--linea);border-radius:10px;padding:10px 12px;display:grid;grid-template-columns:30px 1fr;gap:10px}
+.cam .ico{width:30px;height:30px;color:var(--cobre-medio)}
+.cam .rot{font-size:14px}
+.cam b{display:block;margin-top:3px;font-weight:600;font-size:17px;line-height:1.2}
+
+/* Grilla */
+.grilla{padding:10px 14px;display:grid;grid-template-rows:auto 1fr;gap:8px;min-height:0}
+.grilla .cab2{display:flex;align-items:center;gap:10px}
+.grilla .cab2 b{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:18px}
+.grilla .cab2 span{font-weight:500;font-size:14px;color:var(--mut);flex:1}
+.grilla .cab2 .insignia{flex:none}
+.insignia{min-width:28px;height:24px;border-radius:12px;padding:0 8px;background:var(--insignia);color:var(--sobre-insignia);font-weight:700;font-size:14px;display:grid;place-items:center}
+.lista{overflow-y:auto;min-height:0}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+th,td{padding:6px 8px;border-bottom:1px solid var(--linea);text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+th{background:var(--panel2);position:sticky;top:0;z-index:1}
+th.der,td.der{text-align:right}
+td.hora{font-family:"JetBrains Mono",monospace;font-size:15px;font-weight:500}
+td.id{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:17px}
+td.lec{font-weight:600;font-size:14px;color:var(--mut)}
+td.kg{font-family:"JetBrains Mono",monospace;font-size:15px;font-weight:600}
+td.neto{font-weight:700}
+td.val{font-weight:600;font-size:13px;white-space:normal;line-height:1.2}
+tr.espera td{background:color-mix(in srgb,var(--ambar-l) 10%,transparent)}
+
+/* Anunciadas */
+.anun{padding:10px 14px;overflow:hidden}
+.anun>b{display:block;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:18px}
+.anun>small{display:block;font-weight:500;font-size:13px;color:var(--mut);margin-bottom:8px}
+.etq{background:var(--azul-f);border:1px solid var(--azul-l);border-radius:8px;padding:4px 10px 5px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;color:var(--azul-c)}
+.etq b{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:18px}
+.etq span{font-family:"JetBrains Mono",monospace;font-weight:600;font-size:13px}
+.anun p{font-weight:500;font-size:14px;color:var(--mut)}
+
+/* Identificación manual */
+.manual{display:grid;grid-template-columns:230px 1fr 190px auto auto;gap:12px}
+.manual .rotm{align-self:center}
+.manual .rotm b{display:block;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:17px}
+.manual .rotm small{display:block;font-weight:500;font-size:13px;color:var(--mut);line-height:1.25}
+.manual .rotm.activa b{color:var(--ambar-t)}
+#manualTxt{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:30px;text-transform:uppercase;color:var(--tinta);background:var(--fondo);
+  border:2px solid var(--linea2);border-radius:10px;padding:0 12px;width:100%;height:84px;outline:none}
+#manualTxt:enabled{border-color:var(--ambar-l)}
+#manualTxt:disabled{opacity:.6}
+.manual .bsec{height:84px;font-size:17px}
+.manual .bsec.xls{font-size:21px}
+
+/* Ventanas, panel F2 y avisos */
+.capa{position:absolute;inset:0;background:var(--capa);display:grid;place-items:center;z-index:10}
+.ventana{background:var(--panel);border:1px solid var(--linea2);border-radius:18px;padding:22px;width:640px}
+.ventana small{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:600;font-size:15px;letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}
+.ventana h2{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:32px;margin-bottom:16px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{border:1px solid var(--linea);border-radius:14px;background:var(--panel);padding:14px 18px;text-align:left;min-height:96px}
+.opt.on{border:2px solid var(--cobre);border-left-width:5px}
+.opt b{display:block;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:26px}
+.opt span{display:block;font-weight:500;font-size:14px;color:var(--mut)}
+.acciones{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:12px;margin-top:16px}
+.acciones .bsec{height:64px;font-size:22px;text-transform:uppercase}
+.panel{position:absolute;inset:0;z-index:20;background:rgba(5,10,14,.6)}
+.panel .cajon{position:absolute;right:0;top:0;bottom:0;width:380px;background:var(--panel);border-left:2px solid var(--cobre);padding:20px;overflow-y:auto}
+.panel h3{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:24px}
+.panel p{font-weight:500;font-size:14px;color:var(--mut);margin:4px 0 14px}
+.esc{display:block;width:100%;text-align:left;border:1px solid var(--linea2);border-radius:10px;background:var(--fondo);padding:8px 14px;margin-bottom:8px;min-height:58px}
+.esc.lista{background:var(--panel2);border-color:var(--cobre)}
+.esc b{display:block;font-weight:700;font-size:18px} .esc.lista b{color:var(--cobre-claro)}
+.esc span{display:block;font-weight:500;font-size:13px;color:var(--mut);margin-top:3px}
+.prueba{border:1px solid var(--linea2);border-radius:10px;padding:10px 14px;margin:4px 0 8px;background:var(--fondo)}
+.prueba>b{display:block;font-weight:700;font-size:18px}
+.prueba>span{display:block;font-weight:500;font-size:13px;color:var(--mut);margin:3px 0 8px}
+.prueba .fila{display:grid;grid-template-columns:110px 1fr;gap:8px}
+#pesoPrueba{height:48px;border:2px solid var(--linea2);border-radius:10px;background:var(--panel);color:var(--tinta);font:700 24px "JetBrains Mono",monospace;padding:0 10px;width:100%;outline:none}
+#pesoPrueba:focus{border-color:var(--cobre)}
+.prueba .fila .bsec{height:48px;font-size:17px}
+.prueba .rapidos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.prueba .rapidos .bsec{height:52px;flex-direction:column;gap:0;line-height:1.1}
+.prueba .rapidos b{font-family:"JetBrains Mono",monospace;font-size:17px}
+.prueba .rapidos small{font-size:12px;color:var(--mut);text-transform:uppercase}
+.panel .rein{width:100%;height:50px;border:1px solid var(--err-b);border-radius:10px;color:var(--rojo-t);font-family:"Barlow Condensed",Arial,sans-serif;font-weight:600;font-size:18px;margin-top:6px}
+.panel .cerr{width:100%;height:50px;border-radius:10px;background:var(--cobre);color:var(--sobre-cobre);font-family:"Barlow Condensed",Arial,sans-serif;font-weight:600;font-size:18px;margin-top:10px}
+.toast{position:absolute;left:50%;bottom:110px;transform:translateX(-50%);z-index:30;display:flex;align-items:center;gap:10px;border:1px solid;border-radius:12px;padding:12px 18px;font-weight:600;font-size:18px;max-width:780px}
+.toast .ico{width:24px;height:24px}
+.toast.ok{background:var(--ok-f);border-color:var(--ok-b);color:var(--ok-x)} .toast.warn{background:var(--warn-f);border-color:var(--warn-b);color:var(--warn-x)}
+.toast.err{background:var(--err-f);border-color:var(--err-b);color:var(--err-x)} .toast.info{background:var(--info-f);border-color:var(--info-b);color:var(--info-x)}
+#f2:hover{opacity:1}
+#f2{position:fixed;left:2px;bottom:1px;z-index:40;font:600 10px "Barlow",Arial,sans-serif;color:#86A0AB;opacity:.35;padding:1px 6px;border:1px solid #35505C;border-radius:8px;background:rgba(14,24,30,.8)}
+@media (prefers-reduced-motion:reduce){.vivo i,.bal-pic .cel{animation:none}.bal-pic .carga,.bal-pic .grua{transition:none}}
+</style>
+</head>
+<body>
+<div id="marco"><div id="pant"></div></div>
+<button id="f2" type="button" title="Panel de prueba">F2 · panel de prueba</button>
+<script>
+'use strict';
+/* ---------- Datos reales del 22-10-2026, grupo 21 (Sistema de Cátodos) ---------- */
+const PESO_CELDA={1:4796,2:4855,3:4722,4:4687,5:4860,6:4815,7:4818,8:4843,9:4742,10:4831,11:4869,12:4724,13:4610,14:4725,15:4714,16:4680,17:4800,18:4789,19:4790,20:4644,21:4775,
+  42:4310,41:4646,40:4714,39:4445,38:4365,37:4791,36:4756,35:4796,34:4641,33:4612,32:4651,31:4640,30:4626,29:4316};
+const RANGO_CAT=[4200,5000], FECHA='22-10-2026', CATODOS=39;
+const ORDEN=[]; for(let i=1;i<=21;i++) ORDEN.push(i); for(let i=42;i>=22;i--) ORDEN.push(i);
+const CHIPS={cero:['cero','Disponible'],espera:['espera','Leyendo etiqueta'],inestable:['inestable','Registrando'],estable:['estable','Registrado'],bloqueado:['bloqueado','Bloqueado'],sincero:['bloqueado','Sin cero']};
+const pad2=n=>String(n).padStart(2,'0');
+const hhmm=m=>`${pad2(Math.floor(m/60)%24)}:${pad2(m%60)}`;
+const kg=n=>Math.round(n).toLocaleString('es-CL');
+const $=s=>document.querySelector(s);
+const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- Íconos ---------- */
+const g=(d,w)=>`<g fill="none" stroke="currentColor" stroke-width="${w||2.2}" stroke-linecap="round" stroke-linejoin="round">${d}</g>`;
+const ICON={
+  ok:`<svg viewBox="0 0 24 24">${g('<circle cx="12" cy="12" r="9.5"/><path d="M7.5 12.5l3 3 6-6.5"/>',2.4)}</svg>`,
+  warn:`<svg viewBox="0 0 24 24">${g('<path d="M12 3L2 20h20z"/><path d="M12 10v4.5M12 17.5v.5"/>',2.2)}</svg>`,
+  info:`<svg viewBox="0 0 24 24">${g('<circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5v.5"/>',2.4)}</svg>`,
+  err:`<svg viewBox="0 0 24 24">${g('<circle cx="12" cy="12" r="9.5"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7"/>',2.4)}</svg>`,
+  muted:`<svg viewBox="0 0 24 24">${g('<path d="M3 15.5h18v3H3z"/><path d="M7 15.5V12h10v3.5"/>')}</svg>`,
+  bascula:`<svg viewBox="0 0 24 24">${g('<path d="M2 16h20v3H2z"/><path d="M5 16v-3h14v3"/><path d="M9 13V9h6v4"/>',1.8)}</svg>`,
+  camara:`<svg viewBox="0 0 24 24">${g('<path d="M3 8h4l2-3h6l2 3h4v11H3z"/><circle cx="12" cy="13" r="3.5"/>',1.9)}</svg>`,
+  colores:`<svg viewBox="0 0 24 24">${g('<circle cx="12" cy="12" r="9"/><path d="M12 3v18M12 12h9M12 7.5h7.8M12 16.5h7.8"/>',1.9)}</svg>`,
+  excel:`<svg viewBox="0 0 24 24">${g('<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M9.5 11l4 5M13.5 11l-4 5"/>',1.9)}</svg>`,
+};
+const ico=(k,w,cls)=>`<span class="ico ${cls||''}" style="width:${w}px;height:${w}px">${ICON[k]}</span>`;
+
+/* ---------- Pictograma isométrico de la plataforma (el mismo de la app) ---------- */
+const PIC_SVG=
+  '<path d="M6 42L48 63L90 42V46L48 67L6 46Z" fill="#0B1418"/><path d="M48 21L90 42L48 63L6 42Z" fill="#22343D" stroke="#3A5462"/>'+
+  '<path d="M48 27L78 42L48 57L18 42Z" fill="none" stroke="#DA8B4F" stroke-dasharray="2.5 2" opacity=".55"/>'+
+  '<g class="nod" fill="#D08A4F"><circle cx="22" cy="49.5" r="1.4"/><circle cx="27" cy="52.6" r="1"/><circle cx="69" cy="52.4" r="1.3"/><circle cx="74" cy="49.6" r="1"/><circle cx="17.5" cy="47.2" r="1"/></g>'+
+  '<circle class="cel c1" cx="48" cy="25.6" r="2.8"/><circle class="cel c2" cx="83" cy="42" r="2.8"/><circle class="cel c3" cx="48" cy="58.4" r="2.8"/><circle class="cel c4" cx="13" cy="42" r="2.8"/>'+
+  '<g class="carga"><path d="M26 34L48 45V53L26 42Z" fill="#B9692F"/><path d="M48 45L70 34V42L48 53Z" fill="#93521F"/><path d="M48 23L70 34L48 45L26 34Z" fill="#E8A26A"/>'+
+    '<path d="M26 36.7L48 47.7L70 36.7M26 39.4L48 50.4L70 39.4" fill="none" stroke="#6F3B16" stroke-width=".7"/><path d="M45 31L50 33.5L45 36L40 33.5Z" fill="#FFF"/></g>'+
+  '<g class="grua"><path d="M72 34L86 41V50L72 43Z" fill="#C48F16"/><path d="M86 41L94 37V46L86 50Z" fill="#9C710F"/><path d="M80 30L94 37L86 41L72 34Z" fill="#F2BC3E"/>'+
+    '<path d="M68 14L72 16V44L68 42Z" fill="#3B4247"/><path d="M68 42L56 48M70 43L58 49" stroke="#2B3034" stroke-width="1.6"/></g>';
+
+/* ---------- RUT ---------- */
+function dvRut(c){let s=0,m=2; for(let i=c.length-1;i>=0;i--){s+=(+c[i])*m; m=m===7?2:m+1;} const r=11-s%11; return r===11?'0':r===10?'K':String(r);}
+const rutValido=r=>r.length>=8&&r.length<=9&&/^\d+$/.test(r.slice(0,-1))&&r.slice(-1).toUpperCase()===dvRut(r.slice(0,-1));
+const fmtRut=r=>!r?'':r.length<2?r:r.slice(0,-1).replace(/\B(?=(\d{3})+(?!\d))/g,'.')+'-'+r.slice(-1);
+
+/* ---------- Estado ---------- */
+let S, B, ESC, cola=[], ocupada=false, gen=0, panelAbierto=false, manual='', timers=[];
+const later=(ms,fn)=>{const id=setTimeout(()=>{timers=timers.filter(x=>x!==id);fn();},ms);timers.push(id);return id;};
+const dormir=ms=>new Promise(r=>later(ms,r));
+const balanzaInicial=()=>({lect:0,meta:0,ruido:0,carga:null,pic:'vacia',chip:'cero',res:{k:'muted',t1:'Plataforma disponible',t2:'Puede ingresar la próxima carga'},esperando:false,liberar:null});
+
+function etqCat(gr,n,lado,h,peso,oper){
+  return {prod:'cat',g:gr,n:n,lado:lado,codigo:`${n}${lado}${gr}`,hora:h,m:0,bruto:peso,neto:peso,oper:oper,estado:'camino',hp:'',ctrl:'',turno:'',manual:false,nota:'',
+    qr:`VEN|CAT|C${pad2(n)}|L${lado}|G${gr}|N${CATODOS}`};
+}
+/* Lo anunciado desde el origen: 1T21 a 3T21 ya pesadas y 4T21 a 8T21 pendientes, que van llegando a la báscula */
+function estadoInicial(){
+  const s={view:'login',rut:'111111111',user:'',turno:'A',min:10*60+5,ultPes:9*60+58,uid:0,labels:[],cero:null,grupos:{21:{lados:{a:'T',b:'P'},celdas:{}}}};
+  const G=s.grupos[21], ms=[9*60+41,9*60+48,9*60+55,10*60+2];
+  for(let i=0;i<4;i++){
+    const n=i+1, m=ms[i], h=hhmm(m), l=etqCat(21,n,'T',h,PESO_CELDA[n],'Operador prueba'); l.id=++s.uid; l.m=m;
+    if(n<4){l.estado='pesada'; l.hp=hhmm(m+3); l.ctrl='Dentro de rango'; l.turno='A'; G.celdas[n]={e:'pesada',h:h,id:l.id};}
+    else G.celdas[n]={e:'camino',h:h,id:l.id};
+    s.labels.unshift(l);
+  }
+  let m=10*60+4;
+  for(let n=5;n<=8;n++){const h=hhmm(m); m+=3; const l=etqCat(21,n,'T',h,PESO_CELDA[n],'Operador origen'); l.id=++s.uid; l.m=m; G.celdas[n]={e:'camino',h:h,id:l.id}; s.labels.unshift(l);}
+  return s;
+}
+const hora=()=>hhmm(S.min);
+const tick=()=>{S.min+=4; return hora();};
+const siguiente=G=>ORDEN.find(n=>!G.celdas[n])||null;
+const ladoDe=(G,n)=>n<=21?G.lados.a:G.lados.b;
+function agregar(l){l.id=++S.uid; S.labels.unshift(l);}
+
+function arrancar(){
+  gen++; timers.forEach(clearTimeout); timers=[]; cola=[]; ocupada=false; manual='';
+  B=balanzaInicial(); ESC={grua:false,fuera:false,cero:false};
+  S=estadoInicial();
+  const pend=S.labels.filter(l=>l.estado==='camino'||l.estado==='bascula').reverse();
+  render();
+  pend.forEach((l,k)=>encolar(l,2500+1200*k));
+}
+
+/* ---------- Motor de la báscula (el mismo de la app) ---------- */
+function leer(){
+  if(B.ruido>0||Math.abs(B.meta-B.lect)>0.5) B.lect+=(B.meta-B.lect)*0.42+(Math.random()*2-1)*B.ruido; else B.lect=B.meta;
+  pintarNum();
+}
+function pintarNum(){
+  const el=document.getElementById('balNum'); if(!el) return;
+  const t=kg(Math.max(0,Math.round(B.lect))); if(el.textContent!==t){el.textContent=t; el.classList.toggle('largo',t.length>5);}
+}
+function fijar(chip,k,t1,t2){B.chip=chip; B.res={k:k,t1:t1,t2:t2}; render();}
+function evaluar(l,W){
+  const c=l.codigo, R=l.n?RANGO_CAT:null, t1=`${c} · ${kg(W)} kg`;
+  if(!R) return {k:'ok',t1:t1,t2:'Peso capturado · rango por definir',estado:'pesada',ctrl:'Rango por definir',corto:'rango por definir'};
+  if(W<R[0]||W>R[1]){
+    const bajo=W<R[0], txt=bajo?`Bajo el rango: faltan ${kg(R[0]-W)} kg`:`Sobre el rango: se pasa por ${kg(W-R[1])} kg`;
+    return {k:'warn',t1:t1,t2:`${txt} (rango ${kg(R[0])} a ${kg(R[1])})`,estado:'pesada',ctrl:txt,corto:'fuera de norma'};
+  }
+  return {k:'ok',t1:t1,t2:`Dentro de rango (${kg(R[0])} a ${kg(R[1])})`,estado:'pesada',ctrl:'Dentro de rango',corto:'dentro de rango'};
+}
+function marcar(l,e){l.estado=e; const G=S.grupos[l.g]; if(G&&G.celdas[l.n]){G.celdas[l.n].e=e; if(e==='pesada') G.celdas[l.n].p=l.neto;}}
+function registrar(l,r,extra,ahora){
+  const m=Math.max(ahora?S.min:(l.m||S.min)+3,(S.ultPes||0)+1); S.ultPes=m; if(m>S.min) S.min=m;
+  l.neto=l.bruto; l.hp=hhmm(m); l.turno=S.turno; l.ctrl=r.ctrl+(extra?' · '+extra:'');
+  marcar(l,r.estado); render();
+}
+async function pesar(l,yo){
+  const vivo=()=>yo===gen, sinEtq=!!l.sinEtq, c=sinEtq?'Sin etiqueta':l.codigo, W=l.bruto;
+  const grua=!sinEtq&&ESC.grua, fuera=!sinEtq&&ESC.fuera;
+  if(grua) ESC.grua=false; if(fuera) ESC.fuera=false; if(grua||fuera) renderPanel();
+  const desvio=grua?1850:fuera?-960:0;
+  B.carga=l; B.pic='vacia'; B.chip='espera';
+  B.res=sinEtq?{k:'warn',t1:'Llega una carga sin etiqueta',t2:'La cámara no encuentra código'}:{k:'info',t1:`Llega ${c}`,t2:'La cámara lee la etiqueta'};
+  if(!sinEtq) marcar(l,'bascula'); render();
+  await dormir(60); if(!vivo()) return;
+  B.pic=grua?'grua':fuera?'fuera':'sobre'; render();
+  await dormir(700); if(!vivo()) return;
+  B.meta=W*1.035+desvio; B.ruido=40; fijar('inestable','warn',`${c} · registrando`,'Baliza roja: no mueva la carga');
+  await dormir(800); if(!vivo()) return;
+  B.meta=W+desvio; B.ruido=12;
+  await dormir(800); if(!vivo()) return;
+  B.ruido=3;
+  await dormir(700); if(!vivo()) return;
+  B.ruido=0; B.lect=B.meta;
+  if(sinEtq){
+    // Sin etiqueta no se registra sola: el pesador la identifica a mano y toca Asociar
+    B.esperando=true;
+    const rec=await new Promise(res=>{B.liberar=res; fijar('estable','warn',`Sin etiqueta · ${kg(W)} kg`,'Identifíquela a mano abajo y toque Asociar');}); if(!vivo()) return;
+    B.esperando=false; B.liberar=null;
+    fijar('estable','ok',`${rec.codigo} · ${kg(rec.neto)} kg`,`Ingresada a mano · registrada ${rec.hp}`);
+    await dormir(1600); if(!vivo()) return;
+    B.pic='sale'; B.meta=0; B.ruido=30; fijar('inestable','muted',`${rec.codigo} sale de la báscula`,'Quedó registrada');
+    await dormir(900); if(!vivo()) return;
+    B.ruido=0; B.lect=0; B.meta=0; B.carga=null; B.pic='vacia';
+    fijar('cero','muted','Plataforma disponible','Puede ingresar la próxima carga');
+    return;
+  }
+  let extra='';
+  if(grua||fuera){
+    if(grua) fijar('bloqueado','err','Horquilla sobre la báscula',`Marca ${kg(W+desvio)} kg. Retroceda para pesar.`);
+    else fijar('bloqueado','err','Carro fuera del área','Se pasa de la plataforma. Acomódelo.');
+    await dormir(2800); if(!vivo()) return;
+    B.pic='sobre'; B.meta=W; B.ruido=25;
+    fijar('inestable','warn',grua?'La horquilla salió · registrando':'Carro acomodado · registrando','Baliza roja: no mueva la carga');
+    await dormir(900); if(!vivo()) return;
+    B.ruido=5;
+    await dormir(700); if(!vivo()) return;
+    B.ruido=0; B.lect=B.meta;
+    extra=grua?'horquilla encima: se esperó que saliera':'carro fuera del área: se acomodó';
+  }
+  const r=evaluar(l,W);
+  fijar('estable',r.k,r.t1,r.t2);
+  await dormir(1000); if(!vivo()) return;
+  registrar(l,r,extra);
+  fijar('estable',r.k,r.t1,`Registrado ${l.hp} · ${r.k==='warn'?r.ctrl:r.corto}`);
+  await dormir(1600); if(!vivo()) return;
+  B.pic='sale'; B.meta=0; B.ruido=30; fijar('inestable','muted',`${c} sale de la báscula`,'Quedó registrada');
+  await dormir(900); if(!vivo()) return;
+  B.ruido=0; B.lect=0; B.meta=0; B.carga=null; B.pic='vacia';
+  fijar('cero','muted','Plataforma disponible','Puede ingresar la próxima carga');
+}
+/* Nódulos en la junta: vacía no vuelve a cero y no registra hasta que el pesador los saca */
+async function sinCero(yo){
+  B.pic='cero'; B.meta=6; B.lect=6; B.ruido=0;
+  fijar('sincero','err','Sin cero: vacía marca 6 kg','Nódulos en la junta. Así no registra.');
+  await dormir(4800); if(yo!==gen) return;
+  B.pic='vacia'; B.meta=0; B.lect=0;
+  fijar('cero','ok','Cero recuperado','El pesador retiró los nódulos');
+  await dormir(1800); if(yo!==gen) return;
+  fijar('cero','muted','Plataforma disponible','Puede ingresar la próxima carga');
+}
+function encolar(l,ms){l.llega=Date.now()+(ms==null?3500:ms); cola.push(l); proximo();}
+async function proximo(){
+  if(ocupada||!cola.length||S.view==='login') return;
+  ocupada=true; const yo=gen, l=cola.shift();
+  const falta=(l.llega||0)-Date.now(); if(falta>0) await dormir(falta);
+  if(yo!==gen) return;
+  await pesar(l,yo); if(yo!==gen) return;
+  if(ESC.cero){ESC.cero=false; renderPanel(); await sinCero(yo); if(yo!==gen) return;}
+  ocupada=false;
+  await dormir(2200); if(yo!==gen) return;
+  proximo();
+}
+
+/* ---------- Baliza y cámaras ---------- */
+function estadoBaliza(){
+  if(B.chip==='cero') return ['verde','Disponible','Puede ingresar'];
+  if(B.chip==='espera') return ['amarillo','Posicionar','Deje la carga y retírese'];
+  if(B.chip==='inestable') return B.pic==='sale'?['verde','Retirar','Peso registrado']:['rojo','Capturando','No se mueva'];
+  if(B.chip==='estable'&&B.res.k==='warn'&&!B.esperando) return ['amarillo','Fuera de rango','Registrado con alerta · retire la carga'];
+  if(B.chip==='estable') return B.esperando?['amarillo','Espere','Identificación manual']:['verde','Retirar','Peso registrado'];
+  if(B.chip==='sincero') return ['amarillo','Revisar','Residuos en la plataforma'];
+  return ['amarillo','Corregir',B.pic==='grua'?'Retire la horquilla':'Acomode el carro'];
+}
+function camSuperior(){
+  const l=B.carga;
+  if(!l) return B.chip==='sincero'?['Plataforma vacía, con lectura distinta de cero','warn']:['Plataforma vacía','muted'];
+  if(B.pic==='sale') return ['Carga saliendo','muted'];
+  if(l.sinEtq) return ['Cobre detectado · etiqueta no legible','warn'];
+  if(B.chip==='espera') return [`Cobre detectado · leyendo ${l.codigo}`,'info'];
+  return [`Cátodo · etiqueta ${l.codigo}`,'ok'];
+}
+function camLateral(){
+  const l=B.carga;
+  if(!l) return ['Sin carga en la plataforma','muted'];
+  if(B.pic==='grua') return ['Horquilla sobre la plataforma','err'];
+  if(B.pic==='fuera') return ['Carro fuera del área','err'];
+  if(B.pic==='sale') return ['Carga saliendo','muted'];
+  return B.chip==='espera'?['Horquilla depositando la carga','info']:['1 lingada · horquilla fuera','ok'];
+}
+
+/* ---------- Vistas ---------- */
+function vLogin(){
+  const r=S.rut, ok=rutValido(r), err=r.length>=8&&!ok;
+  const nota=err?`El dígito verificador no corresponde: para este RUT es ${dvRut(r.slice(0,-1))}. Revise el último número.`:ok?'RUT válido: toque Entrar.':'Escriba los números y la K si la tiene. El RUT de prueba ya está escrito.';
+  const teclas=['1','2','3','4','5','6','7','8','9','K','0','del'].map(d=>`<button class="k" type="button" data-act="rut" data-v="${d}">${d==='del'?'BORRAR':d}</button>`).join('');
+  return `<div class="login"><div class="col">
+    <div class="marca">${ico('bascula',52,'cobre')}<div><b>BÁSCULA N9 · CASETA</b><span class="rot" style="font-size:15px">Identificación por cámaras y pesaje</span></div></div>
+    <div class="dsp"><span class="rot">RUT del operador</span><b>${r?fmtRut(r):'—'}</b></div>
+    <div class="teclado">${teclas}</div>
+    <button class="bgrande" type="button" data-act="entrar" style="width:100%;height:84px;font-size:33px;margin-top:14px" ${ok?'':'disabled'}>Entrar</button>
+    <p class="nota ${err?'err':ok?'ok':''}">${nota}</p>
+    <p class="nota" style="margin-top:6px;font-size:13px">Demostración: en la pantalla principal, F2 abre el panel de prueba (cargas, alertas y pesos de prueba).</p>
+  </div>
+  <div class="arriba"><button class="bsec" type="button" data-act="colores" style="height:56px;font-size:20px">${ico('colores',24)}COLORES</button></div></div>`;
+}
+function vBalanza(){
+  const ch=CHIPS[B.chip], t=kg(Math.max(0,Math.round(B.lect))), r=B.res;
+  return `<div class="tarj bal"><div class="cab"><span class="rot" style="font-size:15px">Báscula N9</span><span class="vivo"><i></i>EN LÍNEA</span></div>
+    <div class="disp"><div><span class="chip ${ch[0]}">${ch[1]}</span><div class="num"><b id="balNum" class="${t.length>5?'largo':''}">${t}</b><small>kg</small></div></div>
+      <svg class="bal-pic ${B.pic}" viewBox="0 0 96 68" aria-hidden="true">${PIC_SVG}</svg></div>
+    <div class="res">${ico(r.k,24,'k-'+r.k)}<div><b class="k-${r.k}">${esc(r.t1)}</b><small>${esc(r.t2)}</small></div></div></div>`;
+}
+function vBaliza(){
+  const [luz,txt,sub]=estadoBaliza();
+  const luces=['rojo','amarillo','verde'].map(k=>`<div class="luz ${k}${k===luz?' on':''}" data-luz="${k}"></div>`).join('');
+  const col=luz==='rojo'?'k-err':luz==='amarillo'?'k-warn':'k-ok';
+  return `<div class="tarj baliza" id="baliza" data-luz="${luz}"><span class="rot" style="font-size:15px">Baliza</span>
+    <div class="torre"><div class="tapa"></div>${luces}<div class="poste"></div><div class="base"></div></div>
+    <div class="txt ${col}">${txt}</div><div class="sub">${sub}</div></div>`;
+}
+function vCamaras(){
+  const cam=(n,[t,k])=>`<div class="cam">${ico('camara',30)}<div><span class="rot">${n}</span><b class="k-${k}">${esc(t)}</b></div></div>`;
+  return `<div class="tarj cams"><span class="rot" style="font-size:15px">Cámaras</span>${cam('Cámara superior · producto y etiqueta',camSuperior())}${cam('Cámara lateral · posición y lingadas',camLateral())}</div>`;
+}
+function vGrilla(){
+  const filas=S.labels.filter(l=>l.estado==='pesada'||l.estado==='bascula')
+    .sort((a,b)=>(b.estado==='bascula')-(a.estado==='bascula')||(b.hp>a.hp?1:b.hp<a.hp?-1:0)||b.id-a.id);
+  let rows='';
+  if(B.esperando&&B.carga) rows+=`<tr class="espera"><td class="hora k-muted">—</td><td class="id k-warn">Sin identificar</td><td class="lec k-warn">Pendiente</td>
+    <td class="kg der">${kg(B.lect)}</td><td class="kg der k-muted">—</td><td class="kg der k-muted">—</td><td class="val k-warn">Escriba el rótulo abajo y toque Asociar</td></tr>`;
+  filas.forEach(l=>{
+    const enBas=l.estado==='bascula';
+    const [vk,vt]=enBas?['info','Registrando…']:l.ctrl.startsWith('Dentro')?['ok',l.ctrl.split(' · ')[0]]:['warn',l.ctrl.split(' · ')[0]];
+    rows+=`<tr><td class="hora">${enBas?'ahora':l.hp}</td><td class="id${enBas?' k-warn':''}">Cátodo ${l.codigo}</td><td class="lec${l.manual?' k-warn':''}">${l.manual?'Manual':'Cámara'}</td>
+      <td class="kg der">${enBas?'—':kg(l.bruto)}</td><td class="kg der k-muted">—</td><td class="kg der neto">${enBas?'—':kg(l.neto)}</td><td class="val k-${vk}">${vt}</td></tr>`;
+  });
+  return `<div class="tarj grilla"><div class="cab2"><b>REGISTRO DE LA BÁSCULA</b><span>lo que identifican las cámaras, con su peso</span><span class="insignia">${filas.length}</span></div>
+    <div class="lista" id="lista"><table><colgroup><col style="width:64px"><col style="width:150px"><col style="width:80px"><col style="width:84px"><col style="width:74px"><col style="width:84px"><col></colgroup>
+    <thead><tr><th class="rot">Hora</th><th class="rot">Identificación</th><th class="rot">Lectura</th><th class="rot der">Bruto</th><th class="rot der">Tara</th><th class="rot der">Neto</th><th class="rot">Validación</th></tr></thead>
+    <tbody>${rows}</tbody></table></div></div>`;
+}
+function vAnunciadas(){
+  const pend=S.labels.filter(l=>l.prod==='cat'&&l.estado==='camino').sort((a,b)=>a.id-b.id);
+  const items=pend.slice(0,7).map(l=>`<div class="etq"><b>${l.codigo}</b><span>${l.hora}</span></div>`).join('');
+  return `<div class="tarj anun"><b>ANUNCIADAS</b><small>desde el origen · ${pend.length} pendientes</small>${items}
+    ${pend.length===0?'<p>No hay cargas pendientes.</p>':pend.length>7?`<p>y ${pend.length-7} más</p>`:''}</div>`;
+}
+function vManual(){
+  const activa=B.esperando&&!!B.liberar;
+  const [ck,ct]=!S.cero?['warn','CONTROL DE CERO']:S.cero.ok?['ok',`CERO OK ${S.cero.h}`]:['err',`CERO: FALLA ${S.cero.h}`];
+  return `<div class="manual">
+    <div class="rotm${activa?' activa':''}"><b>IDENTIFICACIÓN MANUAL</b><small>${activa?'La cámara no leyó la etiqueta: escriba el rótulo (5T21).':'Se activa si la cámara no identifica la carga.'}</small></div>
+    <input id="manualTxt" maxlength="8" autocomplete="off" spellcheck="false" aria-label="Rótulo de la carga" value="${esc(manual)}" ${activa?'':'disabled'}>
+    <button class="bgrande" type="button" data-act="asociar" style="height:84px;font-size:26px" ${activa?'':'disabled'}>${ico('ok',26)}Asociar</button>
+    <button class="bsec" type="button" data-act="cero">${ico(ck,22,'k-'+ck)}${ct}</button>
+    <button class="bsec xls" type="button" data-act="excel">${ico('excel',26,'k-ok')}EXCEL</button></div>`;
+}
+function vMain(){
+  return `<div class="main">
+    <div class="bar"><div class="marca">${ico('bascula',40)}<div class="tit"><b>BÁSCULA N9 · CASETA</b><span class="rot">Identificación por cámaras y captura del peso</span></div></div>
+      <div class="who"><span class="quien"><b>${esc(S.user.toUpperCase())}</b> · ${hora()}</span>
+        <div class="turno">${['A','C'].map(x=>`<button type="button" data-act="turno" data-v="${x}" class="${S.turno===x?'on':''}">TURNO ${x}</button>`).join('')}</div>
+        <button class="bsec" type="button" data-act="colores" style="height:46px;width:46px;padding:0" aria-label="Colores">${ico('colores',22)}</button>
+        <button class="bsec" type="button" data-act="salir" style="height:46px;font-size:17px">SALIR</button></div></div>
+    <div class="top">${vBalanza()}${vBaliza()}${vCamaras()}</div>
+    <div class="medio">${vGrilla()}${vAnunciadas()}</div>
+    ${vManual()}</div>`;
+}
+const TEMAS=[['oscuro','Original','El diseño de siempre, oscuro'],['claro','Claro','Fondo claro, para mucha luz'],['contraste','Alto contraste','Negro, blanco y colores fuertes'],['auto','Como Windows','Sigue el modo claro u oscuro del equipo']];
+function vModal(){
+  if(S.md==='colores') return `<div class="capa"><div class="ventana"><small>Pantalla</small><h2>Colores</h2>
+    <div class="opts">${TEMAS.map(([k,t,s])=>`<button class="opt${temaElegido===k?' on':''}" type="button" data-act="tema" data-v="${k}"><b>${t}</b><span>${s}</span></button>`).join('')}</div>
+    <div class="acciones"><button class="bsec" type="button" data-act="cerrar">Listo</button></div></div></div>`;
+  return '';
+}
+
+function render(){
+  const pant=$('#pant'), lst=$('#lista'), arriba=lst?lst.scrollTop:0;
+  const teniaFoco=document.activeElement&&document.activeElement.id==='manualTxt';
+  const focoPeso=document.activeElement&&document.activeElement.id==='pesoPrueba';
+  pant.innerHTML=(S.view==='login'?vLogin():vMain())+(S.md?vModal():'')+'<div id="panelF2"></div><div id="toastBox"></div>';
+  const l2=$('#lista'); if(l2) l2.scrollTop=arriba;
+  const tb=$('#manualTxt');
+  if(tb&&!tb.disabled&&!S.md){tb.focus(); tb.setSelectionRange(tb.value.length,tb.value.length);} else if(teniaFoco&&tb) tb.blur();
+  renderPanel(); pintarToast();
+  const pp=$('#pesoPrueba'); if(focoPeso&&pp){pp.focus(); pp.setSelectionRange(pp.value.length,pp.value.length);}
+}
+
+/* ---------- Panel F2: las situaciones para la demostración ---------- */
+function renderPanel(){
+  const box=document.getElementById('panelF2'); if(!box) return;
+  if(!panelAbierto||S.view==='login'){box.innerHTML=''; return;}
+  const e=(k,t,d,lista)=>`<button class="esc${lista?' lista':''}" type="button" data-esc="${k}"><b>${t}${lista?' · lista':''}</b><span>${d}</span></button>`;
+  box.innerHTML=`<div class="panel" data-act="panel-fuera"><div class="cajon" data-act="nada"><h3>PANEL DE PRUEBA</h3>
+    <p>Solo para la demostración. Se abre y se cierra con F2. Las cámaras y el visor están simulados.</p>
+    ${e('anuncio','Nueva carga anunciada','El origen imprime la etiqueta que sigue; llega a la báscula.',false)}
+    ${e('sinetq','Etiqueta ilegible','Llega un paquete que la cámara no puede leer: se identifica a mano.',false)}
+    ${e('grua','Horquilla encima','La próxima carga queda con la horquilla sobre la plataforma.',ESC.grua)}
+    ${e('fuera','Carro fuera del área','Llega un carro de arrastre con cátodos pasado de la plataforma.',false)}
+    ${e('cero','Sin cero','Vacía marca 6 kg por nódulos en la junta.',ESC.cero)}
+    <div class="prueba"><b>Peso de prueba (kg)</b><span>La próxima carga anunciada llega con este bruto. Rango de cátodos: ${kg(RANGO_CAT[0])} a ${kg(RANGO_CAT[1])} kg.</span>
+      <div class="fila"><input id="pesoPrueba" inputmode="numeric" maxlength="5" autocomplete="off" aria-label="Peso de prueba en kg" value="${esc(pesoTxt)}" placeholder="4750">
+        <button class="bsec" type="button" data-act="pesar-prueba">Pesar con este peso</button></div>
+      <div class="rapidos">${[[4750,'dentro'],[3900,'bajo'],[5300,'sobre']].map(([w,k])=>`<button class="bsec" type="button" data-act="peso-rapido" data-v="${w}"><b>${kg(w)}</b><small>${k}</small></button>`).join('')}</div></div>
+    <button class="rein" type="button" data-act="reiniciar">REINICIAR EL REGISTRO</button>
+    <button class="cerr" type="button" data-act="cerrar-panel">CERRAR EL PANEL</button></div></div>`;
+}
+function anunciar(peso){
+  const G=S.grupos[21], n=siguiente(G);
+  if(!n){avisar('El grupo 21 ya no tiene celdas por anunciar.','info'); return null;}
+  const l=etqCat(21,n,ladoDe(G,n),tick(),peso||PESO_CELDA[n]||4600+((n*53)%330),'Operador origen'); l.m=S.min; agregar(l);
+  G.celdas[n]={e:'camino',h:l.hora,id:l.id}; return l;
+}
+function escenario(k){
+  if(k==='anuncio'){const l=anunciar(); if(l){encolar(l,1500); avisar(`El origen imprimió ${l.codigo}: queda anunciada y llega a la báscula.`,'info');}}
+  else if(k==='sinetq'){encolar({sinEtq:true,prod:'cat',codigo:'Sin etiqueta',bruto:PESO_CELDA[9],estado:'camino'},900); avisar('Llega un paquete de cátodos con la etiqueta ilegible.','info');}
+  else if(k==='fuera'){const l=anunciar(); if(l){ESC.fuera=true; encolar(l,900); avisar(`Llega ${l.codigo} en carro de arrastre, pasado de la plataforma.`,'info');}}
+  else if(k==='cero'&&!ESC.cero&&!ocupada){
+    ocupada=true; const yo=gen; (async()=>{await sinCero(yo); if(yo!==gen) return; ocupada=false; proximo();})();
+  }
+  else { if(k==='grua') ESC.grua=!ESC.grua; if(k==='cero') ESC.cero=!ESC.cero; render(); return; }
+  panelAbierto=false; render();
+}
+
+/* Peso de prueba: la próxima carga anunciada llega con el bruto que se escribe */
+let pesoTxt='';
+function pesarPrueba(w){
+  const W=parseInt(String(w).replace(/\D/g,''),10);
+  if(!W||W<100||W>20000){avisar('Escriba un peso de prueba entre 100 y 20.000 kg.','warn'); return;}
+  const l=anunciar(W); if(!l) return;
+  encolar(l,900); pesoTxt='';
+  avisar(`Llega ${l.codigo} con un peso de prueba de ${kg(W)} kg.`,'info');
+  panelAbierto=false; render();
+}
+
+/* ---------- Identificación manual ---------- */
+function asociarManual(){
+  if(!B.esperando||!B.liberar){avisar('No hay una carga esperando identificación manual.','info'); return;}
+  const t=manual.trim().toUpperCase().replace(/\s/g,''), W=Math.round(B.lect);
+  let l=S.labels.find(x=>x.codigo===t&&x.estado==='camino');
+  if(!l){
+    const m=t.match(/^(\d{1,2})([TP])(\d{1,2})$/);
+    if(m&&+m[1]>=1&&+m[1]<=42){
+      const n=+m[1], gr=+m[3]; l=etqCat(gr,n,m[2],hora(),W,S.user); agregar(l);
+      const G=S.grupos[gr]||(S.grupos[gr]={lados:{a:'T',b:'T'},celdas:{}}); if(!G.celdas[n]) G.celdas[n]={e:'camino',h:l.hora,id:l.id};
+    }
+  }
+  if(!l){avisar('Escriba el rótulo de la carga: celda, lado y grupo (por ejemplo 5T21).','warn'); return;}
+  l.bruto=W; l.manual=true; l.nota='identificada a mano en la caseta';
+  registrar(l,evaluar(l,W),'identificación manual',true);
+  manual='';
+  const lib=B.liberar; lib(l);
+  avisar(`${l.codigo} identificada a mano y registrada.`,'ok');
+}
+function controlCero(){
+  if(B.carga||(Math.round(B.lect)>0&&B.pic!=='cero')){avisar('Hay carga sobre la báscula: el control de cero se hace con la báscula vacía.','warn'); return;}
+  S.cero={h:hora(),ok:B.pic!=='cero'}; render();
+}
+
+/* ---------- Excel: el registro de la báscula, con la forma del cuaderno ---------- */
+function bajarExcel(){
+  try{
+    if(!window.XLSX) throw new Error('no se cargó la librería');
+    const pes=S.labels.filter(l=>l.estado==='pesada').sort((a,b)=>a.id-b.id);
+    const cero=!S.cero?'Pendiente':`${S.cero.ok?'OK':'Falla'} ${S.cero.h}`;
+    const det=[['Registro de cátodos comerciales · Báscula N9'],['Fecha',FECHA,'','Control de cero',cero],[],
+      ['Fecha','Turno','Hora etiqueta','Hora pesaje','Etiqueta','Grupo','Cuba (celda)','Lado (P/T)','Lectura','Peso kg','Control báscula','Nota']];
+    pes.forEach(l=>det.push([FECHA,l.turno,l.hora,l.hp,l.codigo,l.g,pad2(l.n),l.lado,l.manual?'Manual':'Cámara',l.neto,l.ctrl,l.nota]));
+    const res=[['Resumen del día',FECHA],['Control de cero',cero],[],['Día','Prod.','Descripción','Grupo','Lado-P','Lado-T','Tot-peso','Col-parc','Col-total','Tot-coli']];
+    [...new Set(pes.map(l=>l.g))].forEach(gr=>{const d=pes.filter(l=>l.g===gr), P=d.filter(l=>l.lado==='P'), T=d.filter(l=>l.lado==='T'), s=a=>a.reduce((x,l)=>x+l.neto,0);
+      res.push([FECHA,18,'Cátodo comercial',gr,s(P),s(T),s(P)+s(T),P.length,T.length,P.length+T.length]);});
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(det),'Cátodos');
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(res),'Resumen');
+    const d=new Date(), f=`${d.getFullYear()}${pad2(d.getMonth()+1)}${pad2(d.getDate())}-${pad2(d.getHours())}${pad2(d.getMinutes())}${pad2(d.getSeconds())}`;
+    XLSX.writeFile(wb,`Bascula N9 caseta ${FECHA} ${f}.xlsx`);
+    avisar('Excel descargado con el registro de la báscula.','ok');
+  }catch(e){avisar('No se pudo armar el Excel: '+e.message,'err');}
+}
+
+/* ---------- Avisos ---------- */
+let toast=null, toastId=0;
+function avisar(t,k){toast={t:t,k:k||'info'}; const id=++toastId; pintarToast(); setTimeout(()=>{if(id===toastId){toast=null; pintarToast();}},3200);}
+function pintarToast(){const b=document.getElementById('toastBox'); if(!b) return; b.innerHTML=toast?`<div class="toast ${toast.k}" role="status">${ico(toast.k,24)}<span>${esc(toast.t)}</span></div>`:'';}
+
+/* ---------- Temas ---------- */
+let temaElegido='oscuro';
+try{temaElegido=localStorage.getItem('caseta-tema')||'oscuro';}catch(e){}
+const mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+function aplicarTema(){const t=temaElegido==='auto'?(mq&&!mq.matches?'claro':'oscuro'):temaElegido; document.documentElement.setAttribute('data-t',t);}
+if(mq&&mq.addEventListener) mq.addEventListener('change',()=>{if(temaElegido==='auto') aplicarTema();});
+
+/* ---------- Toques y teclado ---------- */
+document.addEventListener('click',e=>{
+  const sc=e.target.closest('[data-esc]'); if(sc){escenario(sc.dataset.esc); return;}
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  const a=b.dataset.act, v=b.dataset.v;
+  if(a==='nada') return;
+  if(a==='panel-fuera'){if(e.target===b){panelAbierto=false; renderPanel();} return;}
+  if(a==='rut'){
+    if(v==='K'){if(S.rut.length>=7&&S.rut.length<9&&!S.rut.endsWith('K')) S.rut+='K';}
+    else if(v==='del') S.rut=S.rut.slice(0,-1);
+    else if(!S.rut.endsWith('K')&&S.rut.length<9) S.rut+=v;
+    render(); return;
+  }
+  if(a==='entrar'){if(!rutValido(S.rut)) return; S.user=S.rut==='111111111'?'Operador prueba':'Operador '+S.rut.slice(-5,-1); S.view='main'; render(); proximo(); return;}
+  if(a==='salir'){S.view='login'; S.user=''; S.rut='111111111'; panelAbierto=false; render(); return;}
+  if(a==='turno'){S.turno=v; render(); return;}
+  if(a==='colores'){S.md='colores'; render(); return;}
+  if(a==='tema'){temaElegido=v; try{localStorage.setItem('caseta-tema',v);}catch(e){} aplicarTema(); render(); return;}
+  if(a==='cerrar'){S.md=null; render(); return;}
+  if(a==='asociar'){asociarManual(); return;}
+  if(a==='cero'){controlCero(); return;}
+  if(a==='excel'){bajarExcel(); return;}
+  if(a==='reiniciar'){panelAbierto=false; arrancar(); return;}
+  if(a==='cerrar-panel'){panelAbierto=false; renderPanel(); return;}
+  if(a==='pesar-prueba'){pesarPrueba(pesoTxt); return;}
+  if(a==='peso-rapido'){pesarPrueba(v); return;}
+});
+document.addEventListener('input',e=>{if(e.target.id==='pesoPrueba'){e.target.value=e.target.value.replace(/\D/g,''); pesoTxt=e.target.value; return;} if(e.target.id==='manualTxt'){const p=e.target.selectionStart; e.target.value=e.target.value.toUpperCase(); e.target.setSelectionRange(p,p); manual=e.target.value;}});
+document.addEventListener('keydown',e=>{
+  if(e.key==='F2'&&S.view!=='login'){e.preventDefault(); panelAbierto=!panelAbierto; renderPanel(); return;}
+  if(e.key==='Escape'){if(panelAbierto){panelAbierto=false; renderPanel();} else if(S.md){S.md=null; render();} return;}
+  if(e.key==='Enter'&&e.target.id==='pesoPrueba'){pesarPrueba(pesoTxt); return;}
+  if(e.key==='Enter'){if(S.view==='login'&&!S.md){document.querySelector('[data-act="entrar"]').click();} else if(e.target.id==='manualTxt') asociarManual(); return;}
+  if(S.view==='login'&&!S.md){
+    if(/^[0-9]$/.test(e.key)){S.rut.endsWith('K')||S.rut.length>=9||(S.rut+=e.key); render();}
+    else if(e.key.toUpperCase()==='K'){if(S.rut.length>=7&&S.rut.length<9&&!S.rut.endsWith('K')){S.rut+='K'; render();}}
+    else if(e.key==='Backspace'){S.rut=S.rut.slice(0,-1); render();}
+  }
+});
+$('#f2').addEventListener('click',()=>{if(S.view==='login'){avisar('Primero ingrese con el RUT.','info'); return;} panelAbierto=!panelAbierto; renderPanel();});
+
+/* Escala de la pantalla de 1024 x 768 a la ventana */
+function escalar(){const k=Math.min(innerWidth/1024,innerHeight/768); $('#marco').style.transform=`translate(-50%,-50%) scale(${k})`;}
+addEventListener('resize',escalar);
+
+aplicarTema(); escalar(); arrancar();
+setInterval(()=>{if(S&&S.view==='main') leer();},60);
+</script>
+</body>
+</html>
