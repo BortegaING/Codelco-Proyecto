@@ -61,7 +61,10 @@ public static class Sticker
         var pie = Ui.T(l.Pie, 8.5, FontWeights.Medium, Ui.Negro, ajustar: true);
         var der = cant != null ? Ui.Columna(cant, pie.Margen(0, 3, 0, 0)) : Ui.Columna(pie);
         der.VerticalAlignment = VerticalAlignment.Center;
-        var abajo = Ui.Columnas("86 *", 8, Qr(l.Qr, 86), der);
+        // Versión DataMatrix GS1: el código cuadrado y, al lado, los datos legibles con sus IA
+        var gs1 = Gs1.Activo && l.Prod == "cat" && l.Codigo != "—";
+        if (gs1) der.Children.Insert(cant != null ? 1 : 0, Ui.T(Gs1.Legible(l), 7.5, FontWeights.SemiBold, Ui.Negro, Ui.Mono, ajustar: true).Margen(0, 2, 0, 0));
+        var abajo = Ui.Columnas("86 *", 8, gs1 ? Gs1.Dibujo(l, 80) : Qr(l.Qr, 86), der);
         var cuerpo = Ui.Filas("auto auto *", 5, arriba, cajas.Panel, abajo);
 
         var hoja = new Grid();

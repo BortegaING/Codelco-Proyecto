@@ -28,6 +28,8 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         if (Caseta) { Title = "Báscula N9 · Caseta"; Persistencia.Archivo = "registro-caseta.json"; }
+        Gs1.Codigo = (_cfg.Codigo ?? "qr").Trim().ToLowerInvariant(); Gs1.Gtin = (_cfg.Gtin ?? "").Trim();
+        if (!Caseta && Gs1.Activo) { Title += " · DataMatrix GS1"; Persistencia.Archivo = "registro-gs1.json"; }
         var args = Environment.GetCommandLineArgs();
         var i = Array.IndexOf(args, "--prueba");
         if (i >= 0 && i + 1 < args.Length) _carpetaPrueba = args[i + 1];

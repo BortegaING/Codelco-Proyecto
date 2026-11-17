@@ -22,6 +22,12 @@ public sealed class Config
     /// Se prende o se apaga también desde el panel F2 (queda en lado-filas.txt del equipo).</summary>
     public bool LadoEnFilas { get; set; } = false;
 
+    /// <summary>Código de la etiqueta: "qr" (el de siempre) o "datamatrix" (DataMatrix GS1, la versión aparte).</summary>
+    public string Codigo { get; set; } = "qr";
+
+    /// <summary>GTIN de 14 dígitos para el IA (01) del DataMatrix GS1. Vacío hasta que Codelco lo asigne con su prefijo GS1.</summary>
+    public string Gtin { get; set; } = "";
+
     public ConfigImpresora Impresora { get; set; } = new();
 
     public static Config Leer()

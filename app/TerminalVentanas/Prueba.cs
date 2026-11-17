@@ -135,6 +135,16 @@ public partial class MainWindow
         Imprimir("T"); await Task.Delay(300);
         await Foto(c, "05-imprimiendo");
         await Esperar(() => S.Fase == "impresa", "etiqueta impresa", 3000); await Foto(c, "06-impresa");
+        if (Gs1.Activo)
+        {
+            // La versión DataMatrix GS1: se vuelve a leer el código con el lector y se revisa la ZPL
+            var e5 = S.Labels.First(x => x.Codigo == "5T21");
+            var (txt, sim) = Gs1.Leer(e5); var esperado = Gs1.Cadena(e5);
+            if (sim != "]d2") throw new Exception($"El DataMatrix no quedó como GS1 (identificador '{sim}')");
+            if (txt.TrimStart((char)29) != esperado) throw new Exception($"El DataMatrix leído no coincide: '{txt.Replace((char)29, '|')}' en vez de '{esperado.Replace((char)29, '|')}'");
+            var zplGs1 = Zpl.De(e5); if (!zplGs1.Contains("^BXN") || !zplGs1.Contains("^FD_1")) throw new Exception("La ZPL no lleva el DataMatrix GS1");
+            L($"DataMatrix GS1 leído ({sim}): {Gs1.Legible(e5)} · {Gs1.Matriz(e5).Width}x{Gs1.Matriz(e5).Height} módulos");
+        }
         await Esperar(() => S.Fase == null, "vuelve a la pantalla", 5000);
         if (!S.Labels.Any(l => l.Codigo == "5T21")) throw new Exception("No quedó 5T21 en el registro");
         if (_cola.Count > 0 || _ocupada) throw new Exception("La VT1200 no debe pesar");

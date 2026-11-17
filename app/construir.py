@@ -31,6 +31,9 @@ PROG = os.path.join(SALIDA, "programa")
 NOMBRE_C = f"bascula-caseta-v{VERSION}-{date.today():%Y%m%d}"
 SALIDA_C = os.path.abspath(os.path.join(RAIZ, "..", "releases", "codelco-ventanas", NOMBRE_C))
 EXE_C = "BasculaCaseta.exe"
+# La versión aparte del etiquetado con DataMatrix GS1 en vez de QR: mismo programa, "Codigo": "datamatrix"
+NOMBRE_G = f"etiquetado-gs1-v{VERSION}-{date.today():%Y%m%d}"
+SALIDA_G = os.path.abspath(os.path.join(RAIZ, "..", "releases", "codelco-ventanas", NOMBRE_G))
 CSC = os.path.join(os.environ.get("WINDIR", r"C:\Windows"), "Microsoft.NET", "Framework64", "v4.0.30319", "csc.exe")
 
 
@@ -89,6 +92,16 @@ def caseta():
     print("Caseta OK:", sorted(os.listdir(SALIDA_C)))
 
 
+def gs1():
+    """Arma la versión DataMatrix GS1 desde el release de origen: el mismo programa con "Codigo": "datamatrix"."""
+    shutil.rmtree(SALIDA_G, ignore_errors=True)
+    shutil.copytree(SALIDA, SALIDA_G)
+    ap = os.path.join(SALIDA_G, "programa", "appsettings.json")
+    cfg = json.load(open(ap, encoding="utf-8")); cfg["Codigo"] = "datamatrix"
+    json.dump(cfg, open(ap, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+    print("DataMatrix GS1 OK:", sorted(os.listdir(SALIDA_G)))
+
+
 def comprimir(salida=None):
     salida = salida or SALIDA
     zip_ruta = salida + ".zip"
@@ -133,3 +146,7 @@ if __name__ == "__main__":
     zc = comprimir(SALIDA_C)
     probar(zc, NOMBRE_C, EXE_C)
     print("Release de la caseta:", SALIDA_C)
+    gs1()
+    zg = comprimir(SALIDA_G)
+    probar(zg, NOMBRE_G)
+    print("Release DataMatrix GS1:", SALIDA_G)

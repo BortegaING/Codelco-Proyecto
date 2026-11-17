@@ -22,6 +22,7 @@
     <!-- Código QR de la etiqueta en pantalla y Excel del registro -->
     <PackageReference Include="QRCoder" Version="1.6.0" />
     <PackageReference Include="ClosedXML" Version="0.104.2" />
+    <PackageReference Include="ZXing.Net" Version="0.16.9" />
   </ItemGroup>
 
   <ItemGroup>
