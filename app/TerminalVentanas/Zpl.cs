@@ -32,6 +32,12 @@ public static class Zpl
             var x = 30 + i * 254;
             z.Append($"{F(x, 100)}^GB{S(242)},{S(170)},{Math.Max(2, S(5))}^FS{F(x, 112)}{A(26, 26)}^FB{S(242)},1,0,C^FD{T(l.Cajas[i][0])}^FS{F(x, 146)}{A(110, 96)}^FB{S(242)},1,0,C^FD{T(l.Cajas[i][1])}^FS");
         }
+        if (LogoCodelco.Activo)
+        {
+            // Logo de Codelco abajo a la derecha (gráfico en blanco y negro), dentro del cuerpo de la etiqueta y antes del papel extra
+            var alto = S(72); var (gf, ancho) = LogoCodelco.Zpl(alto);
+            z.Append($"^FO{S(812 - 14) - ancho},{S(568 - 12) - alto}{gf}^FS");
+        }
         if (Gs1.Activo && l.Prod == "cat")
         {
             // DataMatrix GS1 (ECC 200, cuadrado): FNC1 al inicio y entre IA variables con la secuencia de escape _1

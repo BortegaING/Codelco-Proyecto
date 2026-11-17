@@ -6,6 +6,7 @@ Componentes de terceros que van dentro del programa:
 - JetBrains Mono (fuente). Copyright 2020 The JetBrains Mono Project Authors. SIL Open Font License 1.1.
 - QRCoder (código QR de la etiqueta en pantalla). Licencia MIT.
 - ZXing.Net (código DataMatrix GS1 de la versión DataMatrix). Licencia Apache 2.0.
+- Logo de Codelco: marca de Codelco, se usa en la etiqueta del propio cliente. Archivo "Codelco logo.svg" de Wikimedia Commons.
 - ClosedXML (Excel del registro). Licencia MIT.
 - .NET 8 (runtime incluido). Licencia MIT.
 

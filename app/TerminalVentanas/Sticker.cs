@@ -64,7 +64,15 @@ public static class Sticker
         // Versión DataMatrix GS1: el código cuadrado y, al lado, los datos legibles con sus IA
         var gs1 = Gs1.Activo && l.Prod == "cat" && l.Codigo != "—";
         if (gs1) der.Children.Insert(cant != null ? 1 : 0, Ui.T(Gs1.Legible(l), 7.5, FontWeights.SemiBold, Ui.Negro, Ui.Mono, ajustar: true).Margen(0, 2, 0, 0));
-        var abajo = Ui.Columnas("86 *", 8, gs1 ? Gs1.Dibujo(l, 80) : Qr(l.Qr, 86), der);
+        // Logo de Codelco abajo a la derecha, junto al pie (en negro, como sale en la impresora térmica)
+        UIElement derecha = der;
+        if (LogoCodelco.Activo)
+        {
+            var g = new Grid(); g.Children.Add(der);
+            var logo = LogoCodelco.Vista(22, Ui.Negro); logo.HorizontalAlignment = HorizontalAlignment.Right; logo.VerticalAlignment = VerticalAlignment.Bottom;
+            g.Children.Add(logo); derecha = g;
+        }
+        var abajo = Ui.Columnas("86 *", 8, gs1 ? Gs1.Dibujo(l, 80) : Qr(l.Qr, 86), derecha);
         var cuerpo = Ui.Filas("auto auto *", 5, arriba, cajas.Panel, abajo);
 
         var hoja = new Grid();

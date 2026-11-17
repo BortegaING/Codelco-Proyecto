@@ -135,6 +135,15 @@ public partial class MainWindow
         Imprimir("T"); await Task.Delay(300);
         await Foto(c, "05-imprimiendo");
         await Esperar(() => S.Fase == "impresa", "etiqueta impresa", 3000); await Foto(c, "06-impresa");
+        if (LogoCodelco.Activo)
+        {
+            // El logo va en la ZPL como gráfico; se guarda también en PNG para revisarlo
+            var z5 = Zpl.De(S.Labels.First(x => x.Codigo == "5T21"));
+            if (!z5.Contains("^GFA,")) throw new Exception("La ZPL no lleva el logo de Codelco");
+            var (_, anchoLogo) = LogoCodelco.Zpl(72);
+            File.WriteAllText(Path.Combine(c, "etiqueta-5T21.zpl"), z5);
+            L($"Logo de Codelco en la ZPL: {anchoLogo} x 72 puntos");
+        }
         if (Gs1.Activo)
         {
             // La versión DataMatrix GS1: se vuelve a leer el código con el lector y se revisa la ZPL
