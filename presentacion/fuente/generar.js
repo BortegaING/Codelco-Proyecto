@@ -525,6 +525,122 @@ pres.addSection({ title: 'Pesaje' });
     { x: 0.6, y: 6.55, w: 12.1, h: 0.35, fontSize: 12, color: P.mut });
 }
 
+/* ===================== 12b. Pantallas del sistema (avance) ===================== */
+// Todas las pantallas de los dos programas, sacadas de la prueba de punta a punta de cada uno (construir.py):
+// img/pantallas/etiquetado (TerminalVentanas.exe en la VT1200 de origen), img/pantallas/pesaje (BasculaCaseta.exe)
+// e img/pantallas/gs1 (la versión de etiquetado con DataMatrix GS1). Las copia y las pasa a JPG el paso de capturas.
+pres.addSection({ title: 'Pantallas del sistema' });
+const PANT = (carpeta, f) => path.join(AQUI, 'img', 'pantallas', carpeta, f + '.jpg');
+const ETIQUETADO = [
+  ['01-ingreso', 'Ingreso con el RUT del operador'],
+  ['01b-salir', 'Salir: pide confirmación antes de cerrar el programa'],
+  ['04-paso1-grupos', 'Paso 1: el operador elige el grupo en el layout de circuitos'],
+  ['02-principal', 'Paso 2: la etiqueta que sigue y las 42 celdas del grupo'],
+  ['05a-total-parcial', 'Al imprimir: ¿lado total o parcial? (la letra T o P va en el rótulo)'],
+  ['05-imprimiendo', 'Imprimiendo la etiqueta de la celda 5'],
+  ['06-impresa', 'Etiqueta 5T21 impresa: la celda queda marcada'],
+  ['11-final', 'Sigue la celda 6: el programa propone siempre la que viene'],
+  ['07-grupo22', 'Cambio de grupo: el grupo 22 parte en la celda 1'],
+  ['08-impresas', 'Etiqueta parcial 1P22 impresa; sigue la 2P22'],
+  ['07b-lado-prendido', 'Opción: botón de lado sobre las filas de celdas'],
+  ['09-registro', 'Registro de etiquetas emitidas, con reimpresión y descarga a Excel'],
+  ['10-panel-f2', 'Panel de prueba (F2), solo para la demostración'],
+  ['25-colores', 'Colores: original, claro, alto contraste o como Windows'],
+  ['21-claro', 'Pantalla principal · tema claro'],
+  ['22-claro-grupos', 'Layout de circuitos · tema claro'],
+  ['22b-claro-registro', 'Registro · tema claro'],
+  ['01c-ingreso-claro', 'Ingreso · tema claro'],
+  ['23-contraste', 'Pantalla principal · alto contraste'],
+  ['24-contraste-grupos', 'Layout de circuitos · alto contraste'],
+  ['01d-ingreso-contraste', 'Ingreso · alto contraste'],
+];
+const PESAJE = [
+  ['c01-ingreso', 'Ingreso del pesador con su RUT'],
+  ['c02-llega', 'Llega la carga 4T21: la cámara superior lee la etiqueta'],
+  ['c03-capturando', 'Capturando el peso: baliza roja, la carga no se mueve'],
+  ['c04-registrado', 'Registrado: 4.687 kg, dentro de rango'],
+  ['c05-horquilla', 'Alerta: la horquilla está sobre la báscula, el peso no se registra'],
+  ['c06-sin-etiqueta', 'Carga sin etiqueta legible: queda a la espera de identificación'],
+  ['c07-manual', 'Identificación manual: el pesador asocia el peso a la 9T21'],
+  ['c08-carro-fuera', 'Alerta: el carro quedó fuera del área de la plataforma'],
+  ['c09-carro', 'Carro de restos C22: neto con la tara de carro + rack'],
+  ['c10-disponible', 'Plataforma disponible para la próxima carga'],
+  ['c11-panel-f2', 'Panel de prueba (F2): escenarios y peso de prueba'],
+  ['c12-prueba-4750', 'Peso de prueba 4.750 kg: dentro del rango'],
+  ['c13-prueba-3900', 'Peso de prueba 3.900 kg: bajo el rango, faltan 300 kg'],
+  ['c14-prueba-5300', 'Peso de prueba 5.300 kg: sobre el rango, se pasa por 300 kg'],
+  ['c21-claro', 'Caseta · tema claro'],
+  ['c22-contraste', 'Caseta · alto contraste'],
+];
+const BASCULA = [
+  ['bal-1-disponible', 'Disponible'], ['bal-2-leyendo', 'Llega la carga'],
+  ['bal-3-registrando', 'Registrando'], ['bal-4-registrado', 'Registrado dentro de rango'],
+  ['bal-5-horquilla', 'Horquilla sobre la báscula'], ['bal-6-sincero', 'Sin cero: la báscula vacía marca 6 kg'],
+  ['bal-7-carro-fuera', 'Carro fuera del área'], ['bal-8-sin-tara', 'Sin tara: falta pesar el carro vacío'],
+];
+// Dos capturas por lámina (4:3), cada una con su pie
+function pantallas(seccion, kicker, titulo, carpeta, lista, nota) {
+  for (let i = 0; i < lista.length; i += 2) {
+    const par = lista.slice(i, i + 2);
+    const pagina = `${Math.floor(i / 2) + 1} de ${Math.ceil(lista.length / 2)}`;
+    const s = lamina(seccion, `${kicker} · ${pagina}`, titulo);
+    par.forEach(([f, pie], j) => {
+      const x = 0.6 + j * 6.15, y = 1.55, w = 5.95;
+      const r = imagen(s, PANT(carpeta, f), x, y, { w, alt: `${titulo}: ${pie}`, nombre: f });
+      s.addShape(SH.rect, { x, y, w, h: r.h, fill: { type: 'none' }, line: { color: P.linea, width: 0.75 } });
+      numero(s, i + j + 1, x, y + r.h + 0.14, 0.34, { fontSize: 11 });
+      texto(s, pie, { x: x + 0.45, y: y + r.h + 0.12, w: w - 0.45, h: 0.45, fontSize: 13, valign: 'middle' });
+    });
+    if (nota) texto(s, nota, { x: 0.6, y: 6.62, w: 12.1, h: 0.3, fontSize: 11, color: P.mut });
+  }
+}
+{
+  const s = lamina('Pantallas del sistema', 'AVANCE · 18-11-2026', 'Pantallas de los dos programas, tal como corren hoy');
+  const bloques = [
+    ['1', 'Etiquetado en origen', 'TerminalVentanas.exe en la VT1200 de la nave. Solo rotula cátodos: el operador elige el grupo, la celda y el lado, y el programa imprime la etiqueta.', `${ETIQUETADO.length} pantallas`],
+    ['2', 'Pesaje en la caseta', 'BasculaCaseta.exe en la caseta de la Báscula N9. Lee la etiqueta con las cámaras, captura el peso, lo valida y avisa con la baliza.', `${PESAJE.length} pantallas + ${BASCULA.length} estados de la báscula`],
+    ['3', 'Variante DataMatrix GS1', 'El mismo programa de etiquetado con un código DataMatrix GS1 en vez del QR, por si Codelco lo prefiere.', '1 lámina'],
+  ];
+  bloques.forEach(([n, t, d, c], i) => {
+    const y = 1.75 + i * 1.6;
+    tarjeta(s, 0.6, y, 12.1, 1.35);
+    numero(s, n, 0.9, y + 0.33, 0.6);
+    texto(s, t, { x: 1.8, y: y + 0.22, w: 7.6, h: 0.4, fontFace: CABEZA, fontSize: 20 });
+    texto(s, d, { x: 1.8, y: y + 0.68, w: 7.6, h: 0.6, fontSize: 13, color: P.mut });
+    texto(s, c, { x: 9.6, y: y + 0.45, w: 2.9, h: 0.45, fontSize: 16, bold: true, color: C.accent1, align: 'right', valign: 'middle' });
+  });
+  texto(s, 'Las capturas salen de la prueba de punta a punta de cada programa (versión 6.2.0, compilada el 18-11-2026). Los datos son de ejemplo: grupo 21 del 22-10-2026.',
+    { x: 0.6, y: 6.6, w: 12.1, h: 0.3, fontSize: 11, color: P.mut });
+}
+pantallas('Pantallas del sistema', 'PROGRAMA 1 · ETIQUETADO EN ORIGEN', 'Rotulado de cátodos en la VT1200', 'etiquetado', ETIQUETADO,
+  'TerminalVentanas.exe · pantalla de 1024 x 768 de la VT1200 · datos de ejemplo del grupo 21');
+pantallas('Pantallas del sistema', 'PROGRAMA 2 · PESAJE EN LA CASETA', 'Identificación, captura del peso y registro', 'pesaje', PESAJE,
+  'BasculaCaseta.exe · PC de la caseta de la Báscula N9 · pesos de ejemplo');
+// Los estados de la tarjeta de la báscula: 4 por lámina
+for (let i = 0; i < BASCULA.length; i += 4) {
+  const s = lamina('Pantallas del sistema', `PROGRAMA 2 · ESTADOS DE LA BÁSCULA · ${i / 4 + 1} de 2`,
+    i === 0 ? 'Estados normales de la tarjeta de la báscula' : 'Desviaciones y alertas de la báscula');
+  BASCULA.slice(i, i + 4).forEach(([f, pie], j) => {
+    const x = 0.6 + (j % 2) * 6.15, y = 1.5 + Math.floor(j / 2) * 2.62, w = 3.1;
+    const r = imagen(s, PANT('pesaje', f), x, y, { w, alt: `Báscula N9: ${pie}`, nombre: f });
+    s.addShape(SH.rect, { x, y, w, h: r.h, fill: { type: 'none' }, line: { color: P.linea, width: 0.75 } });
+    numero(s, i + j + 1, x + w + 0.25, y + 0.2, 0.42, { fontSize: 13 });
+    texto(s, pie, { x: x + w + 0.8, y: y + 0.18, w: 2.0, h: 1.2, fontSize: 15 });
+  });
+}
+{
+  const s = lamina('Pantallas del sistema', 'PROGRAMA 1 · VARIANTE DATAMATRIX GS1', 'La misma pantalla con un código DataMatrix GS1 en la etiqueta');
+  [['02-principal', 'La etiqueta que sigue, con el DataMatrix'], ['06-impresa', 'Etiqueta impresa']].forEach(([f, pie], j) => {
+    const x = 0.6 + j * 6.15, y = 1.55, w = 5.95;
+    const r = imagen(s, PANT('gs1', f), x, y, { w, alt: `Variante DataMatrix GS1: ${pie}`, nombre: 'gs1-' + f });
+    s.addShape(SH.rect, { x, y, w, h: r.h, fill: { type: 'none' }, line: { color: P.linea, width: 0.75 } });
+    numero(s, j + 1, x, y + r.h + 0.14, 0.34, { fontSize: 11 });
+    texto(s, pie, { x: x + 0.45, y: y + r.h + 0.12, w: w - 0.45, h: 0.45, fontSize: 13, valign: 'middle' });
+  });
+  texto(s, 'El DataMatrix lleva los datos con identificadores GS1: (11) fecha de producción, (30) cantidad de cátodos, (10) lote = rótulo y (91) código interno. La prueba lo vuelve a leer para comprobarlo.',
+    { x: 0.6, y: 6.55, w: 12.1, h: 0.4, fontSize: 11, color: P.mut });
+}
+
 /* ===================== 13. Demo ===================== */
 pres.addSection({ title: 'Cierre' });
 {
