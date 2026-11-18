@@ -59,7 +59,11 @@ public partial class MainWindow
     private async Task FotoBascula(string carpeta, string nombre)
     {
         await Task.Delay(200);
-        var host = new System.Windows.Controls.Border { Width = 380, Background = Ui.Fondo, Child = Balanza() };
+        // La tarjeta de la foto se arma aparte, con un isométrico quieto: la de la pantalla (y su animación) sigue igual
+        var antes = (_balNum, _balChip, _balRes, _pic); _picFoto = true;
+        System.Windows.Controls.Border host;
+        try { host = new System.Windows.Controls.Border { Width = 380, Background = Ui.Fondo, Child = Balanza() }; }
+        finally { _picFoto = false; (_balNum, _balChip, _balRes, _pic) = antes; }
         host.Measure(new Size(380, double.PositiveInfinity)); host.Arrange(new Rect(host.DesiredSize)); host.UpdateLayout();
         var h = Math.Ceiling(host.ActualHeight);
         var rtb = new RenderTargetBitmap(760, (int)(h * 2), 192, 192, PixelFormats.Pbgra32);
@@ -67,6 +71,27 @@ public partial class MainWindow
         var enc = new PngBitmapEncoder(); enc.Frames.Add(BitmapFrame.Create(rtb));
         using var fs = File.Create(Path.Combine(carpeta, nombre + ".png"));
         enc.Save(fs);
+    }
+
+    /// <summary>Cuadros del isométrico de la pantalla mientras se mueve (carpeta iso/ de la prueba), para revisar la maniobra.</summary>
+    private async Task Tira(string carpeta, string nombre, int cuadros, int ms)
+    {
+        var d = Path.Combine(carpeta, "iso"); Directory.CreateDirectory(d);
+        for (var i = 0; i < cuadros; i++)
+        {
+            if (_picVivo?.Raiz is { } r && r.IsDescendantOf(Pantalla))
+            {
+                // Se dibuja la pantalla entera (como en Foto) y se recorta el isométrico: así el cuadro no se corre
+                var o = r.TransformToAncestor(Pantalla).Transform(new Point(0, 0));
+                var dv = new DrawingVisual();
+                using (var dc = dv.RenderOpen()) dc.DrawRectangle(new VisualBrush(Pantalla), null, new Rect(0, 0, 1024, 768));
+                var rtb = new RenderTargetBitmap(2048, 1536, 192, 192, PixelFormats.Pbgra32); rtb.Render(dv);
+                var corte = new CroppedBitmap(rtb, new Int32Rect((int)(o.X * 2), (int)(o.Y * 2), (int)(Pictograma.Ancho * 2), (int)(Pictograma.Alto * 2)));
+                var enc = new PngBitmapEncoder(); enc.Frames.Add(BitmapFrame.Create(corte));
+                using var fs = File.Create(Path.Combine(d, $"{nombre}-{i:D2}.png")); enc.Save(fs);
+            }
+            await Task.Delay(ms);
+        }
     }
 
     /// <summary>
@@ -104,6 +129,9 @@ public partial class MainWindow
         await Esperar(() => B.Chip == "espera", "4T21 llega"); await Foto(c, "c02-llega"); await FotoBascula(c, "bal-2-leyendo");
         await Esperar(() => B.Chip == "inestable", "4T21 capturando"); await Task.Delay(400); await Foto(c, "c03-capturando"); await FotoBascula(c, "bal-3-registrando"); L($"Caseta 4T21: {B.Res.T1}");
         await Esperar(() => S.Labels.Any(l => l.Codigo == "4T21" && l.Estado == "pesada"), "4T21 registrado"); await Foto(c, "c04-registrado"); await FotoBascula(c, "bal-4-registrado");
+        // La maniobra en el isométrico: llega 5T21 (horquilla deja la carga y retrocede) y después sale (la levanta y cruza)
+        await Esperar(() => B.Carga?.Codigo == "5T21" && B.Pic == "sobre", "5T21 llega", 30000); await Tira(c, "llegada", 14, 150);
+        await Esperar(() => B.Carga?.Codigo == "5T21" && B.Pic == "sale", "5T21 sale", 30000); await Tira(c, "salida", 14, 150);
         await Esperar(() => S.Labels.Any(l => l.Codigo == "6T21" && l.Estado == "pesada"), "6T21 registrado", 60000);
         Esc.Grua = true;
         await Esperar(() => B.Chip == "bloqueado", "horquilla encima", 30000); await Foto(c, "c05-horquilla"); await FotoBascula(c, "bal-5-horquilla"); L($"Caseta horquilla: {B.Res.T1}");
@@ -117,6 +145,7 @@ public partial class MainWindow
         EscenarioCaseta("cero"); await Esperar(() => B.Chip == "sincero", "sin cero"); await FotoBascula(c, "bal-6-sincero");
         await Esperar(() => B.Chip == "cero" && B.Res.T1 == "Plataforma disponible", "cero recuperado", 20000);
         EscenarioCaseta("fuera");
+        await Esperar(() => B.Pic == "fuera", "carro llega"); await Tira(c, "carro", 10, 150);
         await Esperar(() => B.Chip == "bloqueado", "carro fuera"); await Foto(c, "c08-carro-fuera"); await FotoBascula(c, "bal-7-carro-fuera");
         await Esperar(() => S.Labels.Any(l => l.Prod == "rs" && l.Estado == "pesada"), "carro registrado", 20000); await Task.Delay(300); await Foto(c, "c09-carro");
         await Esperar(() => B.Chip == "cero", "plataforma disponible", 20000); await Task.Delay(300); await Foto(c, "c10-disponible");
@@ -161,7 +190,6 @@ public partial class MainWindow
             L($"Panel de pesaje: acomodo sin tapar el programa en {casos} casos · 1920x1032: programa {p1.Width}x{p1.Height}, panel {q1.Width}x{q1.Height} a su derecha");
             await Esperar(() => B.Chip == "cero", "plataforma disponible", 20000);
         }
-        _panelAbierto = true; RenderPanel(); await Foto(c, "c11-panel-f2"); _panelAbierto = false; RenderPanel();
         ElegirTema("claro"); await Foto(c, "c21-claro"); ElegirTema("contraste"); await Foto(c, "c22-contraste"); ElegirTema(_temaPrueba);
         var ruta = Excel.Guardar(S, _cfg.CarpetaExcel); L($"Excel: {ruta} ({new FileInfo(ruta).Length} bytes)");
         L($"Registro caseta: {S.Labels.Count} · " + string.Join(" | ", S.Labels.OrderBy(l => l.Id).Select(l => $"{l.Codigo} {l.Estado} {l.Neto}")));
@@ -183,10 +211,9 @@ public partial class MainWindow
         ElegirGrupo(21); if (S.Grupo != 21 || S.Md != null) throw new Exception("No quedó el grupo 21 en la pantalla principal");
         await Foto(c, "02-principal");
 
-        // Imprimir 5T21 (la que sigue): al tocar Imprimir pregunta Total o Parcial
-        Imprimir(); if (S.Md?.Tipo != "tp") throw new Exception("Imprimir no preguntó total o parcial");
-        await Foto(c, "05a-total-parcial"); L("Imprimir: pregunta Total o Parcial");
-        Imprimir("T"); await Task.Delay(300);
+        // Imprimir 5T21 (la que sigue): imprime directo; la T sale del lado de la fila (total)
+        Imprimir(); if (S.Md != null) throw new Exception("Imprimir no debe preguntar nada: el lado sale del botón de la fila");
+        await Task.Delay(300);
         await Foto(c, "05-imprimiendo");
         await Esperar(() => S.Fase == "impresa", "etiqueta impresa", 3000); await Foto(c, "06-impresa");
         if (LogoCodelco.Activo)
@@ -213,15 +240,14 @@ public partial class MainWindow
         if (_cola.Count > 0 || _ocupada) throw new Exception("La VT1200 no debe pesar");
 
         // Paso 2: otro grupo (el 22) y su celda 1
-        if (LadoEnFilas) throw new Exception("El lado sobre las celdas debe partir apagado");
-        AlternarLadoFilas(); CeldaElegida(22, 1); await Foto(c, "07b-lado-prendido"); AlternarLadoFilas();
-        if (LadoEnFilas) throw new Exception("No se apagó el lado sobre las celdas"); L("Lado sobre las celdas: se prende y se apaga");
-        CeldaElegida(22, 1); await Foto(c, "07-grupo22"); Imprimir(); Imprimir("P");
+        // El lado parcial se marca con el botón sobre la fila (celdas 1 a 21) y queda para las etiquetas de esa fila
+        CeldaElegida(22, 1); Abrir("lado", "a"); if (S.Md?.Tipo != "lado") throw new Exception("El botón de lado no abrió su pregunta");
+        await Foto(c, "07b-lado"); GrupoAct().LadoA = "P"; Cerrar(); L("Lado de la fila 1 a 21 del grupo 22: parcial");
+        await Foto(c, "07-grupo22"); Imprimir(); if (S.Md != null) throw new Exception("Imprimir no debe preguntar nada");
         await Esperar(() => S.Labels.Any(l => l.Codigo == "1P22"), "1P22 impresa", 5000); L("1P22 impresa en el grupo 22 (parcial)");
         await Esperar(() => S.Fase == null, "vuelve a la pantalla", 5000); await Foto(c, "08-impresas");
 
         Abrir("registro"); await Foto(c, "09-registro"); Cerrar();
-        _panelAbierto = true; RenderPanel(); await Foto(c, "10-panel-f2"); _panelAbierto = false; RenderPanel();
         CeldaElegida(21, 6); await Foto(c, "11-final");
 
         // Los otros colores: claro, alto contraste, la ventana para elegir y el modo como Windows

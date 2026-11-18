@@ -22,7 +22,7 @@ public sealed class Etiqueta
     public bool SinTara, Manual, Editado;
     public List<string[]> Cajas = new();
     public Ref Ref = new();
-    /// <summary>Carga de prueba sin etiqueta (panel F2): no es parte del registro hasta que el pesador la ingresa.</summary>
+    /// <summary>Carga de prueba sin etiqueta (situación de prueba): no es parte del registro hasta que el pesador la ingresa.</summary>
     [JsonIgnore] public bool SinEtq;
     [JsonIgnore] public DateTime Llega;
 }

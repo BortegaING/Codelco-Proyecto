@@ -28,7 +28,17 @@ public partial class MainWindow
     private TextBlock? _balNum;
     private Border? _balChip;
     private ContentControl? _balRes;
-    private Pictograma? _pic;
+    private Pictograma? _pic, _picVivo;
+    private bool _picFoto;
+
+    /// <summary>El isométrico de la pantalla: uno solo, que se cambia de lugar en cada redibujo y anima cada cambio de estado.</summary>
+    private Pictograma PicVivo()
+    {
+        _picVivo ??= new Pictograma(B.Pic, B.ProdPic);
+        _picVivo.Soltar();
+        _picVivo.Poner(B.Pic, B.ProdPic, true);
+        return _picVivo;
+    }
 
     private static string CortoDe(Etiqueta l) => l.Prod == "rs" ? $"C{l.Ref.Carro}" : l.Prod == "lam" ? $"Nº {l.Ref.N}" : l.Prod == "cat" && l.Ref.M ? "MUESTRA" : l.Codigo;
     private static (int Min, int Max)? RangoDe(Etiqueta l) => l.Prod switch
@@ -67,7 +77,7 @@ public partial class MainWindow
             _balChip.Background = nuevo.Background; _balChip.Child = texto;
         }
         if (_balRes != null) _balRes.Content = VRes();
-        _pic?.Poner(B.Pic, B.ProdPic, true);
+        _picVivo?.Poner(B.Pic, B.ProdPic, true);
         PintarNum();
         PintarPesajeVivo();
         // En la caseta cambian también la baliza, las cámaras y la grilla
@@ -133,14 +143,14 @@ public partial class MainWindow
         bool Vivo() => yo == _gen;
         var sinEtq = l.SinEtq; var c = sinEtq ? "Sin etiqueta" : CortoDe(l); var W = l.Bruto;
         var grua = !sinEtq && Esc.Grua; var fuera = !sinEtq && Esc.Fuera && l.Prod == "rs";
-        if (grua) Esc.Grua = false; if (fuera) Esc.Fuera = false; if (grua || fuera) { RenderPanel(); _pesaje?.Dibujar(); }
+        if (grua) Esc.Grua = false; if (fuera) Esc.Fuera = false; if (grua || fuera) _pesaje?.Dibujar();
         var desvio = grua ? 1850 : fuera ? -960 : 0;
         B.Carga = l; B.ProdPic = l.Prod; B.Pic = "vacia"; B.Chip = "espera";
         B.Res = sinEtq ? new("warn", "Llega una carga sin etiqueta", "La cámara no encuentra código") : new("info", $"Llega {c}", "La cámara lee la etiqueta");
         Marcar(l, "bascula"); BfSeguir(l); Refrescar();
         await Task.Delay(60); if (!Vivo()) return;
         B.Pic = grua ? "grua" : fuera ? "fuera" : "sobre"; PintarBal();
-        await Task.Delay(700); if (!Vivo()) return;
+        await Task.Delay(l.Prod == "rs" ? 1300 : 2000); if (!Vivo()) return; // la horquilla deja la carga y retrocede; el carro llega rodando
         B.Meta = W * 1.035 + desvio; B.Ruido = 40; Fijar("inestable", "warn", $"{c} · registrando", "Baliza roja: no mueva la carga");
         await Task.Delay(800); if (!Vivo()) return;
         B.Meta = W + desvio; B.Ruido = 12;
@@ -161,8 +171,8 @@ public partial class MainWindow
             B.Esperando = false; B.Liberar = null;
             Fijar("estable", "ok", $"{rec.Codigo} · {D.Kg(rec.Neto)} kg", $"Ingresada a mano · registrada {rec.Hp}");
             await Task.Delay(1600); if (!Vivo()) return;
-            B.Pic = "sale"; B.Meta = 0; B.Ruido = 30; Fijar("inestable", "muted", $"{rec.Codigo} sale de la báscula", "Quedó registrada");
-            await Task.Delay(900); if (!Vivo()) return;
+            B.Pic = "sale"; B.Ruido = 4; Fijar("inestable", "muted", $"{rec.Codigo} sale de la báscula", "Quedó registrada");
+            await Salir(l, Vivo); if (!Vivo()) return;
             B.Ruido = 0; B.Lect = 0; B.Meta = 0; B.Carga = null; B.Pic = "vacia";
             Fijar("cero", "muted", "Plataforma disponible", "Puede ingresar la próxima carga");
             return;
@@ -187,10 +197,19 @@ public partial class MainWindow
         Registrar(l, r, extra);
         Fijar(r.Estado == "sintara" ? "sintara" : "estable", r.K, r.T1, r.Estado == "sintara" ? r.T2 : $"Registrado {l.Hp} · {r.Corto}");
         await Task.Delay(1600); if (!Vivo()) return;
-        B.Pic = "sale"; B.Meta = 0; B.Ruido = 30; Fijar("inestable", "muted", $"{c} sale de la báscula", "Quedó registrada");
-        await Task.Delay(900); if (!Vivo()) return;
+        B.Pic = "sale"; B.Ruido = 4; Fijar("inestable", "muted", $"{c} sale de la báscula", "Quedó registrada");
+        await Salir(l, Vivo); if (!Vivo()) return;
         B.Ruido = 0; B.Lect = 0; B.Meta = 0; B.Carga = null; B.Pic = "vacia";
         Fijar("cero", "muted", "Plataforma disponible", "Puede ingresar la próxima carga");
+    }
+
+    /// <summary>La carga sale: el peso cae cuando la horquilla la levanta (o el carro arranca) y la plataforma queda libre cuando ya cruzó.</summary>
+    private async Task Salir(Etiqueta l, Func<bool> vivo)
+    {
+        var rs = l.Prod == "rs";
+        await Task.Delay(rs ? 350 : 1000); if (!vivo()) return;
+        B.Meta = 0; B.Ruido = 30;
+        await Task.Delay(rs ? 900 : 950);
     }
 
     /// <summary>Nódulos en la junta: vacía no vuelve a cero y no registra hasta que el pesador los saca.</summary>
@@ -216,7 +235,7 @@ public partial class MainWindow
         if (falta > 0) await Task.Delay((int)falta);
         if (yo != _gen) return;
         await Pesar(l, yo); if (yo != _gen) return;
-        if (Esc.Cero) { Esc.Cero = false; RenderPanel(); _pesaje?.Dibujar(); await SinCero(yo); if (yo != _gen) return; }
+        if (Esc.Cero) { Esc.Cero = false; _pesaje?.Dibujar(); await SinCero(yo); if (yo != _gen) return; }
         _ocupada = false;
         await Task.Delay(Caseta ? 2200 : 400); if (yo != _gen) return;
         Proximo();
@@ -443,25 +462,24 @@ public partial class MainWindow
         S.Cero = new CeroInfo { H = Hora(), Ok = true }; if (S.Bf != null) S.Bf.Msg = new("ok", $"Control de cero OK a las {S.Cero.H}: vacía marca 0 kg"); Render();
     }
 
-    /* ---------- Panel de prueba (F2): situaciones para mostrar el control de la báscula ---------- */
+    /* ---------- Situaciones de prueba para mostrar el control de la báscula (las elige el panel de pesaje, F3) ---------- */
     internal void Escenario(string k)
     {
         if (k == "caja")
         {
             Encolar(new Etiqueta { SinEtq = true, Prod = "sub", Codigo = "Sin etiqueta", Bruto = D.CajasEj[_cajaN++ % D.CajasEj.Length], Estado = "camino" }, 900);
             Avisar("Caja sin etiqueta: llega a la báscula en un momento. Toque Abrir en la báscula para ingresarla.", "info");
-            _panelAbierto = false; RenderPanel(); return;
+            return;
         }
         if (k == "cero" && !Esc.Cero && !_ocupada)
         {
             _ocupada = true; var yo = _gen;
             _ = Correr();
             async Task Correr() { await SinCero(yo); if (yo != _gen) return; _ocupada = false; Proximo(); }
-            _panelAbierto = false; RenderPanel(); return;
+            return;
         }
         if (k == "grua") Esc.Grua = !Esc.Grua;
         if (k == "fuera") Esc.Fuera = !Esc.Fuera;
         if (k == "cero") Esc.Cero = !Esc.Cero;
-        RenderPanel();
     }
 }

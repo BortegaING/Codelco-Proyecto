@@ -10,7 +10,6 @@
             <Grid x:Name="Capa" Visibility="Collapsed" />
             <Border x:Name="Toast" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,118"
                     MaxWidth="820" CornerRadius="12" BorderThickness="1" Padding="18,14" IsHitTestVisible="False" />
-            <Grid x:Name="PanelPrueba" Visibility="Collapsed" />
         </Grid>
     </Viewbox>
 </Window>

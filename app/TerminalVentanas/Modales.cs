@@ -5,7 +5,7 @@ using static System.Windows.FontWeights;
 
 namespace TerminalVentanas;
 
-/// <summary>Las ventanas sobre la pantalla (una pregunta y botones grandes) y el panel de prueba F2.</summary>
+/// <summary>Las ventanas sobre la pantalla (una pregunta y botones grandes).</summary>
 public partial class MainWindow
 {
     private static UIElement Encabezado(string chico, string grande) =>
@@ -49,15 +49,6 @@ public partial class MainWindow
         var G = GrupoAct();
         switch (md.Tipo)
         {
-            case "tp":
-            {
-                // Al tocar Imprimir: ¿la celda sale de un lado total o parcial? La letra (T o P) va en el rótulo
-                var n = int.Parse(md.Val); var actual = LadoDe(G, n); var r = n <= 21 ? "celdas 1 a 21" : "celdas 22 a 42";
-                return Ventana(720, Encabezado($"Celda {n} · grupo {G.G} · {r}", "¿Total o parcial?"),
-                    Ui.Columnas("* *", 12, Opcion("Total", $"Etiqueta {n}T{G.G} · se sacan las 21 celdas", actual == "T", () => Imprimir("T")),
-                        Opcion("Parcial", $"Etiqueta {n}P{G.G} · solo algunas celdas", actual == "P", () => Imprimir("P"))),
-                    Acciones(BotonVentana("Cancelar", Cerrar)));
-            }
             case "lado":
             {
                 var k = md.Val; var r = k == "a" ? "1 a 21" : "22 a 42"; var actual = k == "a" ? G.LadoA : G.LadoB;
@@ -234,55 +225,4 @@ public partial class MainWindow
             Acciones(BotonVentana("Bajar Excel", BajarExcel, true, icono: Iconos.Excel), BotonVentana("Cerrar", Cerrar)));
     }
 
-    /* ---------- Panel de prueba (F2): solo para la demostración ---------- */
-    internal void RenderPanel()
-    {
-        PanelPrueba.Children.Clear();
-        if (!_panelAbierto || S.View == "login") { PanelPrueba.Visibility = Visibility.Collapsed; return; }
-        PanelPrueba.Visibility = Visibility.Visible;
-        var fuera = new Border { Background = Brushes.Transparent };
-        Ui.Clic(fuera, () => { _panelAbierto = false; RenderPanel(); });
-        PanelPrueba.Children.Add(fuera);
-        UIElement Esc1(string k, string titulo, string desc, bool lista)
-        {
-            var t = Ui.T(titulo + (lista ? " · lista" : ""), 19, Bold, lista ? Ui.CobreClaro : Ui.Tinta);
-            var col = Ui.Columna(t, Ui.T(desc, 14, Medium, Ui.Mut, ajustar: true).Margen(0, 3, 0, 0));
-            col.HorizontalAlignment = HorizontalAlignment.Left;
-            return Ui.Boton(col, () => Escenario(k), lista ? Ui.Panel2 : Ui.Fondo, lista ? Ui.Cobre : Ui.Linea2, 10, new Thickness(14, 10, 14, 10), 64, null, false).Margen(0, 0, 0, 10);
-        }
-        if (Caseta)
-        {
-            UIElement EscC(string k, string titulo, string desc, bool lista)
-            {
-                var tc = Ui.T(titulo + (lista ? " · lista" : ""), 18, Bold, lista ? Ui.CobreClaro : Ui.Tinta);
-                var cc = Ui.Columna(tc, Ui.T(desc, 13, Medium, Ui.Mut, ajustar: true).Margen(0, 3, 0, 0));
-                cc.HorizontalAlignment = HorizontalAlignment.Left;
-                return Ui.Boton(cc, () => EscenarioCaseta(k), lista ? Ui.Panel2 : Ui.Fondo, lista ? Ui.Cobre : Ui.Linea2, 10, new Thickness(14, 8, 14, 8), 58, null, false).Margen(0, 0, 0, 8);
-            }
-            var colC = Ui.Columna(
-                Ui.T("PANEL DE PRUEBA", 24, Bold, Ui.Tinta, Ui.Cond),
-                Ui.T("Solo para la demostración. Se abre y se cierra con F2. Las cámaras y el visor están simulados.", 14, Medium, Ui.Mut, ajustar: true).Margen(0, 4, 0, 14),
-                EscC("anuncio", "Nueva carga anunciada", "El origen imprime la etiqueta que sigue; llega a la báscula.", false),
-                EscC("sinetq", "Etiqueta ilegible", "Llega un paquete que la cámara no puede leer: se identifica a mano.", false),
-                EscC("grua", "Horquilla encima", "La próxima carga queda con la horquilla sobre la plataforma.", Esc.Grua),
-                EscC("carro", "Carro de restos", "Llega un carro de arrastre con rack; la tara sale de la lista validada.", false),
-                EscC("fuera", "Carro fuera del área", "Llega un carro pasado de la plataforma.", false),
-                EscC("cero", "Sin cero", "Vacía marca 6 kg por nódulos en la junta.", Esc.Cero),
-                PesoPruebaBloque(),
-                Ui.Boton(Ui.T("REINICIAR EL REGISTRO", 18, SemiBold, Ui.RojoT, Ui.Cond), () => { _panelAbierto = false; Persistencia.Olvidar(); Arrancar(false); }, Brushes.Transparent, Ui.ErrBorde, 10, new Thickness(14, 0, 14, 0), 50).Margen(0, 6, 0, 8),
-                Ui.Boton(Ui.T("CERRAR EL PANEL", 18, SemiBold, Ui.SobreCobre, Ui.Cond), () => { _panelAbierto = false; RenderPanel(); }, Ui.Cobre, Ui.Cobre, 10, new Thickness(14, 0, 14, 0), 50));
-            PanelPrueba.Children.Add(new Border { Width = 380, HorizontalAlignment = HorizontalAlignment.Right, Background = Ui.Panel, BorderBrush = Ui.Cobre, BorderThickness = new Thickness(2, 0, 0, 0), Padding = new Thickness(20, 18, 20, 18), Child = new ScrollViewer { Content = colC, VerticalScrollBarVisibility = ScrollBarVisibility.Auto } });
-            return;
-        }
-        var col = Ui.Columna(
-            Ui.T("PANEL DE PRUEBA", 24, Bold, Ui.Tinta, Ui.Cond),
-            Ui.T("Solo para la demostración. Se abre y se cierra con F2.", 14, Medium, Ui.Mut, ajustar: true).Margen(0, 4, 0, 16),
-            Ui.Boton(Ui.Columna(Ui.T("LADO SOBRE LAS CELDAS", 18, SemiBold, Ui.Tinta, Ui.Cond), Ui.T(LadoEnFilas ? "PRENDIDO" : "APAGADO", 20, Bold, LadoEnFilas ? Ui.CobreClaro : Ui.Mut, Ui.Cond).Margen(0, 2, 0, 0),
-                    Ui.T("Botón Lado total / parcial arriba de cada fila. Toque para " + (LadoEnFilas ? "apagarlo" : "prenderlo") + ". Al imprimir siempre se pregunta.", 13, Medium, Ui.Mut, ajustar: true).Margen(0, 3, 0, 0)),
-                AlternarLadoFilas, LadoEnFilas ? Ui.Panel2 : Ui.Fondo, LadoEnFilas ? Ui.Cobre : Ui.Linea2, 10, new Thickness(14, 10, 14, 10), 64, null, false).Margen(0, 0, 0, 10),
-            Ui.Boton(Ui.T("REINICIAR EL REGISTRO", 18, SemiBold, Ui.RojoT, Ui.Cond), () => { _panelAbierto = false; Persistencia.Olvidar(); Arrancar(false); }, Brushes.Transparent, Ui.ErrBorde, 10, new Thickness(14, 0, 14, 0), 52).Margen(0, 6, 0, 10),
-            Ui.Boton(Ui.T("CERRAR EL PANEL", 18, SemiBold, Ui.SobreCobre, Ui.Cond), () => { _panelAbierto = false; RenderPanel(); }, Ui.Cobre, Ui.Cobre, 10, new Thickness(14, 0, 14, 0), 52));
-        var cajon = new Border { Width = 360, HorizontalAlignment = HorizontalAlignment.Right, Background = Ui.Panel, BorderBrush = Ui.Cobre, BorderThickness = new Thickness(2, 0, 0, 0), Padding = new Thickness(20, 20, 20, 20), Child = new ScrollViewer { Content = col, VerticalScrollBarVisibility = ScrollBarVisibility.Auto } };
-        PanelPrueba.Children.Add(cajon);
-    }
 }

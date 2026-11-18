@@ -3,7 +3,7 @@ namespace TerminalVentanas;
 /// <summary>Las reglas del terminal: qué etiqueta sigue, qué se imprime y qué pasa al tocar cada botón.</summary>
 public partial class MainWindow
 {
-    /// <summary>Situaciones del panel de prueba (F2).</summary>
+    /// <summary>Situaciones de prueba de la báscula (las elige el panel de pesaje, F3).</summary>
     internal static class Esc { public static bool Grua, Fuera, Cero; }
     private int _cajaN;
 
@@ -159,8 +159,8 @@ public partial class MainWindow
         catch (Exception ex) { Avisar($"La Zebra no imprimió: {ex.Message}", "err"); }
     }
 
-    /// <summary>Imprimir: en una celda nueva primero pregunta si es Total o Parcial (ventana "tp"); con la respuesta, imprime.</summary>
-    internal void Imprimir(string? lado = null)
+    /// <summary>Imprimir: la letra T o P sale del lado de la fila (botón Lado total / parcial sobre cada fila de celdas).</summary>
+    internal void Imprimir()
     {
         if (S.Fase != null || S.View != "main") return;
         var m = ModeloActual(); if (m.ImpDis) return;
@@ -181,8 +181,6 @@ public partial class MainWindow
             }
             var n = S.Sel!.Value; var sig = Siguiente(G);
             if (G.Celdas.ContainsKey(n)) { var lc = S.Labels.FirstOrDefault(x => x.Prod == "cat" && !x.Ref.M && x.Ref.G == G.G && x.Ref.N == n); if (lc != null) Reimprimir(lc); return; }
-            if (lado == null) { S.Md = new Modal { Tipo = "tp", Val = n.ToString() }; Render(); return; }
-            if (n <= 21) G.LadoA = lado; else G.LadoB = lado;  // la respuesta queda para ese lado del grupo
             var l2 = EtqCat(G.G, n, LadoDe(G, n), Tick(), D.PesoCelda.TryGetValue(n, out var p) ? p : PesoEjemplo(n), S.User);
             l2.M = S.Min; if (sig != null && n != sig) l2.Nota = "fuera de orden";
             ImprimirEtiqueta(l2, m, () =>
@@ -244,27 +242,8 @@ public partial class MainWindow
     {
         var nuevo = !S.Grupos.ContainsKey(g); S.Grupo = g; if (g != S.Par && g != S.Par + 1) S.Par = g;
         var G = GrupoAct(); S.Sel = Siguiente(G); S.Muestra = false;
-        S.Msg = nuevo ? new("info", $"Grupo {g} · al imprimir se elige total o parcial") : null;
+        S.Msg = nuevo ? new("info", $"Grupo {g} · si un lado es parcial, toque su lado") : null;
         Cerrar();
-    }
-    /// <summary>Botón Lado total / parcial sobre las filas de celdas: prendido o apagado. Lo elegido en el equipo (lado-filas.txt) manda sobre appsettings.</summary>
-    private bool? _ladoFilas;
-    private static string ArchivoLadoFilas => System.IO.Path.Combine(Persistencia.Carpeta, "lado-filas.txt");
-    internal bool LadoEnFilas
-    {
-        get
-        {
-            if (_ladoFilas == null)
-                try { _ladoFilas = System.IO.File.ReadAllText(ArchivoLadoFilas).Trim() == "prendido"; }
-                catch { _ladoFilas = _cfg.LadoEnFilas; }  // sin elección en el equipo: lo de appsettings
-            return _ladoFilas.Value;
-        }
-    }
-    internal void AlternarLadoFilas()
-    {
-        _ladoFilas = !LadoEnFilas;
-        try { System.IO.Directory.CreateDirectory(Persistencia.Carpeta); System.IO.File.WriteAllText(ArchivoLadoFilas, _ladoFilas.Value ? "prendido" : "apagado"); } catch { /* sin disco: dura hasta cerrar */ }
-        Render(); RenderPanel();
     }
     private void Volver() { S.Sel = Siguiente(GrupoAct()); S.Msg = null; Render(); }
     private void AlternarMuestra() { S.Muestra = !S.Muestra; S.Msg = null; Render(); }
@@ -281,7 +260,7 @@ public partial class MainWindow
     {
         if (!int.TryParse(S.Md!.Val, out var gr) || gr <= 0) return;
         var nuevo = !S.Grupos.ContainsKey(gr); S.Grupo = gr; var G = GrupoAct(); S.Sel = Siguiente(G); S.Muestra = false;
-        S.Msg = nuevo ? new("info", $"Grupo {gr} nuevo · al imprimir se elige total o parcial") : null;
+        S.Msg = nuevo ? new("info", $"Grupo {gr} nuevo · si un lado es parcial, toque su lado") : null;
         Cerrar();
     }
     private void OkTerminar()

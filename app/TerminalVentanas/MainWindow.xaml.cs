@@ -21,7 +21,6 @@ public partial class MainWindow : Window
     private int _gen;
     private readonly DispatcherTimer _ticker = new() { Interval = TimeSpan.FromMilliseconds(120) };
     private readonly DispatcherTimer _toastT = new() { Interval = TimeSpan.FromMilliseconds(3800) };
-    private bool _panelAbierto;
     /// <summary>El tema en que corre la prueba (--tema; por defecto el original oscuro).</summary>
     private string _temaPrueba = "oscuro";
     private readonly Random _azar = new();
@@ -74,8 +73,8 @@ public partial class MainWindow : Window
 
     internal void ElegirTema(string t) { Tema.Elegir(t); PintarFondo(); Render(); _pesaje?.Dibujar(); }
 
-    /// <summary>Lo que está en el XAML y no se vuelve a dibujar: el fondo, la sombra de las ventanas y la del panel F2.</summary>
-    private void PintarFondo() { Pantalla.Background = Ui.Fondo; Capa.Background = Ui.Capa; PanelPrueba.Background = Ui.PanelFondo; }
+    /// <summary>Lo que está en el XAML y no se vuelve a dibujar: el fondo y la sombra de las ventanas.</summary>
+    private void PintarFondo() { Pantalla.Background = Ui.Fondo; Capa.Background = Ui.Capa; }
 
     private void PantallaCompleta(bool si)
     {
@@ -113,7 +112,6 @@ public partial class MainWindow : Window
             if (arriba > 0) Dispatcher.BeginInvoke(() => Buscar<ScrollViewer>(Capa)?.ScrollToVerticalOffset(arriba), DispatcherPriority.Loaded);
         }
         else Capa.Visibility = Visibility.Collapsed;
-        RenderPanel();
         if (S.View != "login") Persistencia.Guardar(S);
         else _pesaje?.Close(); // al salir a la pantalla de ingreso se cierra el panel de pesaje
     }
@@ -144,12 +142,10 @@ public partial class MainWindow : Window
     {
         if (S.Fase != null || _carpetaPrueba != null) return;
         if (e.Key == Key.F11) { if (_pesaje == null) PantallaCompleta(WindowStyle != WindowStyle.None); e.Handled = true; return; } // con el panel de pesaje abierto, la pantalla completa lo taparía
-        if (e.Key == Key.F2 && S.View != "login") { _panelAbierto = !_panelAbierto; RenderPanel(); e.Handled = true; return; }
         if (e.Key == Key.F3 && Caseta && S.View != "login") { AlternarPesaje(); e.Handled = true; return; }
         if (e.Key == Key.Escape)
         {
-            if (_panelAbierto) { _panelAbierto = false; RenderPanel(); }
-            else if (S.Md != null) Cerrar();
+            if (S.Md != null) Cerrar();
             else if (S.View == "bas") CerrarBas();
             e.Handled = true; return;
         }
@@ -163,7 +159,6 @@ public partial class MainWindow : Window
         else if (e.Key == Key.Enter)
         {
             if (S.View == "login") Entrar();
-            else if (_panelAbierto && Caseta) PesarPruebaEscrito();
             else if (kp) OkKeypad();
             else if (S.Md == null && S.View == "bas") GrabarBF();
             else if (S.Md == null && Caseta) AsociarManual();

@@ -106,7 +106,7 @@ public partial class MainWindow
         var trabajo = m.Trabajo?.Invoke() ?? new Grid();
         var registro = BotonSec(Ui.Fila(Ui.Ico(Iconos.Lista, 26, 26, Ui.Mut), Ui.T("REGISTRO", 21, SemiBold, Ui.Tinta, Ui.Cond).Margen(10, 0, 0, 0), Insignia(S.Labels.Count).Margen(10, 0, 0, 0)), () => Abrir("registro"));
         var excel = BotonSec(Ui.Fila(Ui.Ico(Iconos.Excel, 26, 26, Ui.VerdeXls), Ui.T("EXCEL", 21, SemiBold, Ui.Tinta, Ui.Cond).Margen(10, 0, 0, 0)), BajarExcel);
-        var acc = Ui.Columnas("* auto auto", 12, BotonGrande(m.ImpTxt, Iconos.Imprimir, () => Imprimir(), m.ImpDis, 84, 33), registro, excel);
+        var acc = Ui.Columnas("* auto auto", 12, BotonGrande(m.ImpTxt, Iconos.Imprimir, Imprimir, m.ImpDis, 84, 33), registro, excel);
         return Ui.Filas("56 auto * 84", 12, bar, top, trabajo, acc);
     }
 
@@ -149,7 +149,7 @@ public partial class MainWindow
         var vivo = Ui.Fila(Latido(), Ui.T("EN LÍNEA", 13, SemiBold, Ui.VerdeT, Ui.Cond).Margen(7, 0, 0, 0));
         var cab = Ui.Columnas("* auto", 10, titulo, vivo);
         var lect = Lectura();
-        var dsp = Ui.Tarjeta(Ui.Columnas("* 96", 8, lect, _pic!.Raiz), Ui.Oscuro, Ui.LecturaBorde, 12, new Thickness(14, 10, 10, 10));
+        var dsp = Ui.Tarjeta(Ui.Columnas($"* {Pictograma.Ancho}", 8, lect, _pic!.Raiz), Ui.Oscuro, Ui.LecturaBorde, 12, new Thickness(14, 10, 10, 10));
         _balRes = new ContentControl { Content = VRes(), MinHeight = 44 };
         return Ui.Tarjeta(Ui.Filas("auto auto auto", 9, cab, dsp, _balRes), relleno: new Thickness(14, 12, 14, 12));
     }
@@ -161,7 +161,8 @@ public partial class MainWindow
         _balNum = Ui.T(t, t.Length > 5 ? 48 : 58, Bold, Ui.Brillo, Ui.Mono);
         var kg = Ui.T("kg", 22, SemiBold, Ui.Mut).Margen(6, 0, 0, 7); kg.VerticalAlignment = VerticalAlignment.Bottom;
         var num = Ui.Fila(_balNum, kg); num.VerticalAlignment = VerticalAlignment.Bottom;
-        _pic = new Pictograma(B.Pic, B.ProdPic);
+        // El isométrico es siempre el mismo (no se crea de nuevo en cada redibujo, para que sus animaciones sigan); la foto de la prueba usa uno quieto
+        _pic = _picFoto ? new Pictograma(B.Pic, B.ProdPic, B.Chip == "espera") : PicVivo();
         return Ui.Columna(_balChip, num.Margen(0, 6, 0, 0));
     }
 
@@ -224,10 +225,9 @@ public partial class MainWindow
             return Ui.Boton(col, A(() => CeldaElegida(g.G, n)), fondo, borde, 9, new Thickness(0), 62, new Thickness(grosor));
         }
         var head = Ui.Columnas("auto auto *", 12, titulo, info, new Grid());
-        // El botón de lado sobre cada fila es opcional (LadoEnFilas): al imprimir siempre se pregunta Total o Parcial
+        // Sobre cada fila, el botón de su lado (total o parcial): la letra T o P va en el rótulo de las etiquetas de esa fila
         UIElement FilaRotulo(string txt, string k)
         {
-            if (!LadoEnFilas) return Ui.Rotulo(txt, 14);
             var f = Ui.Columnas("auto *", 10, Ui.Rotulo(txt, 14), Lado(k));
             ((FrameworkElement)f.Children[1]).HorizontalAlignment = HorizontalAlignment.Left;
             return f;
@@ -421,7 +421,7 @@ public partial class MainWindow
 
         var lect = Lectura();
         var peso = new Grid();
-        peso.ColumnDefinitions.Add(new ColumnDefinition()); peso.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(96) });
+        peso.ColumnDefinitions.Add(new ColumnDefinition()); peso.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(Pictograma.Ancho) });
         peso.RowDefinitions.Add(new RowDefinition()); peso.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         peso.Children.Add(lect); Grid.SetColumn(_pic!.Raiz, 1); _pic.Raiz.VerticalAlignment = VerticalAlignment.Center; peso.Children.Add(_pic.Raiz);
         _balRes = new ContentControl { Content = VRes(), Margin = new Thickness(0, 8, 0, 0) }; Grid.SetRow(_balRes, 1); Grid.SetColumnSpan(_balRes, 2); peso.Children.Add(_balRes);
