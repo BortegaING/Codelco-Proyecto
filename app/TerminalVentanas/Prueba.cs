@@ -84,7 +84,7 @@ public partial class MainWindow
         var dv = new DrawingVisual();
         using (var dc = dv.RenderOpen())
         {
-            dc.DrawRectangle(Brushes.Black, null, new Rect(0, 0, 1024 + ancho, 768));
+            dc.DrawRectangle(Ui.Linea, null, new Rect(0, 0, 1024 + ancho, 768)); // el escritorio que queda libre: un gris del tema, no negro
             dc.DrawRectangle(new VisualBrush(Pantalla), null, new Rect(0, 0, 1024, 768));
             dc.DrawRectangle(new VisualBrush(panel), null, new Rect(1024, 768 - alto, ancho, alto));
         }
@@ -162,7 +162,7 @@ public partial class MainWindow
             await Esperar(() => B.Chip == "cero", "plataforma disponible", 20000);
         }
         _panelAbierto = true; RenderPanel(); await Foto(c, "c11-panel-f2"); _panelAbierto = false; RenderPanel();
-        ElegirTema("claro"); await Foto(c, "c21-claro"); ElegirTema("contraste"); await Foto(c, "c22-contraste"); ElegirTema("oscuro");
+        ElegirTema("claro"); await Foto(c, "c21-claro"); ElegirTema("contraste"); await Foto(c, "c22-contraste"); ElegirTema(_temaPrueba);
         var ruta = Excel.Guardar(S, _cfg.CarpetaExcel); L($"Excel: {ruta} ({new FileInfo(ruta).Length} bytes)");
         L($"Registro caseta: {S.Labels.Count} · " + string.Join(" | ", S.Labels.OrderBy(l => l.Id).Select(l => $"{l.Codigo} {l.Estado} {l.Neto}")));
     }
@@ -173,7 +173,7 @@ public partial class MainWindow
         await Foto(c, "01-ingreso");
         PedirCerrar(); await Foto(c, "01b-salir"); L($"Salir: pregunta '{S.Md?.Tipo}'");
         Cerrar(); if (S.Md != null || S.View != "login") throw new Exception("Volver no cerró la pregunta de Salir");
-        ElegirTema("claro"); await Foto(c, "01c-ingreso-claro"); ElegirTema("contraste"); await Foto(c, "01d-ingreso-contraste"); ElegirTema("oscuro");
+        ElegirTema("claro"); await Foto(c, "01c-ingreso-claro"); ElegirTema("contraste"); await Foto(c, "01d-ingreso-contraste"); ElegirTema(_temaPrueba);
         Entrar();
         if (S.Prod != "cat") throw new Exception("La VT1200 debe quedar en cátodos");
 
@@ -232,7 +232,7 @@ public partial class MainWindow
         var guardado = File.ReadAllText(Path.Combine(Persistencia.Carpeta, "tema.txt"));
         if (guardado != "auto") throw new Exception("No quedó guardado el tema elegido: " + guardado);
         L($"Colores: claro, contraste y como Windows (ahora {Tema.Actual}); tema.txt = {guardado}");
-        Cerrar(); ElegirTema("oscuro");
+        Cerrar(); ElegirTema(_temaPrueba);
         var ruta = Excel.Guardar(S, _cfg.CarpetaExcel); L($"Excel: {ruta} ({new FileInfo(ruta).Length} bytes)");
         var zpl = Directory.Exists(_cfg.Impresora.CarpetaZpl) ? Directory.GetFiles(_cfg.Impresora.CarpetaZpl, "*.zpl").Length : 0; L($"ZPL guardados: {zpl}");
         L($"Registro: {S.Labels.Count} · " + string.Join(" | ", S.Labels.OrderBy(l => l.Id).Select(l => l.Codigo)));

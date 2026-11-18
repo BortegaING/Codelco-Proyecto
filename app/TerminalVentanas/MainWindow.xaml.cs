@@ -22,6 +22,8 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer _ticker = new() { Interval = TimeSpan.FromMilliseconds(120) };
     private readonly DispatcherTimer _toastT = new() { Interval = TimeSpan.FromMilliseconds(3800) };
     private bool _panelAbierto;
+    /// <summary>El tema en que corre la prueba (--tema; por defecto el original oscuro).</summary>
+    private string _temaPrueba = "oscuro";
     private readonly Random _azar = new();
 
     public MainWindow()
@@ -45,7 +47,10 @@ public partial class MainWindow : Window
         }
         else if (_cfg.PantallaCompleta) PantallaCompleta(true);
         // Los colores: la prueba parte siempre en el original (oscuro); el equipo, en lo que eligió el operador (o lo de appsettings)
-        if (_carpetaPrueba != null) Tema.Elegir("oscuro"); else Tema.Cargar(_cfg.Tema);
+        // "--tema claro" corre la prueba entera en ese tema (para sacar las capturas de la presentación en blanco)
+        var it = Array.IndexOf(args, "--tema");
+        if (it >= 0 && it + 1 < args.Length && args[it + 1] is "oscuro" or "claro" or "contraste") _temaPrueba = args[it + 1];
+        if (_carpetaPrueba != null) Tema.Elegir(_temaPrueba); else Tema.Cargar(_cfg.Tema);
         PintarFondo();
         Microsoft.Win32.SystemEvents.UserPreferenceChanged += AlCambiarWindows;
         Closed += (_, _) => Microsoft.Win32.SystemEvents.UserPreferenceChanged -= AlCambiarWindows;

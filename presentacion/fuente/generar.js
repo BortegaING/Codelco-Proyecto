@@ -9,8 +9,11 @@ const path = require('path');
 const pptxgen = require('pptxgenjs');
 
 const AQUI = __dirname;
-const IMG = f => path.join(AQUI, 'img', f);
-const SALIDA = path.join(AQUI, '..', 'Bascula-N9-Ventanas.pptx');
+// Dos juegos de capturas: img/ (programas en el tema oscuro, el original) e img_claro/ (en el tema claro).
+// Se elige con IMG_DIR; SALIDA_PPT cambia el archivo que sale. Sin variables: oscuro, a presentacion/Bascula-N9-Ventanas.pptx.
+const CARPETA_IMG = process.env.IMG_DIR || 'img';
+const IMG = f => path.join(AQUI, CARPETA_IMG, f);
+const SALIDA = process.env.SALIDA_PPT || path.join(AQUI, '..', 'Bascula-N9-Ventanas.pptx');
 
 /* ---------- Tema: el mismo cobre y pizarra de la simulación y la maqueta ---------- */
 const TEMA = {
@@ -657,7 +660,7 @@ pres.addSection({ title: 'Pesaje' });
 // img/pantallas/etiquetado (TerminalVentanas.exe en la VT1200 de origen), img/pantallas/pesaje (BasculaCaseta.exe)
 // e img/pantallas/gs1 (la versión de etiquetado con DataMatrix GS1). Las copia y las pasa a JPG el paso de capturas.
 pres.addSection({ title: 'Pantallas del sistema' });
-const PANT = (carpeta, f) => path.join(AQUI, 'img', 'pantallas', carpeta, f + '.jpg');
+const PANT = (carpeta, f) => path.join(AQUI, CARPETA_IMG, 'pantallas', carpeta, f + '.jpg');
 const ETIQUETADO = [
   ['01-ingreso', 'Ingreso con el RUT del operador'],
   ['01b-salir', 'Salir: pide confirmación antes de cerrar el programa'],
@@ -696,6 +699,8 @@ const PESAJE = [
   ['c12-prueba-4750', 'Peso de prueba 4.750 kg: dentro del rango'],
   ['c13-prueba-3900', 'Peso de prueba 3.900 kg: bajo el rango, faltan 300 kg'],
   ['c14-prueba-5300', 'Peso de prueba 5.300 kg: sobre el rango, se pasa por 300 kg'],
+  ['c15-panel-pesaje', 'Panel de pesaje (F3) al costado: se coloca el peso sin tapar el programa'],
+  ['c16-panel-pesaje-compacto', 'Panel de pesaje compacto en una esquina, con el peso en vivo'],
   ['c21-claro', 'Caseta · tema claro'],
   ['c22-contraste', 'Caseta · alto contraste'],
 ];

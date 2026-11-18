@@ -9,7 +9,8 @@ import os, sys
 from PIL import Image, ImageDraw, ImageFilter
 
 prueba = sys.argv[1]
-img = os.path.join(os.path.dirname(os.path.abspath(__file__)), "img")
+# IMG_DIR=img_claro deja las capturas en el juego del tema claro (por defecto, img/)
+img = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.environ.get("IMG_DIR", "img"))
 
 pantallas = {"vt_principal": "02-principal", "vt_paso1": "04-paso1-grupos", "vt_paso2": "07-grupo22", "vt_registro": "09-registro"}
 bascula = ["bal-1-disponible", "bal-2-leyendo", "bal-3-registrando", "bal-4-registrado",
