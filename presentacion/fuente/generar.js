@@ -655,6 +655,142 @@ pres.addSection({ title: 'Pesaje' });
     { x: 0.6, y: 6.55, w: 12.1, h: 0.35, fontSize: 12, color: P.mut });
 }
 
+/* ===================== 10b. Cómo funcionan las cámaras ===================== */
+// Cuatro láminas: dónde va cada cámara (esquema con formas de PowerPoint, editable), qué hace cada una en cada momento (tabla editable)
+// y cómo lo muestra el programa de la caseta (recortes de la prueba: cam_*.png, los deja preparar_capturas.py).
+// Lo que dicen sale de la minuta (dos vistas, baliza, taras de carro y rack) y de lo que el programa ya muestra
+// (Caseta.cs: CamSuperior, CamLateral y EstadoBaliza). No se inventan modelos ni distancias: la ubicación se valida en terreno.
+const CAM = { piso: '8A979E', plataforma: '35505C', cobre: 'C9733A', cobreOsc: '8E4A1C', cuerpo: '26343B', lente: '0E181E', cono: 'DA8B4F',
+  cable: '8A979E', rojo: 'C9473B', amarillo: 'D9A21B', verde: '2F9E5F' };
+{
+  const s = lamina('Pesaje', 'CÁMARAS · DÓNDE VAN Y QUÉ MIRA CADA UNA', 'Dos vistas sobre la plataforma: desde arriba y desde el costado');
+  const N = t => 'Esquema cámaras · ' + t;
+  const rect = (x, y, w, h, color, t, forma) => s.addShape(forma || SH.rect, { x, y, w, h, rectRadius: 0.05, fill: { color }, line: { color }, objectName: N(t) });
+  const linea = (x1, y1, x2, y2, color, t, o) => s.addShape(SH.line, { x: Math.min(x1, x2), y: Math.min(y1, y2), w: Math.abs(x2 - x1), h: Math.abs(y2 - y1),
+    flipH: x2 < x1, flipV: y2 < y1, line: Object.assign({ color, width: 1.25 }, o || {}), objectName: N(t) });
+  const rotulo = (t, x, y, w, h, o) => texto(s, t, Object.assign({ x, y, w, h, fontSize: 11, color: P.mut, objectName: N(t.slice(0, 28)) }, o || {}));
+  const cono = (x, y, w, h, puntos, t) => s.addShape(SH.custGeom, { x, y, w, h, points: puntos.map(([px, py]) => ({ x: px, y: py })).concat([{ close: true }]),
+    fill: { color: CAM.cono, transparency: 72 }, line: { color: CAM.cono, width: 1, dashType: 'dash' }, objectName: N(t) });
+
+  // Piso, plataforma y la lingada con su etiqueta arriba, en la esquina (lo que pide la VT1200 al imprimir)
+  linea(0.7, 5.7, 7.55, 5.7, CAM.piso, 'piso', { width: 1.5 });
+  rect(2.6, 5.45, 3.0, 0.25, CAM.plataforma, 'plataforma');
+  rect(3.2, 4.35, 1.8, 1.1, CAM.cobre, 'lingada de cátodos');
+  [4.57, 4.79, 5.01, 5.23].forEach(y => linea(3.2, y, 5.0, y, CAM.cobreOsc, 'cátodo', { width: 0.75 }));
+  rotulo('Lingada de cátodos', 3.2, 4.78, 1.8, 0.25, { align: 'center', bold: true, color: 'FFFFFF', fontSize: 12 });
+  s.addShape(SH.rect, { x: 3.28, y: 4.24, w: 0.42, h: 0.11, fill: { color: 'FFFFFF' }, line: { color: CAM.cuerpo, width: 0.75 }, objectName: N('etiqueta') });
+  rotulo('Etiqueta con QR', 1.8, 4.45, 1.25, 0.24, { align: 'right', bold: true, color: TEMA.colors.dk1 });
+  linea(3.08, 4.57, 3.36, 4.35, CAM.cuerpo, 'guía etiqueta', { width: 0.75 });
+  rotulo('Plataforma de la báscula · 4 celdas de carga', 2.6, 5.78, 3.0, 0.25, { align: 'center' });
+  linea(0.8, 6.2, 2.4, 6.2, TEMA.colors.accent1, 'ingreso', { width: 2, endArrowType: 'triangle' });
+  rotulo('Ingresa la horquilla o el carro', 2.5, 6.08, 3.0, 0.25, { color: TEMA.colors.accent1, bold: true });
+
+  // Cámara superior: en un brazo sobre la plataforma, mirando hacia abajo a la cara de arriba de la carga
+  rect(1.0, 1.85, 0.08, 3.85, CAM.plataforma, 'poste cámara superior');
+  rect(1.0, 1.85, 3.3, 0.08, CAM.plataforma, 'brazo cámara superior');
+  rect(3.82, 1.93, 0.56, 0.28, CAM.cuerpo, 'cámara superior', SH.roundRect);
+  rect(4.02, 2.21, 0.16, 0.08, CAM.lente, 'lente cámara superior');
+  cono(3.1, 2.29, 2.0, 2.0, [[1.0, 0], [2.0, 2.0], [0, 2.0]], 'vista de la cámara superior');
+  rotulo('Cámara superior', 1.25, 2.0, 2.45, 0.28, { align: 'right', bold: true, fontSize: 14, color: TEMA.colors.dk1, fontFace: CABEZA });
+  rotulo('Mira hacia abajo: la etiqueta y su QR', 1.25, 2.28, 2.45, 0.25, { align: 'right' });
+
+  // Cámara lateral: a la altura de la carga, mirando el costado (posición, horquilla, lingadas y marcas de tara)
+  rect(6.78, 4.72, 0.52, 0.26, CAM.cuerpo, 'cámara lateral', SH.roundRect);
+  rect(6.7, 4.79, 0.08, 0.12, CAM.lente, 'lente cámara lateral');
+  rect(7.0, 4.98, 0.08, 0.72, CAM.plataforma, 'poste cámara lateral');
+  cono(5.0, 4.15, 1.7, 1.4, [[1.7, 0.7], [0, 0], [0, 1.4]], 'vista de la cámara lateral');
+  rotulo('Cámara lateral', 5.6, 3.35, 1.75, 0.28, { align: 'right', bold: true, fontSize: 14, color: TEMA.colors.dk1, fontFace: CABEZA });
+  rotulo('Mira el costado: posición, horquilla y marcas de tara', 5.6, 3.63, 1.75, 0.42, { align: 'right' });
+
+  // Baliza a la vista del operador
+  s.addShape(SH.roundRect, { x: 1.47, y: 3.25, w: 0.26, h: 0.07, rectRadius: 0.03, fill: { color: CAM.plataforma }, line: { color: CAM.plataforma }, objectName: N('tapa baliza') });
+  [[CAM.rojo, 'roja'], [CAM.amarillo, 'amarilla'], [CAM.verde, 'verde']].forEach(([c, t], i) => rect(1.45, 3.33 + i * 0.25, 0.3, 0.24, c, 'luz ' + t));
+  rect(1.57, 4.08, 0.06, 1.62, CAM.plataforma, 'poste baliza');
+  rotulo('Baliza', 1.85, 3.38, 1.5, 0.25, { bold: true, fontSize: 13, color: TEMA.colors.dk1, fontFace: CABEZA });
+  rotulo('A la vista del operador', 1.85, 3.63, 1.5, 0.25);
+
+  // Las dos lecturas van al programa de la caseta
+  s.addShape(SH.roundRect, { x: 5.55, y: 1.5, w: 2.0, h: 0.72, rectRadius: 0.08, fill: { color: P.tarjeta }, line: { color: P.linea, width: 1 }, objectName: N('caseta') });
+  rotulo('Caseta · programa de pesaje', 5.65, 1.56, 1.85, 0.24, { bold: true, color: TEMA.colors.dk1 });
+  rotulo('Recibe las dos lecturas y el peso del visor', 5.65, 1.8, 1.85, 0.4, { fontSize: 10 });
+  linea(4.38, 2.07, 5.55, 2.07, CAM.cable, 'cable cámara superior', { dashType: 'dash', width: 1 });
+  linea(7.3, 4.85, 7.45, 4.85, CAM.cable, 'cable cámara lateral', { dashType: 'dash', width: 1 });
+  linea(7.45, 4.85, 7.45, 2.22, CAM.cable, 'cable cámara lateral', { dashType: 'dash', width: 1 });
+
+  // Qué hace cada una
+  [['Cámara superior · mira hacia abajo', [
+      'Detecta cuándo llega cobre a la plataforma y cuándo queda vacía.',
+      'Lee el QR de la etiqueta: celda, lado y grupo (por ejemplo, 4T21).',
+      'Si no puede leerlo, avisa "etiqueta no legible" y el pesador identifica la carga a mano.']],
+   ['Cámara lateral · mira el costado', [
+      'Verifica que la carga o el carro quede dentro del área de pesaje.',
+      'Confirma que la horquilla salió antes de tomar el peso y distingue 1 o 2 lingadas.',
+      'En restos de ánodos lee las marcas de tara del carro y del rack: neto = bruto − tara de carro − tara de rack.']]]
+    .forEach(([h, lista], i) => {
+      const y = 1.5 + i * 2.6;
+      tarjeta(s, 7.95, y, 4.75, 2.45);
+      numero(s, i + 1, 8.2, y + 0.22, 0.4);
+      texto(s, h, { x: 8.75, y: y + 0.24, w: 3.8, h: 0.36, fontFace: CABEZA, fontSize: 16 });
+      texto(s, lista.map((t, j) => ({ text: t, options: { bullet: true, breakLine: j < lista.length - 1 } })),
+        { x: 8.2, y: y + 0.75, w: 4.3, h: 1.6, fontSize: 13, color: P.mut, paraSpaceAfter: 5 });
+    });
+  texto(s, 'Esquema conceptual. La ubicación, cantidad y óptica de las cámaras se definen con revisión técnica y pruebas en terreno, de día y de noche.',
+    { x: 0.6, y: 6.62, w: 12.1, h: 0.3, fontSize: 12, color: P.mut });
+  s.addNotes('Las dos vistas de la minuta: la superior lee la etiqueta (va arriba del paquete, en la esquina, y no refleja como el cobre); la lateral controla la posición y las taras. Todo el esquema es editable: cada pieza tiene nombre en el panel de selección.');
+}
+{
+  const s = lamina('Pesaje', 'CÁMARAS · PASO A PASO', 'Qué hace cada cámara en cada momento del pesaje');
+  const H = t => ({ text: t, options: { bold: true, color: 'FFFFFF', fill: { color: P.panel }, fontFace: CABEZA, fontSize: 13 } });
+  const luz = (c, t, sub) => ({ text: [
+    { text: '● ', options: { color: c, fontSize: 16 } }, { text: t, options: { bold: true, breakLine: true } }, { text: sub, options: { color: P.mut } }] });
+  const filas = [
+    ['1 · Plataforma libre', 'Ve la plataforma vacía.', 'Sin carga en el área.', luz(CAM.verde, 'Verde · Disponible', 'Puede ingresar'),
+      'Visor en cero: espera la próxima carga.'],
+    ['2 · Llega la carga', 'Detecta el cobre y lee el QR de la etiqueta.', 'Ve la horquilla depositando la carga.', luz(CAM.amarillo, 'Amarillo · Posicionar', 'Deje la carga y retírese'),
+      'Muestra la etiqueta que está leyendo.'],
+    ['3 · Captura del peso', 'Cátodo identificado: etiqueta 4T21.', '1 lingada y horquilla fuera (o carro dentro del área).', luz(CAM.rojo, 'Rojo · Capturando', 'No se mueva'),
+      'Espera el peso estable del visor y lo toma solo.'],
+    ['4 · Registro', 'Sigue viendo el cátodo 4T21.', 'Sigue viendo 1 lingada, horquilla fuera.', luz(CAM.verde, 'Verde · Retirar', 'Peso registrado'),
+      'Guarda rótulo, bruto, tara, neto, hora real y validación. La etiqueta deja de estar pendiente.'],
+    ['5 · Salida', 'Ve la carga saliendo y la plataforma vacía.', 'Ve la carga saliendo.', luz(CAM.verde, 'Verde · Disponible', 'Puede ingresar la siguiente'),
+      'Si el visor no vuelve a cero con la plataforma vacía, alerta: residuos o nódulos.'],
+  ];
+  const cuerpo = filas.map((f, i) => f.map((c, j) => {
+    const celda = typeof c === 'string' ? { text: c } : c;
+    celda.options = Object.assign({ fill: { color: i % 2 ? P.tarjeta : 'FFFFFF' } }, j === 0 ? { bold: true, fontFace: CABEZA, color: C.accent1 } : {}, celda.options || {});
+    return celda;
+  }));
+  s.addTable([[H('Momento'), H('Cámara superior'), H('Cámara lateral'), H('Baliza'), H('Programa de la caseta')]].concat(cuerpo), {
+    x: 0.6, y: 1.5, w: 12.1, colW: [2.0, 2.55, 2.55, 2.3, 2.7], rowH: [0.42, 0.82, 0.82, 0.82, 0.82, 0.82],
+    fontFace: TEMA.bodyFontFace, fontSize: 12.5, color: TEMA.colors.dk1, valign: 'middle', margin: [0.04, 0.1, 0.04, 0.1],
+    border: { type: 'solid', pt: 0.75, color: P.linea }, objectName: 'Cámaras paso a paso' });
+  texto(s, 'Nadie digita el peso: el programa lo toma cuando la cámara superior identificó la carga, la lateral confirma la posición y el visor está estable.',
+    { x: 0.6, y: 6.2, w: 12.1, h: 0.5, fontSize: 14, bold: true, color: C.accent1 });
+  s.addNotes('Es la secuencia que ya corre en el programa de la caseta (simulada): mismos textos de las tarjetas Cámaras y Baliza. La tabla es editable.');
+}
+function camaras(kicker, titulo, lista, nota) {
+  const s = lamina('Pesaje', kicker, titulo);
+  lista.forEach(([f, cap], i) => {
+    const x = 0.6 + (i % 2) * 6.25, y = 1.42 + Math.floor(i / 2) * 2.78;
+    numero(s, i + 1, x, y + 0.02, 0.36);
+    texto(s, cap, { x: x + 0.5, y, w: 5.3, h: 0.46, fontSize: 13, color: P.mut });
+    imagen(s, IMG(f), x, y + 0.48, { w: 5.2, alt: cap });
+  });
+  if (nota) s.addNotes(nota);
+}
+camaras('CÁMARAS · EN EL PROGRAMA DE LA CASETA', 'Así lo ve el pesador: baliza y lectura de cada cámara', [
+  ['cam_disponible.png', 'Plataforma libre: ninguna cámara ve carga. Baliza verde: puede ingresar.'],
+  ['cam_llega.png', 'Llega la carga: la superior lee la etiqueta 4T21 y la lateral ve la horquilla. Baliza amarilla.'],
+  ['cam_capturando.png', 'Cátodo identificado, 1 lingada y horquilla fuera. Baliza roja mientras se toma el peso.'],
+  ['cam_registrado.png', 'Peso registrado con su etiqueta. Baliza verde: retirar la carga.'],
+], 'Recortes de la pantalla de la caseta (BasculaCaseta.exe) en la prueba de punta a punta: tarjetas Baliza y Cámaras.');
+camaras('CÁMARAS · ALERTAS', 'Alertas de las cámaras y lectura de la tara del carro', [
+  ['cam_sin_etiqueta.png', 'Superior · etiqueta no legible: el peso queda retenido y el pesador identifica la carga a mano.'],
+  ['cam_horquilla.png', 'Lateral · horquilla sobre la plataforma: no se toma el peso hasta que salga. Baliza amarilla.'],
+  ['cam_carro_fuera.png', 'Lateral · carro fuera del área: baliza amarilla hasta que el carro quede bien ubicado.'],
+  ['cam_carro.png', 'Restos de ánodos: la lateral ve el carro dentro del área y lee su marca de tara (2.150 kg).'],
+], 'Recortes de la pantalla de la caseta en la prueba de punta a punta. La baliza le indica al operador qué corregir.');
+
 /* ===================== 12b. Pantallas del sistema (avance) ===================== */
 // Todas las pantallas de los dos programas, sacadas de la prueba de punta a punta de cada uno (construir.py):
 // img/pantallas/etiquetado (TerminalVentanas.exe en la VT1200 de origen), img/pantallas/pesaje (BasculaCaseta.exe)

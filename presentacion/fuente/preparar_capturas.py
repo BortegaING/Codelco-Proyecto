@@ -27,6 +27,13 @@ subprocess.run([sys.executable, "-I", os.path.join(AQUI, "capturas_app.py"), ori
 if destino != "img":
     shutil.copy(os.path.join(AQUI, "img", "etq_cat_vt.png"), os.path.join(carpeta, "etq_cat_vt.png"))
 
+# Las tarjetas de la baliza y las dos cámaras de la caseta, en cada momento (láminas "Cómo funcionan las cámaras").
+# Mismo recorte en los dos temas: la pantalla tiene el mismo dibujo, cambian solo los colores.
+CAMARAS = {"c10-disponible": "cam_disponible", "c02-llega": "cam_llega", "c03-capturando": "cam_capturando", "c04-registrado": "cam_registrado",
+           "c06-sin-etiqueta": "cam_sin_etiqueta", "c05-horquilla": "cam_horquilla", "c08-carro-fuera": "cam_carro_fuera", "c09-carro": "cam_carro"}
+for desde, hacia in CAMARAS.items():
+    Image.open(os.path.join(caseta, desde + ".png")).convert("RGB").crop((815, 160, 2015, 663)).save(os.path.join(carpeta, hacia + ".png"), optimize=True)
+
 # 2) Todas las pantallas, para la sección "Pantallas del sistema"
 def copiar(desde, hacia, solo=None):
     d = os.path.join(carpeta, "pantallas", hacia)
