@@ -11,7 +11,6 @@ const pptxgen = require('pptxgenjs');
 const AQUI = __dirname;
 const IMG = f => path.join(AQUI, 'img', f);
 const SALIDA = path.join(AQUI, '..', 'Bascula-N9-Ventanas.pptx');
-const DIAGRAMA = path.join(AQUI, '..', '..', 'diagramas', 'flujo-bascula-n9.png');
 
 /* ---------- Tema: el mismo cobre y pizarra de la simulación y la maqueta ---------- */
 const TEMA = {
@@ -84,6 +83,135 @@ function tarjeta(s, x, y, w, h, o) {
 function numero(s, n, x, y, d, o) {
   s.addText(String(n), Object.assign({ shape: SH.ellipse, x, y, w: d, h: d, fill: { color: C.accent1 }, line: { color: C.accent1 },
     color: C.background1, fontFace: CABEZA, fontSize: Math.round(d * 34), align: 'center', valign: 'middle', margin: 0 }, o || {}));
+}
+
+/* ---------- Diagrama de flujo con formas de PowerPoint (editable) ----------
+   Es el mismo dibujo de diagramas/generar_diagrama.py (lienzo de 1600 x 1000 px), pero hecho con cajas, rombos,
+   líneas y textos de PowerPoint: cada palabra se corrige con doble clic y cada caja se puede mover o recolorear.
+   Las coordenadas se copian tal cual del script del SVG y se llevan a pulgadas con DG (no cambiarlas a mano en un
+   solo lado: si cambia el flujo, cambiar los dos). */
+const DG = { x0: 1.31, y0: 0.27, k: 0.00671 }; // 1000 px de alto = 6,71 pulgadas, centrado en la lámina
+const gx = v => DG.x0 + v * DG.k, gy = v => DG.y0 + v * DG.k, gl = v => v * DG.k, gpt = v => +(v * DG.k * 72).toFixed(1);
+const GC = { ink: '1A2126', txt: '46545C', mut: '6B7A82', line: 'C9D3D8', flecha: '5A6B73', cobre: 'A4561F', cobre2: 'DA8B4F',
+  carril: 'F3F6F7', carril2: 'FAFBFB', ambBg: 'FFF6DA', amb: 'B8860B', rojBg: 'FDECEA', roj: 'B23A2E', verBg: 'E8F6EE', ver: '2F7D4F' };
+const GF = 'Segoe UI';
+function diagramaNativo(s) {
+  let n = 0;
+  const nombre = t => `Diagrama · ${String(++n).padStart(2, '0')} ${t}`;
+  // Texto con la línea base del SVG en (x, y): la caja empieza un poco más arriba (el alto de las mayúsculas)
+  function txt(x, y, t, size, o = {}) {
+    const ancho = o.w || 900, alin = o.align || 'left';
+    const left = alin === 'center' ? x - ancho / 2 : alin === 'right' ? x - ancho : x;
+    s.addText(t, Object.assign({ x: gx(left), y: gy(y - size * 0.98), w: gl(ancho), h: gl(size * 1.32), fontFace: GF, fontSize: gpt(size), color: GC.txt,
+      margin: 0, valign: 'top', align: alin, fit: 'none', objectName: nombre(String(t).slice(0, 30)) }, o.opt || {}));
+  }
+  function caja(x, y, w, h, titulo, cuerpo, num, bg, borde, colorT) {
+    s.addShape(SH.roundRect, { x: gx(x), y: gy(y), w: gl(w), h: gl(h), rectRadius: gl(12), fill: { color: bg || 'FFFFFF' },
+      line: { color: borde || GC.line, width: 1 }, objectName: nombre('caja ' + titulo) });
+    let tx = x + 18;
+    if (num) {
+      s.addText(num, { shape: SH.ellipse, x: gx(x + 13), y: gy(y + 14), w: gl(26), h: gl(26), fill: { color: GC.cobre }, line: { color: GC.cobre },
+        fontFace: GF, fontSize: gpt(14), bold: true, color: 'FFFFFF', align: 'center', valign: 'middle', margin: 0, objectName: nombre('número ' + num) });
+      tx = x + 48;
+    }
+    txt(tx, y + 32, titulo, 17, { w: x + w - 6 - tx, opt: { bold: true, color: colorT || GC.ink, wrap: false } });
+    // El cuerpo: un solo cuadro que PowerPoint ajusta al ancho (interlineado de 19 px como en el SVG)
+    s.addText(cuerpo, { x: gx(x + 18), y: gy(y + 58 - 14), w: gl(w - 36), h: gl(h - 52), fontFace: GF, fontSize: gpt(14), color: GC.txt,
+      margin: 0, valign: 'top', lineSpacing: gpt(19), fit: 'none', objectName: nombre('texto ' + titulo) });
+  }
+  // El rombo y su texto van separados: dentro de un rombo PowerPoint deja poco ancho y la pregunta se partía en tres líneas
+  function rombo(cx, cy, w, h, l1, l2) {
+    s.addShape(SH.diamond, { x: gx(cx - w / 2), y: gy(cy - h / 2), w: gl(w), h: gl(h), fill: { color: 'FFF4E8' },
+      line: { color: GC.cobre2, width: 1.25 }, objectName: nombre('rombo ' + l1) });
+    s.addText(l2 ? `${l1}\n${l2}` : l1, { x: gx(cx - w * 0.36), y: gy(cy - 22), w: gl(w * 0.72), h: gl(44), fontFace: GF, fontSize: gpt(14.5), bold: true,
+      color: GC.ink, align: 'center', valign: 'middle', margin: 0, lineSpacing: gpt(19), fit: 'none', objectName: nombre('pregunta ' + l1) });
+  }
+  // Flecha por tramos rectos (horizontales o verticales); la punta va en el último tramo
+  function flecha(pts, etiqueta, pos, color, guion) {
+    const c = color || GC.flecha;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const [x1, y1] = pts[i], [x2, y2] = pts[i + 1];
+      const ultimo = i === pts.length - 2;
+      s.addShape(SH.line, { x: gx(Math.min(x1, x2)), y: gy(Math.min(y1, y2)), w: gl(Math.abs(x2 - x1)), h: gl(Math.abs(y2 - y1)),
+        flipH: x2 < x1, flipV: y2 < y1,
+        line: Object.assign({ color: c, width: 1.25 }, guion ? { dashType: 'dash' } : {}, ultimo ? { endArrowType: 'triangle' } : {}),
+        objectName: nombre('flecha') });
+    }
+    if (etiqueta) {
+      const [ex, ey] = pos;
+      s.addText(etiqueta, { shape: SH.roundRect, x: gx(ex - 22), y: gy(ey - 14), w: gl(44), h: gl(20), rectRadius: gl(10), fill: { color: 'FFFFFF' },
+        line: { color: 'FFFFFF', width: 0 }, fontFace: GF, fontSize: gpt(13), bold: true, color: c, align: 'center', valign: 'middle', margin: 0,
+        objectName: nombre('rótulo ' + etiqueta) });
+    }
+  }
+  function baliza(x, y, color, t) {
+    s.addShape(SH.ellipse, { x: gx(x - 7), y: gy(y - 7), w: gl(14), h: gl(14), fill: { color }, line: { color }, objectName: nombre('luz de la baliza') });
+    txt(x + 14, y + 5, t, 13.5, { w: 380, opt: { bold: true } });
+  }
+
+  // ---------- Título y carriles ----------
+  txt(40, 52, 'Flujo del sistema de trazabilidad y pesaje · Báscula N9', 28, { w: 1500, opt: { bold: true, color: GC.ink } });
+  txt(40, 82, 'Identificación estandarizada en origen, lectura por visión artificial y captura automática del peso en un registro único, con la hora real.', 16, { w: 1500, opt: { color: GC.mut } });
+  [[30, 305, '1 · Origen', 'Cosecha de cátodos en la nave'], [345, 255, '2 · Traslado', 'Horquilla o carro de arrastre'],
+   [615, 640, '3 · Báscula N9', 'Visor, 4 celdas de carga, 2 cámaras y baliza'], [1270, 300, '4 · Registro', 'Registro único y seguimiento']]
+    .forEach(([x, w, t, sub], i) => {
+      s.addShape(SH.roundRect, { x: gx(x), y: gy(110), w: gl(w), h: gl(820), rectRadius: gl(16), fill: { color: i % 2 === 0 ? GC.carril : GC.carril2 },
+        line: { color: 'E3E9EC', width: 0.75 }, objectName: nombre('carril ' + t) });
+      txt(x + 20, 142, t.toUpperCase(), 15, { w: w - 30, opt: { bold: true, color: GC.cobre } });
+      txt(x + 20, 163, sub, 13.5, { w: w - 30, opt: { color: GC.mut } });
+    });
+
+  // ---------- 1 · Origen ----------
+  caja(50, 190, 270, 170, 'Selecciona grupo y celda', 'Paso 1: grupo en el layout de circuitos. Paso 2: el sistema propone la celda que sigue (celda + lado + grupo).', '1');
+  caja(50, 400, 270, 130, 'Emite la etiqueta', 'Rótulo estandarizado (5T21) con QR y 39 cátodos. Queda pendiente de pesaje.', '2');
+  caja(50, 570, 270, 130, 'Fija la etiqueta', 'Sobre la lingada, visible para la cámara superior.', '3');
+  flecha([[185, 360], [185, 398]]);
+  flecha([[185, 530], [185, 568]]);
+
+  // ---------- 2 · Traslado ----------
+  caja(362, 400, 220, 130, 'Horquilla', 'Lingadas de cátodos rotuladas, directo a la plataforma.');
+  caja(362, 570, 220, 130, 'Carro de arrastre', 'Rack con restos de ánodos.');
+  flecha([[320, 635], [360, 635]]);
+  flecha([[320, 635], [340, 635], [340, 465], [360, 465]]);
+
+  // ---------- 3 · Báscula N9 ----------
+  const cx = 845;
+  caja(705, 190, 280, 112, 'Ingreso a la plataforma', 'Baliza verde. La cámara superior lee el QR; la lateral, la posición.', '4');
+  flecha([[582, 465], [650, 465], [650, 246], [703, 246]]);
+  flecha([[582, 635], [650, 635], [650, 465]]);
+  rombo(cx, 372, 250, 92, '¿Etiqueta leída?');
+  flecha([[cx, 302], [cx, 324]]);
+  caja(1030, 336, 205, 98, 'Alerta: lectura manual', 'El pesador identifica la carga a mano.', null, GC.ambBg, GC.amb, '7A5A00');
+  flecha([[cx + 125, 372], [1028, 372]], 'No', [998, 362]);
+  flecha([[1132, 434], [1132, 452], [cx + 30, 452], [cx + 30, 470]], null, null, null, true);
+  rombo(cx, 520, 300, 104, '¿Carga en el área, sin', 'vehículo y visor en cero?');
+  flecha([[cx, 418], [cx, 466]], 'Sí', [cx - 26, 444]);
+  caja(1030, 478, 205, 112, 'Bloqueo', 'No captura el peso hasta corregir. Baliza amarilla.', null, GC.rojBg, GC.roj, GC.roj);
+  flecha([[cx + 150, 520], [1028, 520]], 'No', [1000, 510]);
+  flecha([[1080, 590], [1080, 612], [cx + 60, 612], [cx + 60, 560]], null, null, GC.roj, true);
+  caja(705, 640, 280, 96, 'Captura del peso', 'Baliza roja: mantener la carga. El visor entrega el peso estable.', '5');
+  flecha([[cx, 572], [cx, 638]], 'Sí', [cx - 26, 600]);
+  caja(705, 760, 280, 112, 'Peso neto', 'Descuenta las taras validadas (carro + rack, leídas por la cámara lateral).', '6');
+  flecha([[cx, 736], [cx, 758]]);
+  rombo(1110, 816, 230, 92, '¿Dentro del', 'rango esperado?');
+  flecha([[985, 816], [993, 816]]);
+
+  // ---------- 4 · Registro ----------
+  caja(1290, 190, 260, 150, 'Registro único', 'Identificación, peso bruto y neto, hora real y validaciones. Sin digitación. Baliza verde: retirar.', '7');
+  caja(1290, 380, 260, 150, 'Excel por turno', 'Hoja de cátodos y Resumen con las columnas Lado-P, Lado-T, Muestra y totales.', '8');
+  caja(1290, 570, 260, 150, 'Pendientes de pesaje', 'Etiquetas emitidas sin peso asociado: alerta para seguimiento y cierre del grupo.', '9');
+  flecha([[1420, 340], [1420, 378]]);
+  flecha([[1420, 530], [1420, 568]]);
+  flecha([[1225, 816], [1250, 816], [1250, 265], [1288, 265]], 'Sí', [1250, 300], GC.ver);
+  caja(1290, 760, 260, 112, 'Registro con observación', 'Peso fuera de rango: queda marcado para revisión del pesador.', null, GC.rojBg, GC.roj, GC.roj);
+  flecha([[1110, 862], [1110, 900], [1420, 900], [1420, 874]], 'No', [1180, 900], GC.roj);
+  flecha([[1550, 816], [1575, 816], [1575, 265], [1552, 265]], null, null, GC.roj, true);
+
+  // ---------- Baliza ----------
+  txt(40, 965, 'Baliza:', 13.5, { w: 60, opt: { bold: true, color: GC.ink } });
+  baliza(100, 960, '2F9E5F', 'Verde: plataforma disponible, ingresar o retirar');
+  baliza(500, 960, 'D9A21B', 'Amarillo: posicionar la carga o lectura manual');
+  baliza(870, 960, 'C9473B', 'Rojo: mantener la carga mientras se captura el peso');
 }
 
 /* ---------- Diseños (layouts) ---------- */
@@ -367,8 +495,7 @@ if (INCLUIR.diaReal) {
 pres.addSection({ title: 'Solución' });
 {
   const s = pres.addSlide({ masterName: 'LIENZO', sectionTitle: 'Solución' });
-  const t = tamPng(DIAGRAMA), h = 6.55, w = h * t.w / t.h;
-  s.addImage({ path: DIAGRAMA, x: (13.333 - w) / 2, y: 0.32, w, h, altText: 'Diagrama del flujo: origen, traslado, Báscula N9 con visión artificial y baliza, y registro', objectName: 'Diagrama de flujo' });
+  diagramaNativo(s);
   s.addNotes('1 a 3 en origen con el programa de etiquetado; traslado en horquilla o carro de arrastre; 4 a 6 en la báscula: lectura del QR, validación de posición y cero, captura del peso y neto; 7 a 9 registro único, Excel y pendientes de pesaje. Si la etiqueta no se lee, el sistema alerta y el pesador identifica la carga a mano.');
 }
 
