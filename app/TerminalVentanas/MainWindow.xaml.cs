@@ -64,10 +64,10 @@ public partial class MainWindow : Window
     private void AlCambiarWindows(object? sender, Microsoft.Win32.UserPreferenceChangedEventArgs e)
     {
         if (Tema.Elegido != "auto") return;
-        Dispatcher.BeginInvoke(() => { if (Tema.Aplicar()) { PintarFondo(); Render(); } });
+        Dispatcher.BeginInvoke(() => { if (Tema.Aplicar()) { PintarFondo(); Render(); _pesaje?.Dibujar(); } });
     }
 
-    internal void ElegirTema(string t) { Tema.Elegir(t); PintarFondo(); Render(); }
+    internal void ElegirTema(string t) { Tema.Elegir(t); PintarFondo(); Render(); _pesaje?.Dibujar(); }
 
     /// <summary>Lo que está en el XAML y no se vuelve a dibujar: el fondo, la sombra de las ventanas y la del panel F2.</summary>
     private void PintarFondo() { Pantalla.Background = Ui.Fondo; Capa.Background = Ui.Capa; PanelPrueba.Background = Ui.PanelFondo; }
@@ -110,6 +110,7 @@ public partial class MainWindow : Window
         else Capa.Visibility = Visibility.Collapsed;
         RenderPanel();
         if (S.View != "login") Persistencia.Guardar(S);
+        else _pesaje?.Close(); // al salir a la pantalla de ingreso se cierra el panel de pesaje
     }
 
     private static T? Buscar<T>(DependencyObject raiz) where T : DependencyObject
@@ -137,8 +138,9 @@ public partial class MainWindow : Window
     private void AlTeclear(object sender, KeyEventArgs e)
     {
         if (S.Fase != null || _carpetaPrueba != null) return;
-        if (e.Key == Key.F11) { PantallaCompleta(WindowStyle != WindowStyle.None); e.Handled = true; return; }
+        if (e.Key == Key.F11) { if (_pesaje == null) PantallaCompleta(WindowStyle != WindowStyle.None); e.Handled = true; return; } // con el panel de pesaje abierto, la pantalla completa lo taparía
         if (e.Key == Key.F2 && S.View != "login") { _panelAbierto = !_panelAbierto; RenderPanel(); e.Handled = true; return; }
+        if (e.Key == Key.F3 && Caseta && S.View != "login") { AlternarPesaje(); e.Handled = true; return; }
         if (e.Key == Key.Escape)
         {
             if (_panelAbierto) { _panelAbierto = false; RenderPanel(); }

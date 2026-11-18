@@ -49,8 +49,9 @@ public partial class MainWindow
 
     private void PintarNum()
     {
-        if (_balNum == null) return;
         var t = D.Kg((int)Math.Max(0, Math.Round(B.Lect)));
+        if (_ppNum != null && _ppNum.Text != t) _ppNum.Text = t; // el panel de pesaje, si está abierto
+        if (_balNum == null) return;
         if (_balNum.Text != t) { _balNum.Text = t; _balNum.FontSize = t.Length > 5 ? 48 : 58; }
     }
 
@@ -68,6 +69,7 @@ public partial class MainWindow
         if (_balRes != null) _balRes.Content = VRes();
         _pic?.Poner(B.Pic, B.ProdPic, true);
         PintarNum();
+        PintarPesajeVivo();
         // En la caseta cambian también la baliza, las cámaras y la grilla
         if (Caseta && S.View == "main" && S.Fase == null) Render();
     }
@@ -131,7 +133,7 @@ public partial class MainWindow
         bool Vivo() => yo == _gen;
         var sinEtq = l.SinEtq; var c = sinEtq ? "Sin etiqueta" : CortoDe(l); var W = l.Bruto;
         var grua = !sinEtq && Esc.Grua; var fuera = !sinEtq && Esc.Fuera && l.Prod == "rs";
-        if (grua) Esc.Grua = false; if (fuera) Esc.Fuera = false; if (grua || fuera) RenderPanel();
+        if (grua) Esc.Grua = false; if (fuera) Esc.Fuera = false; if (grua || fuera) { RenderPanel(); _pesaje?.Dibujar(); }
         var desvio = grua ? 1850 : fuera ? -960 : 0;
         B.Carga = l; B.ProdPic = l.Prod; B.Pic = "vacia"; B.Chip = "espera";
         B.Res = sinEtq ? new("warn", "Llega una carga sin etiqueta", "La cámara no encuentra código") : new("info", $"Llega {c}", "La cámara lee la etiqueta");
@@ -214,7 +216,7 @@ public partial class MainWindow
         if (falta > 0) await Task.Delay((int)falta);
         if (yo != _gen) return;
         await Pesar(l, yo); if (yo != _gen) return;
-        if (Esc.Cero) { Esc.Cero = false; RenderPanel(); await SinCero(yo); if (yo != _gen) return; }
+        if (Esc.Cero) { Esc.Cero = false; RenderPanel(); _pesaje?.Dibujar(); await SinCero(yo); if (yo != _gen) return; }
         _ocupada = false;
         await Task.Delay(Caseta ? 2200 : 400); if (yo != _gen) return;
         Proximo();

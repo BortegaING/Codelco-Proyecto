@@ -69,6 +69,32 @@ public partial class MainWindow
         enc.Save(fs);
     }
 
+    /// <summary>
+    /// El programa de la caseta con el panel de pesaje pegado a su costado (completo, a todo el alto) o en la esquina de abajo (compacto),
+    /// como queda en la pantalla: el panel no tapa el programa. Se arma la imagen con las dos ventanas lado a lado.
+    /// </summary>
+    private async Task FotoPesaje(string carpeta, string nombre, bool compacto)
+    {
+        await Task.Delay(200);
+        Pantalla.UpdateLayout();
+        var ancho = compacto ? VentanaPesaje.AnchoCompacto : VentanaPesaje.AnchoCompleto;
+        var alto = compacto ? VentanaPesaje.AltoCompacto : 768;
+        var panel = new System.Windows.Controls.Border { Width = ancho, Height = alto, Background = Ui.Fondo, BorderBrush = Ui.Cobre, BorderThickness = new Thickness(1), Child = VistaPesaje(null, compacto) };
+        panel.Measure(new Size(ancho, alto)); panel.Arrange(new Rect(0, 0, ancho, alto)); panel.UpdateLayout();
+        var dv = new DrawingVisual();
+        using (var dc = dv.RenderOpen())
+        {
+            dc.DrawRectangle(Brushes.Black, null, new Rect(0, 0, 1024 + ancho, 768));
+            dc.DrawRectangle(new VisualBrush(Pantalla), null, new Rect(0, 0, 1024, 768));
+            dc.DrawRectangle(new VisualBrush(panel), null, new Rect(1024, 768 - alto, ancho, alto));
+        }
+        var rtb = new RenderTargetBitmap((int)((1024 + ancho) * 2), 1536, 192, 192, PixelFormats.Pbgra32);
+        rtb.Render(dv);
+        var enc = new PngBitmapEncoder(); enc.Frames.Add(BitmapFrame.Create(rtb));
+        using var fs = File.Create(Path.Combine(carpeta, nombre + ".png"));
+        enc.Save(fs);
+    }
+
     /// <summary>La prueba del programa de la caseta: llegan las cargas anunciadas, una sin etiqueta se identifica a mano, horquilla, carro y colores.</summary>
     private async Task PasosCaseta(string c, Action<string> L)
     {
@@ -105,6 +131,34 @@ public partial class MainWindow
             await Esperar(() => lp.Estado == "pesada", $"peso de prueba {kg}", 20000); await Task.Delay(300); await Foto(c, foto);
             if (!lp.Ctrl.StartsWith(espera)) throw new Exception($"Peso de prueba {kg}: esperaba '{espera}' y quedó '{lp.Ctrl}'");
             L($"Peso de prueba {D.Kg(kg)} kg · {lp.Codigo} · {lp.Ctrl} · baliza {EstadoBaliza().Txt}");
+            await Esperar(() => B.Chip == "cero", "plataforma disponible", 20000);
+        }
+        // Panel de pesaje (F3): se coloca el peso desde el panel y la carga llega con ese bruto
+        {
+            var antes = S.Labels.Count; _pesoPrueba = "4800"; PesarDesdePanel(); var lp = S.Labels[0];
+            if (S.Labels.Count != antes + 1 || lp.Bruto != 4800) throw new Exception("El peso colocado en el panel de pesaje no quedó en la carga");
+            await Esperar(() => B.Chip == "inestable", "panel de pesaje: capturando", 20000); await Task.Delay(500);
+            await FotoPesaje(c, "c15-panel-pesaje", false);
+            await Esperar(() => lp.Estado == "pesada", "panel de pesaje: registrada", 20000); await Task.Delay(300);
+            await FotoPesaje(c, "c16-panel-pesaje-compacto", true);
+            L($"Panel de pesaje: {lp.Codigo} colocada con {D.Kg(4800)} kg · {lp.Ctrl}");
+            // El acomodo: con distintas pantallas, el panel nunca tapa el programa y los dos quedan dentro del escritorio
+            var pantallas = new[] { new Rect(0, 0, 1920, 1032), new Rect(0, 0, 1366, 728), new Rect(0, 0, 1280, 984), new Rect(0, 0, 1024, 728), new Rect(-1920, 0, 1920, 1040) };
+            var casos = 0;
+            foreach (var wa in pantallas)
+                foreach (var compacto in new[] { false, true })
+                    foreach (var derecha in new[] { true, false })
+                        foreach (var arriba in new[] { true, false })
+                        {
+                            var (prog, panel) = VentanaPesaje.Disposicion(wa, compacto, derecha, arriba);
+                            var cruce = Rect.Intersect(prog, panel);
+                            if (!cruce.IsEmpty && cruce.Width > 0.5 && cruce.Height > 0.5) throw new Exception($"El panel tapa el programa en {wa} ({(compacto ? "compacto" : "completo")})");
+                            foreach (var r in new[] { prog, panel })
+                                if (r.Left < wa.Left - 0.5 || r.Top < wa.Top - 0.5 || r.Right > wa.Right + 0.5 || r.Bottom > wa.Bottom + 0.5) throw new Exception($"Se sale del escritorio en {wa}: {r}");
+                            casos++;
+                        }
+            var (p1, q1) = VentanaPesaje.Disposicion(pantallas[0], false, true, false);
+            L($"Panel de pesaje: acomodo sin tapar el programa en {casos} casos · 1920x1032: programa {p1.Width}x{p1.Height}, panel {q1.Width}x{q1.Height} a su derecha");
             await Esperar(() => B.Chip == "cero", "plataforma disponible", 20000);
         }
         _panelAbierto = true; RenderPanel(); await Foto(c, "c11-panel-f2"); _panelAbierto = false; RenderPanel();

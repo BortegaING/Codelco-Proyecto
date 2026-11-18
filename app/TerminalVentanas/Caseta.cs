@@ -48,7 +48,7 @@ public partial class MainWindow
         Border BotTurno(string x) => Ui.Boton(Ui.T($"TURNO {x}", 15, SemiBold, S.Turno == x ? Ui.SobreCobre : Ui.Mut, Ui.Cond), A(() => { S.Turno = x; Render(); }),
             S.Turno == x ? Ui.Cobre : Brushes.Transparent, Brushes.Transparent, 0, new Thickness(12, 0, 12, 0), 44, new Thickness(0));
         var turno = new Border { BorderBrush = Ui.Linea2, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10), ClipToBounds = true, Child = Ui.Fila(BotTurno("A"), BotTurno("C")) };
-        var who = Ui.Fila(quien, turno.Margen(12, 0, 0, 0), BotonColores(46, false).Margen(8, 0, 0, 0), BotonSec(Ui.T("SALIR", 17, SemiBold, Ui.Tinta, Ui.Cond), Salir, 46, new Thickness(16, 0, 16, 0)).Margen(8, 0, 0, 0));
+        var who = Ui.Fila(quien, turno.Margen(10, 0, 0, 0), BotonPesaje().Margen(6, 0, 0, 0), BotonColores(46, false).Margen(6, 0, 0, 0), BotonSec(Ui.T("SALIR", 17, SemiBold, Ui.Tinta, Ui.Cond), Salir, 46, new Thickness(14, 0, 14, 0)).Margen(6, 0, 0, 0));
         who.HorizontalAlignment = HorizontalAlignment.Right;
         var bar = Ui.Columnas("* auto", 12, marca, who);
 
@@ -316,8 +316,9 @@ public partial class MainWindow
                 Agregar(l); S.Rs.Lista.Add(new RsItem { G = S.Rs.Grupo, Carro = carro, N = l.Ref.N, Id = l.Id }); Encolar(l, 900);
                 Avisar($"Llega el carro C{carro} con restos de ánodos.", "info"); break;
             }
-            default: Escenario(k); return;
+            default: Escenario(k); _pesaje?.Dibujar(); return;
         }
         _panelAbierto = false; RenderPanel();
+        _pesaje?.Dibujar();
     }
 }
