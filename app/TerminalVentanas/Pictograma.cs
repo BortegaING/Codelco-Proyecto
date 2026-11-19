@@ -11,7 +11,7 @@ namespace TerminalVentanas;
 /// (hacia abajo a la derecha), v a lo ancho (hacia abajo a la izquierda) y h hacia arriba. Así cada pieza tiene sus tres caras con
 /// la luz desde el mismo lado y se mueve a lo largo de la plataforma sin deformarse.
 ///
-/// El flujo de una carga (lingada de cátodos o pallet de láminas): la horquilla entra con la carga levantada, la baja sobre la
+/// El flujo de una carga (paquete de cátodos o pallet de láminas): la horquilla entra con la carga levantada, la baja sobre la
 /// plataforma, las 4 celdas de carga la sienten (pasan a verde) y la horquilla retrocede. Al salir, la horquilla vuelve, levanta
 /// la carga y cruza la plataforma. El carro de restos cruza solo; si queda pasado, se ve fuera del área y vuelve.
 /// El dibujo vive entre un redibujo y otro de la pantalla (lo guarda MainWindow), para que las animaciones no se corten.
@@ -81,7 +81,7 @@ public sealed class Pictograma
 
     /* ---------- Las piezas ---------- */
 
-    /// <summary>Lingada de cátodos: placas apiladas, dos zunchos y la etiqueta arriba en la esquina (la que lee la cámara superior).</summary>
+    /// <summary>Paquete de cátodos: placas apiladas, dos zunchos y la etiqueta arriba en la esquina (la que lee la cámara superior).</summary>
     private void Cat()
     {
         Caja(_cat, 3.5, 8.5, 1.5, 5.5, 0.18, 2.0, "#E8A26A", "#B9692F", "#93521F");

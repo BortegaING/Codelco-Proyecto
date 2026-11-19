@@ -71,12 +71,12 @@ for i, (x, w, t, s) in enumerate(carriles):
 caja(50, 190, 270, 170, "Selecciona grupo y celda",
      "Paso 1: grupo en el layout de circuitos. Paso 2: el sistema propone la celda que sigue (celda + lado + grupo).", "1")
 caja(50, 400, 270, 130, "Emite la etiqueta", "Rótulo estandarizado (5T21) con QR y 39 cátodos. Queda pendiente de pesaje.", "2")
-caja(50, 570, 270, 130, "Fija la etiqueta", "Sobre la lingada, visible para la cámara superior.", "3")
+caja(50, 570, 270, 130, "Fija la etiqueta", "Sobre el paquete, visible para la cámara superior.", "3")
 flecha([(185, 360), (185, 398)])
 flecha([(185, 530), (185, 568)])
 
 # ---------- 2 · Traslado ----------
-caja(362, 400, 220, 130, "Horquilla", "Lingadas de cátodos rotuladas, directo a la plataforma.")
+caja(362, 400, 220, 130, "Horquilla", "Paquetes de cátodos rotulados, directo a la plataforma.")
 caja(362, 570, 220, 130, "Carro de arrastre", "Rack con restos de ánodos.")
 flecha([(320, 635), (360, 635)])
 flecha([(320, 635), (340, 635), (340, 465), (360, 465)])

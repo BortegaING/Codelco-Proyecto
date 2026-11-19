@@ -51,7 +51,7 @@ public static class D
     /// <summary>Pesos de cajas de despuntes del 21-10 (D.G 329, 400 y 312; D.O 1.192) para la caja sin etiqueta del panel de prueba.</summary>
     public static readonly int[] CajasEj = { 329, 400, 312, 1192 };
 
-    /// <summary>Cátodos que trae cada celda (una lingada): va impreso en la etiqueta.</summary>
+    /// <summary>Cátodos que trae cada celda (un paquete): va impreso en la etiqueta.</summary>
     public const int CatodosCelda = 39;
 
     /// <summary>

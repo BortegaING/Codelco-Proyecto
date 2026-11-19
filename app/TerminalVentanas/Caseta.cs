@@ -115,7 +115,7 @@ public partial class MainWindow
         if (B.Pic == "fuera") return ("Carro fuera del área", "err");
         if (B.Pic == "sale") return ("Carga saliendo", "muted");
         if (l.Prod == "rs") return ($"Carro dentro del área · tara {(l.SinTara ? "sin marca validada" : D.Kg(l.Tara) + " kg")}", l.SinTara ? "warn" : "ok");
-        return B.Chip == "espera" ? ("Horquilla depositando la carga", "info") : ("1 lingada · horquilla fuera", "ok");
+        return B.Chip == "espera" ? ("Horquilla depositando la carga", "info") : ("1 paquete · horquilla fuera", "ok");
     }
 
     private Border Camaras()
@@ -126,7 +126,7 @@ public partial class MainWindow
             var col = Ui.Columna(Ui.Rotulo(nombre, 14), Ui.T(v.Txt, 17, SemiBold, Ui.ColorEstado(v.K), ajustar: true).Margen(0, 3, 0, 0));
             return new Border { Background = Ui.Fondo, BorderBrush = Ui.Linea, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 10, 12, 10), Child = Ui.Columnas("30 *", 10, ico, col) };
         }
-        return Ui.Tarjeta(Ui.Filas("auto auto auto", 8, Ui.Rotulo("Cámaras", 15), Cam("Cámara superior · producto y etiqueta", CamSuperior()), Cam("Cámara lateral · posición y lingadas", CamLateral())),
+        return Ui.Tarjeta(Ui.Filas("auto auto auto", 8, Ui.Rotulo("Cámaras", 15), Cam("Cámara superior · producto y etiqueta", CamSuperior()), Cam("Cámara lateral · posición y paquetes", CamLateral())),
             relleno: new Thickness(14, 12, 14, 12));
     }
 

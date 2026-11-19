@@ -450,7 +450,7 @@ function camLateral(){
   if(B.pic==='grua') return ['Horquilla sobre la plataforma','err'];
   if(B.pic==='fuera') return ['Carro fuera del área','err'];
   if(B.pic==='sale') return ['Carga saliendo','muted'];
-  return B.chip==='espera'?['Horquilla depositando la carga','info']:['1 lingada · horquilla fuera','ok'];
+  return B.chip==='espera'?['Horquilla depositando la carga','info']:['1 paquete · horquilla fuera','ok'];
 }
 
 /* ---------- Vistas ---------- */
@@ -485,7 +485,7 @@ function vBaliza(){
 }
 function vCamaras(){
   const cam=(n,[t,k])=>`<div class="cam">${ico('camara',30)}<div><span class="rot">${n}</span><b class="k-${k}">${esc(t)}</b></div></div>`;
-  return `<div class="tarj cams"><span class="rot" style="font-size:15px">Cámaras</span>${cam('Cámara superior · producto y etiqueta',camSuperior())}${cam('Cámara lateral · posición y lingadas',camLateral())}</div>`;
+  return `<div class="tarj cams"><span class="rot" style="font-size:15px">Cámaras</span>${cam('Cámara superior · producto y etiqueta',camSuperior())}${cam('Cámara lateral · posición y paquetes',camLateral())}</div>`;
 }
 function vGrilla(){
   const filas=S.labels.filter(l=>l.estado==='pesada'||l.estado==='bascula')

@@ -167,12 +167,12 @@ function diagramaNativo(s) {
   // ---------- 1 · Origen ----------
   caja(50, 190, 270, 170, 'Selecciona grupo y celda', 'Paso 1: grupo en el layout de circuitos. Paso 2: el sistema propone la celda que sigue (celda + lado + grupo).', '1');
   caja(50, 400, 270, 130, 'Emite la etiqueta', 'Rótulo estandarizado (5T21) con QR y 39 cátodos. Queda pendiente de pesaje.', '2');
-  caja(50, 570, 270, 130, 'Fija la etiqueta', 'Sobre la lingada, visible para la cámara superior.', '3');
+  caja(50, 570, 270, 130, 'Fija la etiqueta', 'Sobre el paquete, visible para la cámara superior.', '3');
   flecha([[185, 360], [185, 398]]);
   flecha([[185, 530], [185, 568]]);
 
   // ---------- 2 · Traslado ----------
-  caja(362, 400, 220, 130, 'Horquilla', 'Lingadas de cátodos rotuladas, directo a la plataforma.');
+  caja(362, 400, 220, 130, 'Horquilla', 'Paquetes de cátodos rotulados, directo a la plataforma.');
   caja(362, 570, 220, 130, 'Carro de arrastre', 'Rack con restos de ánodos.');
   flecha([[320, 635], [360, 635]]);
   flecha([[320, 635], [340, 635], [340, 465], [360, 465]]);
@@ -302,16 +302,16 @@ pres.addSection({ title: 'Propuesta' });
     ['Layout de la nave', 'Circuitos I a VI con sus grupos, en la misma disposición del plano de la refinería.'],
     ['Primera pantalla', 'Al ingresar, el operador toca el grupo a cosechar (en el ejemplo, grupo 21) y pasa a la pantalla de producción.'],
     ['Restricciones', 'Solo se rotulan cátodos: los grupos 1 y 2 quedan sin rotulado. EW queda por confirmar.'],
-    ['Cierre del grupo', 'Desde "Cambiar grupo", "Terminar grupo" informa a la báscula que no vienen más lingadas de ese grupo.'],
+    ['Cierre del grupo', 'Desde "Cambiar grupo", "Terminar grupo" informa a la báscula que no vienen más paquetes de ese grupo.'],
   ], 8.3, 1.6, 1.25, 4.1);
   s.addNotes('Es parte del programa de etiquetado: la primera ventana al ingresar y al cambiar de grupo. Se toca el grupo en el layout; el puntero marca la selección.');
 }
 
 /* ===================== 3. Resumen ===================== */
 {
-  const s = lamina('Propuesta', 'RESUMEN', 'Un registro único por lingada, sin digitación manual del peso');
+  const s = lamina('Propuesta', 'RESUMEN', 'Un registro único por paquete, sin digitación manual del peso');
   const cols = [
-    ['1 etiqueta', 'En origen', 'El programa de etiquetado emite una etiqueta estandarizada por lingada (celda, lado, grupo, 39 cátodos y QR) y la deja registrada como pendiente de pesaje.'],
+    ['1 etiqueta', 'En origen', 'El programa de etiquetado emite una etiqueta estandarizada por paquete (celda, lado, grupo, 39 cátodos y QR) y la deja registrada como pendiente de pesaje.'],
     ['1 registro', 'En la Báscula N9', 'La cámara superior lee el QR, el visor entrega el peso estable y el sistema consolida identificación, peso, hora real y validaciones.'],
   ];
   cols.forEach(([big, h, body], i) => {
@@ -330,12 +330,12 @@ pres.addSection({ title: 'Propuesta' });
   const s = lamina('Propuesta', 'PASO 2 · SELECCIÓN GRUPO DE PRODUCCIÓN', 'El programa propone la celda que sigue y emite la etiqueta');
   const x0 = 0.6, y0 = 1.5, im = imagen(s, IMG('vt_paso2.png'), x0, y0, { w: 7.3, alt: 'Paso 2: grupo 22 con las celdas 1 a 21 arriba y 22 a 42 abajo; celda 1 seleccionada y botón Imprimir celda 1' });
   const k = im.w / 2048;
-  puntero(s, x0, y0, k, 128, 930);
+  puntero(s, x0, y0, k, 128, 960);
   items(s, [
     ['Un grupo a la vista', 'El grupo seleccionado en grande: arriba la fila de celdas 1 a 21 y abajo la de 22 a 42.'],
     ['Celda que sigue', 'Marcada en cobre según el orden de cosecha. Un toque cambia de celda; otro grupo, con Cambiar grupo.'],
-    ['Total o parcial', 'Al tocar Imprimir, el programa pregunta "Total" o "Parcial". La letra (T o P) entra en el rótulo.'],
-    ['Emisión', 'Con la respuesta, la etiqueta (1T22 o 1P22) sale en la Zebra y queda pendiente de pesaje.'],
+    ['Lado total o parcial', 'Se marca con el botón sobre cada fila (Lado total / Lado parcial). La letra T o P entra en el rótulo.'],
+    ['Emisión', 'Imprimir envía la etiqueta (1T22 o 1P22) a la Zebra y la deja pendiente de pesaje.'],
   ], 8.3, 1.6, 1.25, 4.1);
 }
 
@@ -367,7 +367,7 @@ pres.addSection({ title: 'Situación actual' });
 if (INCLUIR_PRODUCTOS) {
   const s = lamina('Situación actual', 'PRODUCTOS DE LA BÁSCULA N9', 'Tres productos con identificación y tara distintas');
   const prods = [
-    ['etq_cat_vt.png', 'Cátodos comerciales', ['Lingada de 39 cátodos por celda, de 4,3 a 4,9 t.', 'Ingresa con horquilla; sin tara.', 'Rótulo: celda + lado + grupo (12P31).']],
+    ['etq_cat_vt.png', 'Cátodos comerciales', ['Paquete de 39 cátodos por celda, de 4,3 a 4,9 t.', 'Ingresa con horquilla; sin tara.', 'Rótulo: celda + lado + grupo (12P31).']],
     ['etq_lam.png', 'Láminas', ['Pallet con correlativo mensual.', 'Tara de pallet: 12 kg.', 'Dos pallets montados: pesaje por diferencia.']],
     ['etq_rs.png', 'Restos de ánodos', ['Carro de arrastre con rack.', 'Neto = bruto − tara de carro − tara de rack.', 'Tara leída por la cámara lateral.']],
   ];
@@ -513,7 +513,7 @@ pres.addSection({ title: 'Solución' });
     ['Etiqueta que sigue', 'Vista previa exacta de lo que imprime la Zebra.'],
     ['Grupo de producción', 'Celdas 1 a 21 arriba y 22 a 42 abajo; la que sigue va marcada en cobre.'],
     ['Cambiar grupo', 'Abre el layout de circuitos (paso 1) para pasar a otro grupo.'],
-    ['Imprimir', 'Un toque por lingada; pregunta Total o Parcial. Registro y Excel siempre disponibles.'],
+    ['Imprimir', 'Un toque por paquete. Registro y Excel siempre disponibles.'],
   ], 8.15, 1.55, 1.02, 3.95);
 }
 
@@ -539,10 +539,10 @@ pres.addSection({ title: 'Pesaje' });
 /* ===================== 8a. Introducción al sistema de pesaje ===================== */
 {
   const s = lamina('Pesaje', 'PROGRAMA 2 · SISTEMA DE PESAJE', 'Un segundo sistema en la caseta de la Báscula N9');
-  texto(s, 'El programa de etiquetado deja cada lingada rotulada en origen. El sistema de pesaje la recibe en la Báscula N9: la identifica, captura su peso y cierra el registro, sin digitación manual.',
+  texto(s, 'El programa de etiquetado deja cada paquete rotulado en origen. El sistema de pesaje la recibe en la Báscula N9: la identifica, captura su peso y cierra el registro, sin digitación manual.',
     { x: 0.6, y: 1.5, w: 12.1, h: 0.7, fontSize: 16, color: P.mut });
   const pasos = [
-    ['Ingreso', 'La horquilla deja la lingada en la plataforma. La baliza indica cuándo ingresar.'],
+    ['Ingreso', 'La horquilla deja el paquete en la plataforma. La baliza indica cuándo ingresar.'],
     ['Identificación', 'La cámara superior lee el QR y lo cruza con las etiquetas anunciadas desde origen.'],
     ['Pesaje', 'Con la carga quieta y la posición validada por la cámara lateral, toma el peso estable del visor.'],
     ['Registro', 'Guarda identificación, peso, hora real y validación. La baliza autoriza el retiro.'],
@@ -576,7 +576,7 @@ pres.addSection({ title: 'Pesaje' });
   items(s, [
     ['Báscula N9', 'Peso del visor y estado: disponible, registrando, registrado o bloqueado.'],
     ['Baliza', 'La misma luz que ve el operador de la horquilla o del carro.'],
-    ['Cámaras', 'Superior: producto y etiqueta. Lateral: posición, lingadas y tara del carro.'],
+    ['Cámaras', 'Superior: producto y etiqueta. Lateral: posición, paquetes y tara del carro.'],
     ['Registro', 'Grilla con lo identificado: lectura por cámara o manual, bruto, tara, neto y validación.'],
     ['Anunciadas', 'Etiquetas emitidas en origen que todavía no se pesan.'],
     ['Identificación manual', 'Si la cámara no lee la etiqueta, el pesador escribe el rótulo y asocia el peso.'],
@@ -642,7 +642,7 @@ pres.addSection({ title: 'Pesaje' });
   // Cámaras y visor
   const cards = [
     ['Cámara superior', 'Detecta la llegada de cobre, identifica el producto y lee el QR de la etiqueta.'],
-    ['Cámara lateral', 'Verifica la posición de la carga o del carro, distingue si vienen 1 o 2 lingadas y lee las marcas de tara de carro y rack. Alerta si detecta un ánodo en la grilla abierta.'],
+    ['Cámara lateral', 'Verifica la posición de la carga o del carro, distingue si vienen 1 o 2 paquetes y lee las marcas de tara de carro y rack. Alerta si detecta un ánodo en la grilla abierta.'],
     ['Visor de la báscula', 'Entrega el peso estable al sistema. Con la plataforma vacía y lectura distinta de cero, alerta por nódulos.'],
   ];
   cards.forEach(([h, b], i) => {
@@ -672,12 +672,12 @@ const CAM = { piso: '8A979E', plataforma: '35505C', cobre: 'C9733A', cobreOsc: '
   const cono = (x, y, w, h, puntos, t) => s.addShape(SH.custGeom, { x, y, w, h, points: puntos.map(([px, py]) => ({ x: px, y: py })).concat([{ close: true }]),
     fill: { color: CAM.cono, transparency: 72 }, line: { color: CAM.cono, width: 1, dashType: 'dash' }, objectName: N(t) });
 
-  // Piso, plataforma y la lingada con su etiqueta arriba, en la esquina (lo que pide la VT1200 al imprimir)
+  // Piso, plataforma y el paquete con su etiqueta arriba, en la esquina (lo que pide la VT1200 al imprimir)
   linea(0.7, 5.7, 7.55, 5.7, CAM.piso, 'piso', { width: 1.5 });
   rect(2.6, 5.45, 3.0, 0.25, CAM.plataforma, 'plataforma');
-  rect(3.2, 4.35, 1.8, 1.1, CAM.cobre, 'lingada de cátodos');
+  rect(3.2, 4.35, 1.8, 1.1, CAM.cobre, 'paquete de cátodos');
   [4.57, 4.79, 5.01, 5.23].forEach(y => linea(3.2, y, 5.0, y, CAM.cobreOsc, 'cátodo', { width: 0.75 }));
-  rotulo('Lingada de cátodos', 3.2, 4.78, 1.8, 0.25, { align: 'center', bold: true, color: 'FFFFFF', fontSize: 12 });
+  rotulo('Paquete de cátodos', 3.2, 4.78, 1.8, 0.25, { align: 'center', bold: true, color: 'FFFFFF', fontSize: 12 });
   s.addShape(SH.rect, { x: 3.28, y: 4.24, w: 0.42, h: 0.11, fill: { color: 'FFFFFF' }, line: { color: CAM.cuerpo, width: 0.75 }, objectName: N('etiqueta') });
   rotulo('Etiqueta con QR', 1.8, 4.45, 1.25, 0.24, { align: 'right', bold: true, color: TEMA.colors.dk1 });
   linea(3.08, 4.57, 3.36, 4.35, CAM.cuerpo, 'guía etiqueta', { width: 0.75 });
@@ -694,7 +694,7 @@ const CAM = { piso: '8A979E', plataforma: '35505C', cobre: 'C9733A', cobreOsc: '
   rotulo('Cámara superior', 1.25, 2.0, 2.45, 0.28, { align: 'right', bold: true, fontSize: 14, color: TEMA.colors.dk1, fontFace: CABEZA });
   rotulo('Mira hacia abajo: la etiqueta y su QR', 1.25, 2.28, 2.45, 0.25, { align: 'right' });
 
-  // Cámara lateral: a la altura de la carga, mirando el costado (posición, horquilla, lingadas y marcas de tara)
+  // Cámara lateral: a la altura de la carga, mirando el costado (posición, horquilla, paquetes y marcas de tara)
   rect(6.78, 4.72, 0.52, 0.26, CAM.cuerpo, 'cámara lateral', SH.roundRect);
   rect(6.7, 4.79, 0.08, 0.12, CAM.lente, 'lente cámara lateral');
   rect(7.0, 4.98, 0.08, 0.72, CAM.plataforma, 'poste cámara lateral');
@@ -724,7 +724,7 @@ const CAM = { piso: '8A979E', plataforma: '35505C', cobre: 'C9733A', cobreOsc: '
       'Si no puede leerlo, avisa "etiqueta no legible" y el pesador identifica la carga a mano.']],
    ['Cámara lateral · mira el costado', [
       'Verifica que la carga o el carro quede dentro del área de pesaje.',
-      'Confirma que la horquilla salió antes de tomar el peso y distingue 1 o 2 lingadas.',
+      'Confirma que la horquilla salió antes de tomar el peso y distingue 1 o 2 paquetes.',
       'En restos de ánodos lee las marcas de tara del carro y del rack: neto = bruto − tara de carro − tara de rack.']]]
     .forEach(([h, lista], i) => {
       const y = 1.5 + i * 2.6;
@@ -748,9 +748,9 @@ const CAM = { piso: '8A979E', plataforma: '35505C', cobre: 'C9733A', cobreOsc: '
       'Visor en cero: espera la próxima carga.'],
     ['2 · Llega la carga', 'Detecta el cobre y lee el QR de la etiqueta.', 'Ve la horquilla depositando la carga.', luz(CAM.amarillo, 'Amarillo · Posicionar', 'Deje la carga y retírese'),
       'Muestra la etiqueta que está leyendo.'],
-    ['3 · Captura del peso', 'Cátodo identificado: etiqueta 4T21.', '1 lingada y horquilla fuera (o carro dentro del área).', luz(CAM.rojo, 'Rojo · Capturando', 'No se mueva'),
+    ['3 · Captura del peso', 'Cátodo identificado: etiqueta 4T21.', '1 paquete y horquilla fuera (o carro dentro del área).', luz(CAM.rojo, 'Rojo · Capturando', 'No se mueva'),
       'Espera el peso estable del visor y lo toma solo.'],
-    ['4 · Registro', 'Sigue viendo el cátodo 4T21.', 'Sigue viendo 1 lingada, horquilla fuera.', luz(CAM.verde, 'Verde · Retirar', 'Peso registrado'),
+    ['4 · Registro', 'Sigue viendo el cátodo 4T21.', 'Sigue viendo 1 paquete, horquilla fuera.', luz(CAM.verde, 'Verde · Retirar', 'Peso registrado'),
       'Guarda rótulo, bruto, tara, neto, hora real y validación. La etiqueta deja de estar pendiente.'],
     ['5 · Salida', 'Ve la carga saliendo y la plataforma vacía.', 'Ve la carga saliendo.', luz(CAM.verde, 'Verde · Disponible', 'Puede ingresar la siguiente'),
       'Si el visor no vuelve a cero con la plataforma vacía, alerta: residuos o nódulos.'],
@@ -781,7 +781,7 @@ function camaras(kicker, titulo, lista, nota) {
 camaras('CÁMARAS · EN EL PROGRAMA DE LA CASETA', 'Así lo ve el pesador: baliza y lectura de cada cámara', [
   ['cam_disponible.png', 'Plataforma libre: ninguna cámara ve carga. Baliza verde: puede ingresar.'],
   ['cam_llega.png', 'Llega la carga: la superior lee la etiqueta 4T21 y la lateral ve la horquilla. Baliza amarilla.'],
-  ['cam_capturando.png', 'Cátodo identificado, 1 lingada y horquilla fuera. Baliza roja mientras se toma el peso.'],
+  ['cam_capturando.png', 'Cátodo identificado, 1 paquete y horquilla fuera. Baliza roja mientras se toma el peso.'],
   ['cam_registrado.png', 'Peso registrado con su etiqueta. Baliza verde: retirar la carga.'],
 ], 'Recortes de la pantalla de la caseta (BasculaCaseta.exe) en la prueba de punta a punta: tarjetas Baliza y Cámaras.');
 camaras('CÁMARAS · ALERTAS', 'Alertas de las cámaras y lectura de la tara del carro', [
@@ -802,15 +802,13 @@ const ETIQUETADO = [
   ['01b-salir', 'Salir: pide confirmación antes de cerrar el programa'],
   ['04-paso1-grupos', 'Paso 1: el operador elige el grupo en el layout de circuitos'],
   ['02-principal', 'Paso 2: la etiqueta que sigue y las 42 celdas del grupo'],
-  ['05a-total-parcial', 'Al imprimir: ¿lado total o parcial? (la letra T o P va en el rótulo)'],
   ['05-imprimiendo', 'Imprimiendo la etiqueta de la celda 5'],
   ['06-impresa', 'Etiqueta 5T21 impresa: la celda queda marcada'],
   ['11-final', 'Sigue la celda 6: el programa propone siempre la que viene'],
   ['07-grupo22', 'Cambio de grupo: el grupo 22 parte en la celda 1'],
+  ['07b-lado', 'Lado total o parcial: se elige con el botón sobre cada fila'],
   ['08-impresas', 'Etiqueta parcial 1P22 impresa; sigue la 2P22'],
-  ['07b-lado-prendido', 'Opción: botón de lado sobre las filas de celdas'],
   ['09-registro', 'Registro de etiquetas emitidas, con reimpresión y descarga a Excel'],
-  ['10-panel-f2', 'Panel de prueba (F2), solo para la demostración'],
   ['25-colores', 'Colores: original, claro, alto contraste o como Windows'],
   ['21-claro', 'Pantalla principal · tema claro'],
   ['22-claro-grupos', 'Layout de circuitos · tema claro'],
@@ -831,8 +829,7 @@ const PESAJE = [
   ['c08-carro-fuera', 'Alerta: el carro quedó fuera del área de la plataforma'],
   ['c09-carro', 'Carro de restos C22: neto con la tara de carro + rack'],
   ['c10-disponible', 'Plataforma disponible para la próxima carga'],
-  ['c11-panel-f2', 'Panel de prueba (F2): escenarios y peso de prueba'],
-  ['c12-prueba-4750', 'Peso de prueba 4.750 kg: dentro del rango'],
+  ['c12-prueba-4750', 'Peso de prueba (panel de pesaje, F3) 4.750 kg: dentro del rango'],
   ['c13-prueba-3900', 'Peso de prueba 3.900 kg: bajo el rango, faltan 300 kg'],
   ['c14-prueba-5300', 'Peso de prueba 5.300 kg: sobre el rango, se pasa por 300 kg'],
   ['c15-panel-pesaje', 'Panel de pesaje (F3) al costado: se coloca el peso sin tapar el programa'],
@@ -865,7 +862,7 @@ function pantallas(seccion, kicker, titulo, carpeta, lista, nota) {
 {
   const s = lamina('Pantallas del sistema', 'AVANCE · 18-11-2026', 'Pantallas de los dos programas, tal como corren hoy');
   const bloques = [
-    ['1', 'Etiquetado en origen', 'TerminalVentanas.exe en la VT1200 de la nave. Solo rotula cátodos: el operador elige el grupo, la celda y el lado, y el programa imprime la etiqueta.', `${ETIQUETADO.length} pantallas`],
+    ['1', 'Etiquetado en origen', 'TerminalVentanas.exe en el equipo de la nave. Solo rotula cátodos: el operador elige el grupo, la celda y el lado, y el programa imprime la etiqueta.', `${ETIQUETADO.length} pantallas`],
     ['2', 'Pesaje en la caseta', 'BasculaCaseta.exe en la caseta de la Báscula N9. Lee la etiqueta con las cámaras, captura el peso, lo valida y avisa con la baliza.', `${PESAJE.length} pantallas + ${BASCULA.length} estados de la báscula`],
     ['3', 'Variante DataMatrix GS1', 'El mismo programa de etiquetado con un código DataMatrix GS1 en vez del QR, por si Codelco lo prefiere.', '1 lámina'],
   ];
@@ -880,8 +877,8 @@ function pantallas(seccion, kicker, titulo, carpeta, lista, nota) {
   texto(s, 'Las capturas salen de la prueba de punta a punta de cada programa (versión 6.2.0, compilada el 18-11-2026). Los datos son de ejemplo: grupo 21 del 22-10-2026.',
     { x: 0.6, y: 6.6, w: 12.1, h: 0.3, fontSize: 11, color: P.mut });
 }
-pantallas('Pantallas del sistema', 'PROGRAMA 1 · ETIQUETADO EN ORIGEN', 'Rotulado de cátodos en la VT1200', 'etiquetado', ETIQUETADO,
-  'TerminalVentanas.exe · pantalla de 1024 x 768 de la VT1200 · datos de ejemplo del grupo 21');
+pantallas('Pantallas del sistema', 'PROGRAMA 1 · ETIQUETADO EN ORIGEN', 'Rotulado de cátodos en origen', 'etiquetado', ETIQUETADO,
+  'TerminalVentanas.exe · pantalla de 1024 x 768 del equipo de origen · datos de ejemplo del grupo 21');
 pantallas('Pantallas del sistema', 'PROGRAMA 2 · PESAJE EN LA CASETA', 'Identificación, captura del peso y registro', 'pesaje', PESAJE,
   'BasculaCaseta.exe · PC de la caseta de la Báscula N9 · pesos de ejemplo');
 // Los estados de la tarjeta de la báscula: 4 por lámina
@@ -930,7 +927,7 @@ pres.addSection({ title: 'Cierre' });
   const s = lamina('Cierre', 'SUPUESTOS', 'Supuestos y puntos por validar');
   const listas = [
     ['Supuestos de esta propuesta', [
-      'Etiqueta emitida en origen por lingada de 39 cátodos; no lleva peso.',
+      'Etiqueta emitida en origen por paquete de 39 cátodos; no lleva peso.',
       'El pesador supervisa desde la caseta, en su PC.',
       'Rangos de la visita: cátodos 4.200 a 5.000 kg, restos 2.800 a 4.000 kg, láminas aprobadas 3.200 a 3.900 kg.',
       'Taras de carro y rack de ejemplo, hasta contar con la base validada.']],
